@@ -1,10 +1,11 @@
 /*==========================================================
 DrizzleScript v1.00
 Created By: Ryhn Teardrop
-Date: Dec 3rd, 2011
+Original Date: Dec 3rd, 2011
+Last Modified: March 6th, 2015
 
 Programming Contributors: Ryhn Teardrop, Brache Spyker
-Resource Contributors: Murreki Fasching
+Resource Contributors: Murreki Fasching, Brache Spyker
 
 License: RPL v1.5 (Outlined at http://www.opensource.org/licenses/RPL-1.5)
 
@@ -60,13 +61,13 @@ findPrims()
     
     if(g_mainPrimName == "") // No specified prim. Look for root.
     {
-        g_mainPrim = 1; // Root
+        g_mainPrim = 1;
     }
     else // Specified prim. Find it.
     {
         integer i; // Used to loop through the linked objects
-        
-        for(i = 1; i <= 15; i++) // 15 chosen because no new diaper mesh/sculpt build uses more than 15 linked objects. Easy to change.
+        integer primCount = llGetNumberOfPrims(); //should be attached, not sat on
+        for(i = 1; i <= primCount; i++)
         { 
             string primName = (string) llGetLinkPrimitiveParams(i, [PRIM_NAME]); // Get the name of linked object i
         
@@ -221,7 +222,7 @@ handleNext(key id)
     */  
 }
 
-loadSkins(list l)
+loadAllTextures(list l)
 {
     integer i;
     
@@ -235,6 +236,7 @@ loadSkins(list l)
         {
             g_Skins += name;  
         }
+        //Add additional textures that need to be loaded for other diaper types here
     }
 }
 
@@ -260,28 +262,24 @@ loadInventoryList()
     integer n = llGetInventoryNumber(INVENTORY_TEXTURE);
     
     while(n)
+    {
         result = llGetInventoryName(INVENTORY_TEXTURE, --n) + result;
-    
+    }
     g_PrintTextueLength = llGetListLength(result);
     
-    loadSkins(result);
+    loadAllTextures(result);
     
     result = [];
     n = llGetInventoryNumber(INVENTORY_NOTECARD);
     
     while(n)
+    {
         result = llGetInventoryName(INVENTORY_NOTECARD, --n) + result;
-    
+    }
     g_PrintCardLength = llGetListLength(result);
     
     loadPrintouts(result);
     
-    /* Old code from a prim-scultpie based build.
-    loadTapes(result);
-    loadRuffles(result);
-    loadPanels(result);
-    */
-
 }
 integer generateChan(key id)
 {
@@ -300,145 +298,7 @@ offerMenu(key id, string dialogMessage, list buttons)
 
 handleMenuChoice(string msg, key id)
 {
-    if(msg == "★") // Someone misclicked in the menu!
-    {
-        llDialog(id, g_currMenuMessage, g_currMenuButtons, g_uniqueChan);
-    }
-    else if(msg == "Skins")
-    {
-        g_currMenu = msg;
-        g_currCount = -1;
-        list temp;
-        
-        
-        if(llGetListLength(g_Skins) <= 11)
-        {
-            temp = ["Help"] + llList2List(g_Skins, g_currCount+1, g_currCount+11);
-            g_currCount += 12; //g_currCount is now 11 (starts at -1)
-        }
-        else
-        {
-            temp = ["Help", "NEXT-->"] + llList2List(g_Skins, g_currCount+1, g_currCount+10); // This is a list of 10 skins
-            g_currCount += 11; //g_currCount is now 10 (starts at -1)
-        }
-          
-        offerMenu(id, "Choose a Skin:", temp);
-       
-    }   
-    else if(msg == "Help")
-    {
-        if (g_currMenu == "Skins")
-            llOwnerSay("To add your own skins, simply prefix the name of a texture you want to add with:\n\nSKIN:\n\n. . . And drag it into your diaper!");
-        else if(g_currMenu == "Printouts")
-            llOwnerSay("To add new printout cards, simply prefix the name of a preformatted notecard you want to add with:\n\nPRINT:\n\n. . . And drag it into your diaper!");
-        llDialog(id, g_currMenuMessage, g_currMenuButtons, g_uniqueChan);
-    }
-    else if(msg == "Potty")
-    {
-        g_currMenu = msg;
-        g_currCount = -1;
-        offerMenu(id, "Adjust your potty settings!", g_PottyMenu);  
-    }
-    else if(msg == "Volume")
-    {
-        g_currMenu = msg;
-        g_currCount = -1;
-        offerMenu(id, "Adjust your volume settings!", g_VolumeMenu);  
-    }
-    else if(msg == "Mess❤Timer")
-    {
-        g_currMenu = msg;
-        g_currCount = -1;
-        offerMenu(id, "Mess Frequency (How often you potty)\n\n==This is in Minutes==", g_timerOptions);   
-    }
-    else if(msg == "Wet❤Timer")
-    {
-        g_currMenu = msg;
-        g_currCount = -1;
-        offerMenu(id, "Wet Frequency (How often you wet)\n\n==This is in Minutes==", g_timerOptions);   
-    }
-    else if(msg == "Wet%")
-    {
-        g_currMenu = msg;
-        g_currCount = -1;
-        offerMenu(id, "Chance to hold it! (Wet)", g_chanceOptions);   
-    }
-    else if(msg == "Mess%")
-    {
-        g_currMenu = msg;
-        g_currCount = -1;
-        offerMenu(id, "Chance to hold it! (Mess)", g_chanceOptions);   
-    }
-    else if(msg == "❤Tickle❤")
-    {
-        g_currMenu = msg;
-        g_currCount = -1;
-        offerMenu(id, "Chance to resist tickles!", g_chanceOptions);   
-    }
-    else if(msg == "Tummy❤Rub")
-    {
-        g_currMenu = msg;
-        g_currCount = -1;
-        offerMenu(id, "Chance to resist tummy rubs!", g_chanceOptions);   
-    }
-    else if(msg == "Printouts")
-    {
-        g_currMenu = msg;
-        g_currCount = -1;
-        list temp;
-        
-        
-        if(llGetListLength(g_Printouts) <= 11)
-        {
-            temp = ["Help"] + llList2List(g_Printouts, g_currCount+1, g_currCount+11);
-            g_currCount += 12; //g_currCount is now 11 (starts at -1)
-        }
-        else
-        {
-            temp = ["Help", "NEXT-->"] + llList2List(g_Printouts, g_currCount+1, g_currCount+10); // This is a list of 10 skins
-            g_currCount += 11; //g_currCount is now 10 (starts at -1)
-        }
 
-        offerMenu(id, "Choose a Printout style:", temp);
-    }
-    else if(msg == "Gender")
-    {
-        g_currMenu = msg;
-        g_currCount = -1;
-        offerMenu(id, "Are you a boy or a girl?", g_GenderMenu);   
-    }
-    
-    else if(msg == "Interactions")
-    {
-        g_currMenu = msg;
-        g_currCount = -1;
-        offerMenu(id, "Who should be able to interact with this diaper?", g_InteractionsOptions);
-    }
-    else if(msg == "Chatter")
-    {
-        g_currMenu = msg;
-        g_currCount = -1;
-        offerMenu(id, "How far should the diaper chatter go?", g_ChatterMenu);
-    }
-    else if(msg == "Crinkle❤Volume")
-    {
-        g_currMenu = msg;
-        g_currCount = -1;
-        offerMenu(id, "How loud should the crinkling be?", g_chanceOptions);
-    }
-    else if(msg == "Wet❤Volume")
-    {
-        g_currMenu = msg;
-        g_currCount = -1;
-        offerMenu(id, "How loud should the wetting sound be?", g_chanceOptions);
-    }
-    else if(msg == "Mess❤Volume")
-    {
-        g_currMenu = msg;
-        g_currCount = -1;
-        offerMenu(id, "How loud should the messing sound be?", g_chanceOptions);
-    }
-    
     /* Old code from a prim-sculptie based build.
     
     if(msg == "Tapes")
@@ -517,63 +377,6 @@ applyTexture(string name, string prefix)
     llSetLinkPrimitiveParamsFast(g_mainPrim, [PRIM_TEXTURE, ALL_SIDES, texture, repeats, offset, radRotation]);
 }
 
-/* Old code from a prim-sculptie based build
-
-//@l = A list of all files inside the diaper
-//Takes a list of files and asesses which are tapes - those found are added to the tape list g_Tapes
-loadTapes(list l)
-{
-    integer i;
-    
-    for(i = 0; i < g_PrintTextueLength; i++)
-    {
-        string temp = (string)llList2List(l, i, i);
-        string prefix = llGetSubString(temp, 0, llSubStringIndex(temp, ":"));
-        string name = llGetSubString(temp, llSubStringIndex(temp, ":") + 1, llStringLength(temp));
-        
-        if(prefix == "TAPE:")
-        {
-            g_Tapes += name;  
-        }
-    }
-}
-
-loadRuffles(list l)
-{
-    integer i;
-    
-    for(i = 0; i < g_PrintTextueLength; i++)
-    {
-        string temp = (string)llList2List(l, i, i);
-        string prefix = llGetSubString(temp, 0, llSubStringIndex(temp, ":"));
-        string name = llGetSubString(temp, llSubStringIndex(temp, ":") + 1, llStringLength(temp));
-        
-        if(prefix == "RUFF:")
-        {
-            g_Ruffles += name;
-        }
-    }
-}
-
-
-loadPanels(list l)
-{
-    integer i;
-    
-    for(i = 0; i < g_PrintTextueLength; i++)
-    {
-        string temp = (string)llList2List(l, i, i);
-        string prefix = llGetSubString(temp, 0, llSubStringIndex(temp, ":"));
-        string name = llGetSubString(temp, llSubStringIndex(temp, ":") + 1, llStringLength(temp));
-        
-        if(prefix == "PANEL:")
-        {
-            g_Panels += name;  
-        }
-    }
-}
-*/
-
 default
 {
     
@@ -627,7 +430,7 @@ default
         {
             offerMenu(id, "Adjust your settings!", g_SettingsMenu);
         }
-        else if(~llListFindList(g_Skins, [msg]) && g_currMenu == "Skins") // We need to set a new Skin Texture!.... what does ~ do in there anyway?
+        else if(~llListFindList(g_Skins, [msg]) && g_currMenu == "Skins")
         {
             applyTexture(msg, "SKIN:");
             offerMenu(id, "Adjust your settings!", g_SettingsMenu);
@@ -693,14 +496,14 @@ default
         }
         else if(g_currMenu == "❤Tickle❤")
         {
-            //Wet❤Timer:10
+            //❤Tickle❤:??
             llMessageLinked(LINK_THIS, -3, g_currMenu + ":" + msg, NULL_KEY);
             g_currMenu = "";
             offerMenu(id, "Adjust your settings!", g_SettingsMenu);
         }
         else if(g_currMenu == "Tummy❤Rub")
         {
-            //Wet❤Timer:10
+            //Tummy❤Rub:??
             llMessageLinked(LINK_THIS, -3, g_currMenu + ":" + msg, NULL_KEY);
             g_currMenu = "";
             offerMenu(id, "Adjust your settings!", g_SettingsMenu);
@@ -715,6 +518,7 @@ default
             llMessageLinked(LINK_THIS, -3, "Gender:1", NULL_KEY);
             offerMenu(id, "Adjust your settings!", g_SettingsMenu);
         }
+        //Security settings
         else if(msg == "Everyone")
         {
             llMessageLinked(LINK_THIS, -3, "Others:1", NULL_KEY);
@@ -725,6 +529,7 @@ default
             llMessageLinked(LINK_THIS, -3, "Others:0", NULL_KEY);
             offerMenu(id, "Adjust your settings!", g_SettingsMenu);
         }
+        //chat spam level
         else if(msg == "High")
         {
             llMessageLinked(LINK_THIS, -3, "Chatter:2", NULL_KEY);
@@ -740,24 +545,129 @@ default
             llMessageLinked(LINK_THIS, -3, "Chatter:0", NULL_KEY);
             offerMenu(id, "Adjust your settings!", g_SettingsMenu);
         }
+        else if(msg == "Skins")
+        {
+            g_currMenu = msg;
+            g_currCount = -1;
+            list temp;
+            
+            if(llGetListLength(g_Skins) <= 11)
+            {
+                temp = ["Help"] + llList2List(g_Skins, g_currCount+1, g_currCount+11);
+                g_currCount += 12; //g_currCount is now 11 (starts at -1)
+            }
+            else
+            {
+                temp = ["Help", "NEXT-->"] + llList2List(g_Skins, g_currCount+1, g_currCount+10); // This is a list of 10 skins
+                g_currCount += 11; //g_currCount is now 10 (starts at -1)
+            }
+            offerMenu(id, "Choose a Skin:", temp);
+        }   
+        else if(msg == "Help")
+        {
+            if (g_currMenu == "Skins")
+            {
+                llOwnerSay("To add your own skins, simply prefix the name of a texture you want to add with:\n\nSKIN:\n\n. . . And drag it into your diaper!");
+            }
+            else if(g_currMenu == "Printouts")
+            {
+                llOwnerSay("To add new printout cards, simply prefix the name of a preformatted notecard you want to add with:\n\nPRINT:\n\n. . . And drag it into your diaper!");
+            }
+            llDialog(id, g_currMenuMessage, g_currMenuButtons, g_uniqueChan);
+        }
+        //todo: Merge changing of potty settings, volume settings, etc with main
+        else if(msg == "Potty")
+        {
+            g_currMenu = msg;
+            offerMenu(id, "Adjust your potty settings!", g_PottyMenu);  
+        }
+        else if(msg == "Volume")
+        {
+            g_currMenu = msg;
+            offerMenu(id, "Adjust your volume settings!", g_VolumeMenu);  
+        }
+        else if(msg == "Mess❤Timer")
+        {
+            g_currMenu = msg;
+            offerMenu(id, "Mess Frequency (How often you potty)\n\n==This is in Minutes==", g_timerOptions);   
+        }
+        else if(msg == "Wet❤Timer")
+        {
+            g_currMenu = msg;
+            offerMenu(id, "Wet Frequency (How often you wet)\n\n==This is in Minutes==", g_timerOptions);   
+        }
+        else if(msg == "Wet%")
+        {
+            g_currMenu = msg;
+            offerMenu(id, "Chance to hold it! (Wet)", g_chanceOptions);   
+        }
+        else if(msg == "Mess%")
+        {
+            g_currMenu = msg;
+            offerMenu(id, "Chance to hold it! (Mess)", g_chanceOptions);   
+        }
+        else if(msg == "❤Tickle❤")
+        {
+            g_currMenu = msg;
+            offerMenu(id, "Chance to resist tickles!", g_chanceOptions);   
+        }
+        else if(msg == "Tummy❤Rub")
+        {
+            g_currMenu = msg;
+            offerMenu(id, "Chance to resist tummy rubs!", g_chanceOptions);   
+        }
+        else if(msg == "Printouts")
+        {
+            g_currMenu = msg;
+            g_currCount = -1;
+            list temp;
+        
+            if(llGetListLength(g_Printouts) <= 11)
+            {
+                temp = ["Help"] + llList2List(g_Printouts, g_currCount+1, g_currCount+11);
+                g_currCount += 12; //g_currCount is now 11 (starts at -1)
+            }
+            else
+            {
+                temp = ["Help", "NEXT-->"] + llList2List(g_Printouts, g_currCount+1, g_currCount+10); // This is a list of 10 skins
+                g_currCount += 11; //g_currCount is now 10 (starts at -1)
+            }
+
+            offerMenu(id, "Choose a Printout style:", temp);
+        }
+        else if(msg == "Gender")
+        {
+            g_currMenu = msg;
+            offerMenu(id, "Are you a boy or a girl?", g_GenderMenu);   
+        }
+        else if(msg == "Interactions")
+        {
+            g_currMenu = msg;
+            offerMenu(id, "Who should be able to interact with this diaper?", g_InteractionsOptions);
+        }
+        else if(msg == "Chatter")
+        {
+            g_currMenu = msg;
+            offerMenu(id, "How far should the diaper chatter go?", g_ChatterMenu);
+        }
+        else if(msg == "Crinkle❤Volume")
+        {
+            g_currMenu = msg;
+            offerMenu(id, "How loud should the crinkling be?", g_chanceOptions);
+        }
+        else if(msg == "Wet❤Volume")
+        {
+            g_currMenu = msg;
+            offerMenu(id, "How loud should the wetting sound be?", g_chanceOptions);
+        }
+        else if(msg == "Mess❤Volume")
+        {
+            g_currMenu = msg;
+            offerMenu(id, "How loud should the messing sound be?", g_chanceOptions);
+        }
         else // Serve menu
         {
             handleMenuChoice(msg, id); //Creates the proper llDialog for the menu branch and sends it.
         }
-            
-        /* More old code from a prim-scultpie based build.
-        else if(~llListFindList(g_Tapes, [msg])) // We need to set a new Tape Texture!
-        {
-            applyTexture(msg, "TAPE:");
-        }
-        else if(~llListFindList(g_Ruffles, [msg])) // ^etc
-        {
-            applyTexture(msg, "RUFF:");
-        }
-        else if(~llListFindList(g_Panels, [msg])) // ^etc
-        {
-            applyTexture(msg, "PANEL:");
-        }*/
-        
     }
 }
