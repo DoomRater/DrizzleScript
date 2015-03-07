@@ -1,10 +1,7 @@
 /*==========================================================
-DrizzleScript v1.00
+DrizzleScript
 Created By: Ryhn Teardrop
-Date: Dec 3rd, 2011
-
-Programming Contributors: Ryhn Teardrop, Brache Spyker
-Resource Contributors: Murreki Fasching
+Original Date: Dec 3rd, 2011
 
 License: RPL v1.5 (Outlined at http://www.opensource.org/licenses/RPL-1.5)
 
@@ -33,9 +30,7 @@ key g_toucherKey; //in case we need to print to someone else quietly!
 string g_useType; // "Wet" "Mess"
 string g_PrintoutCard = "Default";
 
-/*
-* Variables which hold all printouts in memory for speed.
-*/
+// Variables which hold all printouts in memory for speed.
 
 //Wet Prints
 string wet1;
@@ -869,15 +864,6 @@ constructPrint(string data, integer append, string printoutType)
     }
 }
 
-// Accepts the name of an animation to be played, requests permission, and plays the animation.
-// @animName = The name of an animation in the Diaper's inventory
-playAnimation(string animName)
-{
-    llOwnerSay("Animating!");
-    llRequestPermissions(llGetOwner(), PERMISSION_TRIGGER_ANIMATION);
-    llStartAnimation(animName);
-}
-
 //This function is passed a (potentially) tokenized (*first, *oFullName, etc) string,
 //it's job is to remove the tokens if they exist, and replace them with the proper information (First name, Full name, etc.)
 //@printout = A potentially tokenized string in need of processing.
@@ -1341,7 +1327,6 @@ displayPrintout()
             temp = processPrint(wetMessTease);
         }
     }
-    //Shouldn't this code be here instead?
     if(temp) //Let's not bother saying anything if the message is empty...  allows for silent notecards!
     {
         index = llSubStringIndex(temp, " "); // First space in the sentence.
@@ -1367,9 +1352,6 @@ displayPrintout()
         }
     }
     llSetObjectName(name); // Restore the original name of the diaper.
-    
-    //llSay(0, "Printout Script: [Memory Used] " + (string) llGetUsedMemory() + " Bytes.");
-    //llSay(0, "Printout Script: [Memory Remaining] " + (string) llGetFreeMemory() + " Bytes.");
 }
 
 default
@@ -1424,7 +1406,9 @@ default
             }
             else
             {
-                llOwnerSay("Done reading your notecard! :3");   
+                llOwnerSay("Done reading your notecard! :3");
+                llOwnerSay("Printout1 Script Memory Used: " + (string) llGetUsedMemory() + " Bytes");
+                llOwnerSay("Printout1 Script Memory Remaining: " + (string) llGetFreeMemory() + " Bytes");
             }
         }
     }
