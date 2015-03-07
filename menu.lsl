@@ -1,7 +1,8 @@
 /*==========================================================
 DrizzleScript v1.00
 Created By: Ryhn Teardrop
-Date: Dec 3rd, 2011
+Original Date: Dec 3rd, 2011
+Last Modified: March 6th, 2015
 
 Programming Contributors: Ryhn Teardrop, Brache Spyker
 Resource Contributors: Murreki Fasching, Brache Spyker
@@ -13,7 +14,6 @@ Essentially, if you edit this script you have to publicly release the result.
 (Copy/Mod/Trans on this script) This stipulation helps to grow the community and
 the software together, so everyone has access to something potentially excellent.
 
-
 *Leave this header here, but if you contribute, add your name to the list!*
 ============================================================*/
 
@@ -21,7 +21,6 @@ the software together, so everyone has access to something potentially excellent
 * Main Script used for the Diaper, is the central hub of
 * communication between all other scripts 
 */
-//Todo: add some restrictions on who can do what.
 list g_userMenu = ["DEBUG", "Caretakers", "On/Off", "Check", "Change", "Options", "Get❤Soggy", "Get❤Stinky", "Show/Hide", "❤Flood❤"];
 list g_careMenu = ["Check", "Change", "Tease", "Raspberry", "Poke", "Options","Show/Hide", "❤ ❤ ❤"];
 list g_careMenuDiaper = ["Force❤Wet", "Force❤Mess","❤Tickle❤", "Tummy❤Rub", "Wedgie", "Spank"];
@@ -53,7 +52,7 @@ integer g_isOn = 1;        // 1:On   || 0:Off
 integer g_interact = 1;    // 1:On   || 0:Off, will control whether non-carers can interact with the diaper
 integer g_chatter = 2;     // 0:self-chatter 1:Whisper chatter 2:say chatter
 float g_CrinkleVolume = .1;
-float g_WetVolume = .333;    //Maximum range is .33; we triple this volume on flooding
+float g_WetVolume = .333;    //Maximum range is .333; we triple this volume on flooding
 float g_MessVolume = 1.0;
 //End Saved Non-Carer Settings
 
@@ -64,7 +63,7 @@ integer timesHeldMess = 0;
 string g_Settings = ""; // A variable used to hold data sent from SaveSettings.lsl 
 string g_newCarer = "";
 
-integer crinkling = 0;  //just to tell the diaper if someone is still walking
+integer g_isCrinkling = 0;  //just to tell the diaper if someone is still walking
 
 /* Puppy Pawz Pampers Variables */
 integer g_wetPrim;
@@ -108,7 +107,6 @@ playWetSound(float volume)
 {
     if(llGetInventoryType("DrizzleWetSound") != -1) // Sound exists in inventory
     {
-        //todo: create adjustable volume settings
         llPlaySound("DrizzleWetSound", volume); 
     }
     else
@@ -134,7 +132,6 @@ playMessSound(float volume)
     if(llGetInventoryType("DrizzleMessSound") != -1) // Sound exists in inventory
     {
         //todo: create a mess sound
-        //add configurable mess volume
         llPlaySound("DrizzleMessSound", volume); 
     }
     else
@@ -389,7 +386,6 @@ handleWetting(string msg, key id)
     }
     else if(msg == "Timer")
     {
-        //Example of what message looks like: 1:2:g_wetLevel:Name
         llMessageLinked(LINK_THIS, -2, (string) g_gender + ":" + (string) g_wetLevel + ":" + (string) g_messLevel + ":" + "g_wetLevel" + ":" + llKey2Name(llGetOwner()), llGetOwner());
     }
     else if(msg == "Tckl")
@@ -400,9 +396,9 @@ handleWetting(string msg, key id)
     {
         llMessageLinked(LINK_THIS, -4, (string) g_gender + ":" + (string) g_wetLevel + ":" + (string) g_messLevel + ":" + "Force Wet" + ":" + llKey2Name(id), id); 
     }
-    playWetSound(g_WetVolume);    //Make sounds!
+    playWetSound(g_WetVolume);
     adjustWetMessPrims();  //Correct Prim to be Visible/Change textures on mesh
-    timesHeldWet = 0; //shouldn't this be here instead?
+    timesHeldWet = 0;
     sendSettings();
 }//End handleWettings(string, key)
 
@@ -418,13 +414,13 @@ handleMessing(string msg, key id)
         //Example of what message looks like: 1:2:g_wetLevel:Self
         llMessageLinked(LINK_THIS, -2, (string) g_gender + ":" + (string) g_wetLevel + ":" + (string) g_messLevel + ":" + "g_messLevel" + ":" + llKey2Name(llGetOwner()), llGetOwner());
     }
-    else if(msg == "Rub")
-    {
-        llMessageLinked(LINK_THIS, -4, (string) g_gender + ":" + (string) g_wetLevel + ":" + (string) g_messLevel + ":" + "Rub Success" + ":" + llKey2Name(id), id);   
-    }
     else if(msg == "Timer")
     {
         llMessageLinked(LINK_THIS, -2, (string) g_gender + ":" + (string) g_wetLevel + ":" + (string) g_messLevel + ":" + "g_messLevel" + ":" + llKey2Name(llGetOwner()), llGetOwner());
+    }
+    else if(msg == "Rub")
+    {
+        llMessageLinked(LINK_THIS, -4, (string) g_gender + ":" + (string) g_wetLevel + ":" + (string) g_messLevel + ":" + "Rub Success" + ":" + llKey2Name(id), id);   
     }
     else if(msg == "Force")
     {
@@ -449,7 +445,7 @@ handleFlooding(string msg, key id)
         llMessageLinked(LINK_THIS, -4, (string) g_gender + ":" + (string) g_wetLevel + ":" + (string) g_messLevel + ":" + "Self Flood" + ":" + llKey2Name(llGetOwner()), llGetOwner());
     }
     playWetSound(g_WetVolume*3);  //todo: add a special flooding sound
-    timesHeldWet = 0; //shouldn't this be here instead?
+    timesHeldWet = 0;
     adjustWetMessPrims();  //Set Correct Prim to be Visible/Change textures on mesh
     sendSettings();
 }
@@ -463,6 +459,7 @@ adjustWetMessPrims()
 {
     if(!isHidden()) // Only adjust the prims if the model isn't hidden!
     {
+        //todo: add compatiblity with other diapers
         if(g_wetLevel == 0)
         {
             llSetLinkPrimitiveParamsFast(g_wetPrim, [PRIM_COLOR, ALL_SIDES, <1,1,1>, 0.0]);
@@ -507,6 +504,7 @@ adjustWetMessPrims()
 // Shows or hides the full model of the diaper.
 // Note: If multiple overlapping models are used to display wet/mess
 // this function would need to adjust based on the wetness/messyness of the diaper.
+// Example: Crinklebutt hides or shows multiple faces for its front and back
 toggleHide()
 {   
     if(isHidden())  // Hidden; Show it.
@@ -528,7 +526,7 @@ integer isHidden()
     {
        return TRUE;
     }
-    else                                        // Shown
+    else                                // Shown
     {
         return FALSE;
     }
@@ -538,17 +536,18 @@ integer isHidden()
 //turns the Timer event on and off as appropriate.
 toggleOnOff()
 {
-    
     g_isOn = !g_isOn;
     
     if(g_isOn == FALSE)
-    {  
+    {
+		llSensorRemove();
         llSetTimerEvent(0.0);
     }
     else
     {
         llResetTime();
-        llSetTimerEvent(60.0);  // I check to see if a user wet/messed themselves once a minute.
+        llSetTimerEvent(60.0);  //Check to see if a user wet/messed themselves once a minute.
+		llSensorRepeat("", "", AGENT, 96.0, PI, 6.0);
     }
     
     sendSettings(); // Update the stored settings to reflect the on-off state.
@@ -568,11 +567,40 @@ integer contains(list l, string test)
     else return FALSE;
 }
 
-/* Simple function that searches a given string for a space */
+/* Simple function that searches a given string for a space 
+//depreciated, since a button name could potentially be one word
 integer isName(string name)
 {
     return ~llSubStringIndex(name, " ");  //For my purposes, I only need to look for a space.
                                           //This has the side-effect of dis-allowing menu options with spaces in them.
+}
+*/
+
+printDebugSettings()
+{
+    llOwnerSay("Wetness: " + (string) g_wetLevel);
+    llOwnerSay("Messiness: " + (string) g_messLevel);
+    llOwnerSay("Wet Hold: " + (string) g_wetChance + "%");
+    llOwnerSay("Mess Hold: " + (string) g_messChance + "%");
+    llOwnerSay("Wet Frequency: " + (string) g_wetTimer + " Minute(s)");
+    llOwnerSay("Mess Frequency: " + (string) g_messTimer + " Minute(s)");
+    llOwnerSay("TummyRub Resist: " +  (string) g_tummyRub + "%");
+    llOwnerSay("Tickle Resist: " + (string) g_tickle + "%");
+    llOwnerSay("Gender: " + (string) g_gender);
+    llOwnerSay("On/Off: " + (string) g_isOn);
+    llOwnerSay("Other Interaction: " + (string) g_interact);
+    llOwnerSay("Settings: " + (string) g_Settings);
+    llOwnerSay("Channel: " + (string) g_uniqueChan);
+    llOwnerSay("Detected Avatars: " + (string) g_detectedAvatars);
+    llOwnerSay("Wet Prim: " + (string) g_wetPrim);
+    llOwnerSay("Mess Prim: " + (string) g_messPrim);
+    llOwnerSay("Crinkle Volume: "+(string) g_CrinkleVolume);
+    llOwnerSay("Wet Sound Volume: "+(string) g_WetVolume);
+    llOwnerSay("Mess Sound Volume: "+(string) g_MessVolume);
+    llOwnerSay("Times Held (wet): "+(string) timesHeldWet);
+    llOwnerSay("Times Held (mess): "+(string) timesHeldMess);
+    llOwnerSay("Used Memory: " + (string) llGetUsedMemory());
+    llOwnerSay("Free Memory: " + (string) llGetFreeMemory());
 }
 
 /* Simple function that searches g_Carers for a given user name */
@@ -598,7 +626,7 @@ loadSettingsAndCarers()
     g_ButtonCarers = [];
     g_Carers = []; // Clear the list
     g_Settings = ""; // Clear the settings
-    llMessageLinked(LINK_ALL_CHILDREN, 1, "SEND", NULL_KEY); // Tells the memory core to send us it's data!
+    llMessageLinked(LINK_ALL_CHILDREN, 1, "SEND", NULL_KEY); // Tells the memory core to send us its data!
 }
 
 // If a given name is not already in the carer's list, we add them to the carer's list.
@@ -657,8 +685,8 @@ integer getToucherRank(key id)
 findMessWetPrims()
 {
     integer i; // Used to loop through the linked objects
-    
-    for(i = 0; i < 111; i++) // Number of prims in the frilly object + Memory Boxes
+    integer primCount = llGetNumberOfPrims(); //should be attached, not sat on
+    for(i = 0; i < primCount; i++)
     { 
         string primName = (string) llGetLinkPrimitiveParams(i, [PRIM_NAME]); // Get the name of linked object i
      
@@ -679,13 +707,13 @@ default
     {
         g_uniqueChan = generateChan(llGetOwner()); // Used to avoid diapers talking to one another via menus.
         llListen(g_uniqueChan, "", "", "");        
-        llSensorRepeat("", "", AGENT, 96.0, PI, 5.0); // Used to populate a few menus.
         if(g_isOn == FALSE)
         {
             llSetTimerEvent(0.0); // Used to check for wet/mess occurances
         }
         else if(g_isOn == TRUE)
         {
+	        llSensorRepeat("", "", AGENT, 96.0, PI, 6.0); // Used to populate a few menus.
             llSetTimerEvent(60.0);
         }
         llRequestPermissions(llGetOwner(),PERMISSION_TAKE_CONTROLS); //so we can see whether someone is moving and make them crinkle!
@@ -706,13 +734,13 @@ default
         if((~l & e) || (llGetAgentInfo(llGetOwner()) & (AGENT_IN_AIR |AGENT_SITTING | AGENT_ON_OBJECT))) //are they in the air, sitting, or did they stop moving?
         {
             stopCrinkleSound();
-            crinkling = FALSE;
+            g_isCrinkling = FALSE;
         }
         else
         {
-            if(crinkling == FALSE) //only start playing the sound if we weren't already looping it, so not to spam sound events.
+            if(g_isCrinkling == FALSE) //only start playing the sound if we weren't already looping it, so not to spam sound events.
                 startCrinkleSound(g_CrinkleVolume);
-            crinkling = TRUE;
+            g_isCrinkling = TRUE;
         }
     }
         
@@ -733,9 +761,6 @@ default
         if(change & CHANGED_OWNER)
         {
             llResetScript();
-            //Nothing past this gets run becase the script is resetting!
-            llResetTime();
-            findMessWetPrims(); // This locates the link number of the wet/mess prims for a model.
         } 
     }
     //todo: turn this off when not wanted!
@@ -743,7 +768,6 @@ default
     sensor(integer num_detected)
     {
         integer i = 0;
-        string temp;
         //flush the old names because they might not be around anymore
         g_detectedAvatars = [];
         g_ButtonizedAvatars = [];
@@ -751,7 +775,7 @@ default
         
         while(i < num_detected && i < 12)  //only get the first 12 people in range
         {
-            temp = llDetectedName(i);
+            string temp = llDetectedName(i);
             g_detectedAvatars += temp;
             g_detectedKeys += llDetectedKey(i);
             if(llStringLength(temp)>24)
@@ -759,7 +783,9 @@ default
                 g_ButtonizedAvatars += llBase64ToString(llGetSubString(llStringToBase64(temp), 0, 31));
             }
             else
-            g_ButtonizedAvatars += temp;
+            {
+                g_ButtonizedAvatars += temp;
+            }
             i++;
         }
     }
@@ -774,9 +800,6 @@ default
     on_rez(integer start_param)
     {
         llResetScript(); // Pulls new data
-        //The rest of this never gets called, because the script is resetting now!
-        llResetTime();
-        findMessWetPrims(); // This locates the link number of the wet/mess prims for a model.
     }
     
     touch_start(integer total_number)
@@ -811,40 +834,18 @@ default
     listen(integer chan, string name, key id, string msg)
     {
             
-        integer userRank = getToucherRank(id); // Used to gurantee the correct version of each action is executed.
+        integer userRank = getToucherRank(id); // Used to guarantee the correct version of each action is executed.
             
-        //It wouldn't hurt to move all of this into a function.
         if(msg == "DEBUG" && userRank == 0)
         {
             printCarers();
-            llOwnerSay("Wetness: " + (string) g_wetLevel);
-            llOwnerSay("Messiness: " + (string) g_messLevel);
-            llOwnerSay("Wet Hold: " + (string) g_wetChance + "%");
-            llOwnerSay("Mess Hold: " + (string) g_messChance + "%");
-            llOwnerSay("Wet Frequency: " + (string) g_wetTimer + " Minute(s)");
-            llOwnerSay("Mess Frequency: " + (string) g_messTimer + " Minute(s)");
-            llOwnerSay("TummyRub Resist: " +  (string) g_tummyRub + "%");
-            llOwnerSay("Tickle Resist: " + (string) g_tickle + "%");
-            llOwnerSay("Gender: " + (string) g_gender);
-            llOwnerSay("On/Off: " + (string) g_isOn);
-            llOwnerSay("Other Interaction: " + (string) g_interact);
-            llOwnerSay("Settings: " + (string) g_Settings);
-            llOwnerSay("Channel: " + (string) g_uniqueChan);
-            llOwnerSay("Detected Avatars: " + (string) g_detectedAvatars);
-            llOwnerSay("Wet Prim: " + (string) g_wetPrim);
-            llOwnerSay("Mess Prim: " + (string) g_messPrim);
-            llOwnerSay("Crinkle Volume: "+(string) g_CrinkleVolume);
-            llOwnerSay("Wet Sound Volume: "+(string) g_WetVolume);
-            llOwnerSay("Mess Sound Volume: "+(string) g_MessVolume);
-            llOwnerSay("Times Held (wet): "+(string) timesHeldWet);
-            llOwnerSay("Times Held (mess): "+(string) timesHeldMess);
-            llOwnerSay("Used Memory: " + (string) llGetUsedMemory());
-            llOwnerSay("Free Memory: " + (string) llGetFreeMemory());
+            printDebugSettings();
         }
         else if(msg == "❤ ❤ ❤" && userRank == 1)  //Only caretakers should be able to make the diaper give them this message!
         {
             llDialog(id, "For the mischievous brat in us all.",  g_careMenuDiaper, g_uniqueChan);        
         }
+		//for future use with potty training
         else if(msg == "Hold❤It" && userRank == 0)
         {
             g_userResponded = TRUE;
@@ -853,6 +854,7 @@ default
         {
             g_userResponded = TRUE;
         }
+		//Carers stuff
         else if(msg == "Accept")
         {
             llOwnerSay(g_newCarer+" has agreed to be your caretaker!");
@@ -874,7 +876,8 @@ default
             toggleHide(); // Needs to keep in mind what Should and SHOULD NOT be visible
             adjustWetMessPrims(); // Ensure prims are properly hidden/shown after a state change.
         }
-        else if(msg == "Options" && userRank < 2) //Whoa, others should NEVER get access to this even if they know the channel number!
+		//todo: this will become just the prints and skins for preferences
+        else if(msg == "Options" && userRank < 2) //Outsiders should never be able to invoke this
         {
             llMessageLinked(LINK_THIS, -1, msg, id); // Tell Preferences script to talk to id
         }
@@ -956,7 +959,7 @@ default
             {
                 llMessageLinked(LINK_THIS, -4, (string) g_gender + ":" + (string) g_wetLevel + ":" + (string) g_messLevel + ":" + "Carer Check" + ":" + llKey2Name(id), id);
             }
-            else if(userRank == 2 && g_interact == 1) // Outsider, with extra insurance in case we really don't want others messing around with our diapers!
+            else if(userRank == 2 && g_interact == 1) // Outsider, with permission of course
             {
                  llMessageLinked(LINK_THIS, -2, (string) g_gender + ":" + (string) g_wetLevel + ":" + (string) g_messLevel + ":" + "Other Check" + ":" + llKey2Name(id), id);
             }
@@ -971,7 +974,7 @@ default
             {
                 handleChange("Carer", id);   
             }
-            else if(userRank == 2 && g_interact == 1)  //extra insurance... you get the idea
+            else if(userRank == 2 && g_interact == 1)
             {
                 handleChange("Other", id);
             }
@@ -1020,6 +1023,10 @@ default
         else if(msg == "Wedgie")
         {
              llMessageLinked(LINK_THIS, -4, (string) g_gender + ":" + (string) g_wetLevel + ":" + (string) g_messLevel + ":" + "Wedgie" + ":" + llKey2Name(id), id);
+        }
+        else
+        {
+            //todo: merge as much of preferences here as possible
         }
     }//End of listen(integer, string, key, string)
             
@@ -1109,12 +1116,9 @@ default
         else if(num == -7) return; // Particles is being used
         else if(num == -3) //Update from Preferences
         {
-            //llSay(0, "Menu Received: " + msg);    
             integer index = llSubStringIndex(msg, ":");
             string setting = llGetSubString(msg, 0, index-1);
-            //llOwnerSay("Setting->" + setting);
             msg = llGetSubString(msg, index+1, -1);
-            //llOwnerSay("Message->" + msg);
             if(setting == "Gender")
             {
                 g_gender = (integer) msg;
@@ -1133,57 +1137,51 @@ default
             {
                 index = llSubStringIndex(msg, "%");
                 msg = llGetSubString(msg, 0, index-1);
-                //llSay(0, "g_wetChance->" + msg);
                 g_wetChance = (integer) msg;
             }
             else if(setting == "Mess%")
             {
                 index = llSubStringIndex(msg, "%");
                 msg = llGetSubString(msg, 0, index-1);
-                //llSay(0, "g_messChance->" + msg);
                 g_messChance = (integer) msg;
             }
             else if(setting == "Wet❤Timer")
             {
-                //llSay(0, "g_wetTimer->" + msg);
                 g_wetTimer = (integer) msg;
             }
             else if(setting == "Mess❤Timer")
             {
-                //llSay(0, "g_messTimer->" + msg);
                 g_messTimer = (integer) msg;
             }
             else if(setting == "❤Tickle❤")
             {
                 index = llSubStringIndex(msg, "%");
                 msg = llGetSubString(msg, 0, index-1);
-                //llSay(0, "g_tickle->" + msg);
                 g_tickle = (integer) msg;        
             }
             else if(setting == "Tummy❤Rub")
             {
                 index = llSubStringIndex(msg, "%");
                 msg = llGetSubString(msg, 0, index-1);
-                //llSay(0, "g_tummyRub->" + msg);
                 g_tummyRub = (integer) msg;        
             }
             else if(setting == "Crinkle❤Volume")
             {
                 index = llSubStringIndex(msg, "%");
                 msg = llGetSubString(msg, 0, index-1);
-                g_CrinkleVolume = (float) msg / 200; //one half as loud as reported
+                g_CrinkleVolume = (float) msg * .005; //one half as loud as reported
             }
             else if(setting == "Wet❤Volume")
             {
                 index = llSubStringIndex(msg, "%");
                 msg = llGetSubString(msg, 0, index-1);
-                g_WetVolume = (float) msg / 300; //one third as loud as reported
+                g_WetVolume = (float) msg * .00333; //one third as loud as reported
             }
             else if(setting == "Mess❤Volume")
             {
                 index = llSubStringIndex(msg, "%");
                 msg = llGetSubString(msg, 0, index-1);
-                g_MessVolume = (float) msg / 100;
+                g_MessVolume = (float) msg * .01;
             }
             else if(setting == "Others")
             {
@@ -1245,3 +1243,31 @@ default
         }
     }//End of link_message(integer, integer, string, key)
 }
+/*
+//Changes by Brache Spyker:
+//-updated the Frand calls to truly generate numbers from 1-100 (were previously only reaching 1-99)
+//-added calls to sounds and llRequestControls() so we can tell when the user is crinkling
+//-Added option to silence diaper chatter or make it whisper instead of going all over the place
+//-Notecards can now be gender inspecific- two example notecards are included
+//-Now as many different notecards can be added as memory allows, just like diaper textures
+//-crinkle sounds and wetting sounds added (not configurable yet)
+//-BUGFIX: tummy rub messings always displaying as if previously messy
+//-BUGFIX: when others checked a diaper it didn't check for dry messy messages
+//-heavily updated notecards
+//-Added lots more security checks to the listens; people can't just spoof carer actions if they know the listen channel now
+//Default gender is girl in this script
+//-timesheldWet is reset properly when you wet, regardless of HOW you wet- before it only reset on timer
+//-BUGFIX: once you started flooding, you didn't stop flooding
+//-timesheldMess now resets under any messing not just timer
+//-nearby avatars could flood the lists and cause memory crashes, so now we're flushing those lists and storing a max of 12.
+//todo: add RP name option to printouts
+//todo: allow others to interact with diaper but not check or change
+//todo: allow toggling of carer access to diaper options menu
+//todo: add more gender options, including hermaphodite, gender neutral, and RANDOM MODE
+//Todo: add some restrictions on who can do what.
+//BUGFIX: parseSettings was not interpreting the volume settings as floats and thus failed to load the correct values
+//3/6/15:
+//Moved changelist to bottom of script
+//General code audit and cleanup, making names of variables more consistent with existing code
+//changed some division to multiplication
+*/
