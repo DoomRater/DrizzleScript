@@ -700,6 +700,21 @@ findMessWetPrims()
     }
 }
 
+mainMenu(key id)
+{
+	integer userRank = getToucherRank(id);
+    if(userRank == 0) {
+		llDialog(id, "User Menu for " + llKey2Name(llGetOwner()) + "'s diaper.", g_userMenu, g_uniqueChan);
+    }
+    else if(userRank == 1) {
+        llDialog(id, "Carer Menu for " + llKey2Name(llGetOwner()) + "'s diaper.", g_careMenu, g_uniqueChan);
+    }
+    //todo: Allow restriction to this menu!
+    else if(userRank == 2 && g_interact == 1) {
+        llDialog(id, "General Menu for " + llKey2Name(llGetOwner()) + "'s diaper.", g_inboundMenu, g_uniqueChan);
+    }
+}
+
 default
 {
     state_entry()
@@ -808,16 +823,7 @@ default
         
         if(g_isOn) // Diaper's On
         {
-            if(userRank == 0) {
-                llDialog(id, "User Menu for " + llKey2Name(llGetOwner()) + "'s diaper.", g_userMenu, g_uniqueChan);
-            }
-            else if(userRank == 1) {
-                llDialog(id, "Carer Menu for " + llKey2Name(llGetOwner()) + "'s diaper.", g_careMenu, g_uniqueChan);
-            }
-            //todo: Allow restriction to this menu!
-            else if(userRank == 2 && g_interact == 1) {
-                llDialog(id, "General Menu for " + llKey2Name(llGetOwner()) + "'s diaper.", g_inboundMenu, g_uniqueChan);
-            }
+			mainMenu(id);
         }
         else // Diaper's Off
         {
@@ -911,19 +917,11 @@ default
             llDialog(id, "Who would you like to remove?", g_ButtonCarers, g_uniqueChan);
             //llDialog(id, "Who would you like to remove?", g_Carers, g_uniqueChan);  //to address long usernames
             g_addRemove = 0;   
-        }
+        }//End of Caretaker handling
         else if(msg == "<--BACK")
         {
-            if(userRank == 0) {
-                llDialog(id, "User Menu", g_userMenu, g_uniqueChan);
-            }
-            else if(userRank == 1) {
-                llDialog(id, "Carer Menu", g_careMenu, g_uniqueChan);
-            }
-            else if(userRank == 2) {
-                llDialog(id, "General Menu", g_inboundMenu, g_uniqueChan);
-            }     
-        }//End of Caretaker handling
+			mainMenu(id);
+        }
         else if(msg == "On/Off" || msg == "On" && userRank < 2)
         {
             toggleOnOff();   
@@ -1200,6 +1198,11 @@ default
                 llMessageLinked(LINK_THIS, -2, (string) g_gender + ":" + temp, NULL_KEY);
                 llMessageLinked(LINK_THIS, -4, (string) g_gender + ":" + temp, NULL_KEY);
              }
+			 else if(setting == "Cancel")
+			 {
+				mainMenu(msg);
+				return;
+			}
 
             sendSettings();
             return;
