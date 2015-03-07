@@ -29,9 +29,9 @@ string g_currMenuMessage; //Potentially usable to determine which timer is being
 list g_currMenuButtons;
 list g_Skins;
 list g_Printouts;
-list g_SettingsMenu = ["DEBUG","★","Gender", "Skins","Chatter","Printouts", "Potty", "Interactions", "Volume"];
+list g_SettingsMenu = ["<--TOP","DEBUG","Gender", "Skins","Chatter","Printouts", "Potty", "Interactions", "Volume"];
 list g_GenderMenu = ["<--BACK", "★", "★", "Boy", "Girl"];
-list g_ChatterMenu = ["<--BACK", "★", "★", "High", "Low", "Self"];
+list g_ChatterMenu = ["<--BACK", "★", "★", "Normal", "Whisper", "Private"];
 list g_VolumeMenu = ["<--BACK", "★", "★", "Crinkle❤Volume", "Wet❤Volume", "Mess❤Volume"];
 list g_PottyMenu = ["<--BACK", "★", "★", "Wet❤Timer", "Mess❤Timer", "★", "Wet%", "Mess%", "★", "❤Tickle❤", "Tummy❤Rub", "★"];
 list g_timerOptions = ["<--BACK", "★", "★", "40", "60", "120", "15", "20", "30", "0", "5", "10"]; // Backwards  (Ascending over 3) to make numbers have logical order.
@@ -653,17 +653,17 @@ default
             offerMenu(id, "Adjust your settings!", g_SettingsMenu);
         }
         //chat spam level
-        else if(msg == "High")
+        else if(msg == "Normal")
         {
             llMessageLinked(LINK_THIS, -3, "Chatter:2", NULL_KEY);
             offerMenu(id, "Adjust your settings!", g_SettingsMenu);
         }
-        else if(msg == "Low")
+        else if(msg == "Whisper")
         {
             llMessageLinked(LINK_THIS, -3, "Chatter:1", NULL_KEY);
             offerMenu(id, "Adjust your settings!", g_SettingsMenu);
         }
-        else if(msg == "Self")
+        else if(msg == "Private")
         {
             llMessageLinked(LINK_THIS, -3, "Chatter:0", NULL_KEY);
             offerMenu(id, "Adjust your settings!", g_SettingsMenu);
@@ -769,13 +769,13 @@ default
             g_currMenu = msg;
 			if(g_interact==0)
 			{
-				allowedInteractions = "only carers and yourself";
+				allowedInteractions = "only carers and yourself are";
 			}
 			else if(g_interact==1)
 			{
-				allowedInteractions = "everyone";
+				allowedInteractions = "everyone is";
 			}
-            offerMenu(id, "Who should be able to interact with this diaper?\n\nCurrently "+allowedInteractions+" are allowed.", g_InteractionsOptions);
+            offerMenu(id, "Who should be able to interact with this diaper?\n\nCurrently "+allowedInteractions+" allowed.", g_InteractionsOptions);
         }
         else if(msg == "Chatter")
         {
@@ -810,9 +810,9 @@ default
             g_currMenu = msg;
             offerMenu(id, "How loud should the messing sound be?\nCurrent value: "+(string)llRound(g_MessVolume*100)+"%", g_chanceOptions);
         }
-        else // Serve menu
-        {
-            handleMenuChoice(msg, id); //Creates the proper llDialog for the menu branch and sends it.
-        }
+        else if(msg == "<--TOP")
+		{
+            llMessageLinked(LINK_THIS, -3, "Cancel:"+(string)id, NULL_KEY);
+		}
     }
 }
