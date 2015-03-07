@@ -26,7 +26,6 @@ integer g_uniqueChan;
 integer g_currCount;
 string g_currMenu;
 string g_currMenuMessage; //Potentially usable to determine which timer is being used?
-string g_settingChanging; //"Wet" or "Mess"
 list g_currMenuButtons;
 list g_Skins;
 list g_Printouts;
@@ -377,6 +376,15 @@ applyTexture(string name, string prefix)
     llSetLinkPrimitiveParamsFast(g_mainPrim, [PRIM_TEXTURE, ALL_SIDES, texture, repeats, offset, radRotation]);
 }
 
+integer contains(list l, string test)
+{
+    if(~llListFindList(l, [test])) // test found, it's in the list!
+    {
+        return TRUE;   
+    }
+    else return FALSE;
+}
+
 default
 {
     
@@ -428,14 +436,15 @@ default
         }
         else if(msg == "<--BACK")
         {
+            g_currMenu = "";
             offerMenu(id, "Adjust your settings!", g_SettingsMenu);
         }
-        else if(~llListFindList(g_Skins, [msg]) && g_currMenu == "Skins")
+        else if(contains(g_Skins, msg) && g_currMenu == "Skins")
         {
             applyTexture(msg, "SKIN:");
             offerMenu(id, "Adjust your settings!", g_SettingsMenu);
         }
-        else if(~llListFindList(g_Printouts, [msg])  && g_currMenu == "Printouts") // new printout notecard!
+        else if(contains(g_Printouts, msg)  && g_currMenu == "Printouts") // new printout notecard!
         {
             llMessageLinked(LINK_THIS, -3, g_currMenu + ":" + msg, NULL_KEY); //whew!
             offerMenu(id, "Adjust your settings!", g_SettingsMenu);
