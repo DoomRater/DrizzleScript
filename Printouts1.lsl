@@ -1256,7 +1256,7 @@ displayPrintout()
         {
             temp = processPrint(other_checkWetMess2);
         }
-        else if((g_wetLevel >= 5 || g_wetLevel >= 6) && g_messLevel == 1)
+        else if(g_wetLevel >= 5 && g_messLevel == 1)
         {
             temp = processPrint(other_checkWetMess3);
         }
@@ -1268,7 +1268,7 @@ displayPrintout()
         {
             temp = processPrint(other_checkWetMess5);
         }
-        else if((g_wetLevel == 5 || g_wetLevel == 6) && g_messLevel == 2)
+        else if(g_wetLevel >= 5 && g_messLevel == 2)
         {
             temp = processPrint(other_checkWet5To6Mess2);
         }
@@ -1280,7 +1280,7 @@ displayPrintout()
         {
             temp = processPrint(other_checkWet3To4Mess3);
         }
-        else if((g_wetLevel >= 5 || g_wetLevel >= 6) && g_messLevel >= 3) // Very wet, very messy
+        else if(g_wetLevel >= 5 && g_messLevel >= 3) // Very wet, very messy
         {
             temp = processPrint(other_checkWetMess6);
         }
