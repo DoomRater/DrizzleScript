@@ -29,7 +29,7 @@ string g_currMenuMessage; //Potentially usable to determine which timer is being
 list g_currMenuButtons;
 list g_Skins;
 list g_Printouts;
-list g_SettingsMenu = ["★","★","Gender", "Skins","Chatter","Printouts", "Potty", "Interactions", "Volume"];
+list g_SettingsMenu = ["DEBUG","★","Gender", "Skins","Chatter","Printouts", "Potty", "Interactions", "Volume"];
 list g_GenderMenu = ["<--BACK", "★", "★", "Boy", "Girl"];
 list g_ChatterMenu = ["<--BACK", "★", "★", "High", "Low", "Self"];
 list g_VolumeMenu = ["<--BACK", "★", "★", "Crinkle❤Volume", "Wet❤Volume", "Mess❤Volume"];
@@ -40,6 +40,23 @@ list g_InteractionsOptions = ["<--BACK","★", "★","Everyone","Carers❤&❤Me
 /* For Misc Diaper Models */
 integer g_mainPrim;
 string g_mainPrimName = ""; // By default, set to "".
+
+//menu variables passed to preferences
+//  integer g_wetLevel;
+//  integer g_messLevel;
+    integer g_wetChance;
+    integer g_messChance;
+    integer g_wetTimer;
+    integer g_messTimer;
+    integer g_tummyRub;
+    integer g_tickle;
+    integer g_gender;
+//  integer g_isOn;
+    integer g_interact;
+    integer g_chatter;
+    float g_CrinkleVolume;
+    float g_WetVolume;
+    float g_MessVolume;
 
 //Old variables used in my prim-sculptie based system.
 //list g_Ruffles;
@@ -385,6 +402,92 @@ integer contains(list l, string test)
     else return FALSE;
 }
 
+parseSettings(string temp)
+{
+    integer index; // Used to hold the location of a comma in the CSV
+	
+    //I opted to not use llCSV2List to avoid the overhead associated with storing and cutting up lists.
+    //I'm simply finding commas in the string, and cutting out the values between them.
+    
+    index = llSubStringIndex(temp, ",");
+//    g_wetLevel = (integer) llGetSubString(temp, 0, index-1);
+    temp = llGetSubString(temp, index+1, -1); // Remove the used data.
+    
+    index = llSubStringIndex(temp, ",");
+//    g_messLevel = (integer) llGetSubString(temp, 0, index-1);
+    temp = llGetSubString(temp, index+1, -1);
+    
+    index = llSubStringIndex(temp, ",");
+    g_wetChance = (integer) llGetSubString(temp, 0, index-1);
+    temp = llGetSubString(temp, index+1, -1);
+    
+    index = llSubStringIndex(temp, ",");
+    g_messChance = (integer) llGetSubString(temp, 0, index-1);
+    temp = llGetSubString(temp, index+1, -1);
+    
+    index = llSubStringIndex(temp, ",");
+    g_wetTimer = (integer) llGetSubString(temp, 0, index-1);
+    temp = llGetSubString(temp, index+1, -1);
+    
+    index = llSubStringIndex(temp, ",");
+    g_messTimer = (integer) llGetSubString(temp, 0, index-1);
+    temp = llGetSubString(temp, index+1, -1);
+    
+    index = llSubStringIndex(temp, ",");
+    g_tummyRub = (integer) llGetSubString(temp, 0, index-1);
+    temp = llGetSubString(temp, index+1, -1);
+    
+    index = llSubStringIndex(temp, ",");
+    g_tickle = (integer) llGetSubString(temp, 0, index-1);
+    temp = llGetSubString(temp, index+1, -1);
+    
+    index = llSubStringIndex(temp, ",");
+    g_gender = (integer) llGetSubString(temp, 0, index-1);
+    temp = llGetSubString(temp, index+1, -1);
+
+    index = llSubStringIndex(temp, ",");
+//    g_isOn = (integer) llGetSubString(temp, 0, index-1);
+    temp = llGetSubString(temp, index+1, -1);
+
+    index = llSubStringIndex(temp, ",");
+    g_interact = (integer) llGetSubString(temp, 0, index-1);
+    temp = llGetSubString(temp, index+1, -1);
+    
+    index = llSubStringIndex(temp, ",");
+    g_chatter = (integer) llGetSubString(temp, 0, index-1);
+    temp = llGetSubString(temp, index+1, -1);
+
+    index = llSubStringIndex(temp, ",");
+    g_CrinkleVolume = (float) llGetSubString(temp, 0, index-1);
+    temp = llGetSubString(temp, index+1, -1);
+
+    index = llSubStringIndex(temp, ",");
+    g_WetVolume = (float) llGetSubString(temp, 0, index-1);
+    temp = llGetSubString(temp, index+1, -1);
+
+    //The last value is all that remains, just store it.
+    g_MessVolume = (float) temp;
+
+}
+
+printDebugSettings()
+{
+    llOwnerSay("Wet Hold: " + (string) g_wetChance + "%");
+    llOwnerSay("Mess Hold: " + (string) g_messChance + "%");
+    llOwnerSay("Wet Frequency: " + (string) g_wetTimer + " Minute(s)");
+    llOwnerSay("Mess Frequency: " + (string) g_messTimer + " Minute(s)");
+    llOwnerSay("TummyRub Resist: " +  (string) g_tummyRub + "%");
+    llOwnerSay("Tickle Resist: " + (string) g_tickle + "%");
+    llOwnerSay("Gender: " + (string) g_gender);
+    llOwnerSay("Other Interaction: " + (string) g_interact);
+    llOwnerSay("Channel: " + (string) g_uniqueChan);
+    llOwnerSay("Crinkle Volume: "+(string) g_CrinkleVolume);
+    llOwnerSay("Wet Sound Volume: "+(string) g_WetVolume);
+    llOwnerSay("Mess Sound Volume: "+(string) g_MessVolume);
+    llOwnerSay("Used Memory: " + (string) llGetUsedMemory());
+    llOwnerSay("Free Memory: " + (string) llGetFreeMemory());
+}
+
 default
 {
     
@@ -419,12 +522,17 @@ default
     
     link_message(integer sender_num, integer num, string msg, key id)
     {
-        if(num != -1) return;
-        
-        if(msg == "Options")
+		if(num == 6)
+		{
+			parseSettings(msg);
+		}
+        else if(num == -1)
         {
-            offerMenu(id, "Adjust your settings!", g_SettingsMenu);
-        }
+			if(msg == "Options")
+			{
+				offerMenu(id, "Adjust your settings!", g_SettingsMenu);
+			}
+		}
     }
     
     listen(integer chan, string name, key id, string msg)
@@ -439,14 +547,20 @@ default
             g_currMenu = "";
             offerMenu(id, "Adjust your settings!", g_SettingsMenu);
         }
+		else if(msg=="DEBUG")
+		{
+			printDebugSettings();
+		}
         else if(contains(g_Skins, msg) && g_currMenu == "Skins")
         {
             applyTexture(msg, "SKIN:");
+            g_currMenu = "";
             offerMenu(id, "Adjust your settings!", g_SettingsMenu);
         }
         else if(contains(g_Printouts, msg)  && g_currMenu == "Printouts") // new printout notecard!
         {
             llMessageLinked(LINK_THIS, -3, g_currMenu + ":" + msg, NULL_KEY); //whew!
+            g_currMenu = "";
             offerMenu(id, "Adjust your settings!", g_SettingsMenu);
         }
         else if(msg == "NEXT-->")
@@ -596,34 +710,34 @@ default
             offerMenu(id, "Adjust your volume settings!", g_VolumeMenu);  
         }
         else if(msg == "Mess❤Timer")
-        {
+		{
             g_currMenu = msg;
-            offerMenu(id, "Mess Frequency (How often you potty)\n\n==This is in Minutes==", g_timerOptions);   
+            offerMenu(id, "Mess Frequency (How often you potty)\n\n==This is in Minutes==\nCurrent Value: "+(string)g_messTimer, g_timerOptions);   
         }
         else if(msg == "Wet❤Timer")
         {
             g_currMenu = msg;
-            offerMenu(id, "Wet Frequency (How often you wet)\n\n==This is in Minutes==", g_timerOptions);   
+            offerMenu(id, "Wet Frequency (How often you wet)\n\n==This is in Minutes==\nCurrent Value: "+(string)g_wetTimer, g_timerOptions);   
         }
         else if(msg == "Wet%")
         {
             g_currMenu = msg;
-            offerMenu(id, "Chance to hold it! (Wet)", g_chanceOptions);   
+            offerMenu(id, "Chance to hold it! (Wet)\nCurrent Chance: "+(string)g_wetChance+"%", g_chanceOptions);   
         }
         else if(msg == "Mess%")
         {
             g_currMenu = msg;
-            offerMenu(id, "Chance to hold it! (Mess)", g_chanceOptions);   
+            offerMenu(id, "Chance to hold it! (Mess)\nCurrent Chance: "+(string)g_messChance+"%", g_chanceOptions);
         }
         else if(msg == "❤Tickle❤")
         {
             g_currMenu = msg;
-            offerMenu(id, "Chance to resist tickles!", g_chanceOptions);   
+            offerMenu(id, "Chance to resist tickles!\nCurrent Chance: "+(string)g_tickle+"%", g_chanceOptions);   
         }
         else if(msg == "Tummy❤Rub")
         {
             g_currMenu = msg;
-            offerMenu(id, "Chance to resist tummy rubs!", g_chanceOptions);   
+            offerMenu(id, "Chance to resist tummy rubs!\nCurrent Chance: "+(string)g_tummyRub+"%", g_chanceOptions);   
         }
         else if(msg == "Printouts")
         {
@@ -651,28 +765,50 @@ default
         }
         else if(msg == "Interactions")
         {
+			string allowedInteractions;
             g_currMenu = msg;
-            offerMenu(id, "Who should be able to interact with this diaper?", g_InteractionsOptions);
+			if(g_interact==0)
+			{
+				allowedInteractions = "only carers and yourself";
+			}
+			else if(g_interact==1)
+			{
+				allowedInteractions = "everyone";
+			}
+            offerMenu(id, "Who should be able to interact with this diaper?\n\nCurrently "+allowedInteractions+" are allowed.", g_InteractionsOptions);
         }
         else if(msg == "Chatter")
         {
+			string chatSpam;
             g_currMenu = msg;
-            offerMenu(id, "How far should the diaper chatter go?", g_ChatterMenu);
+			if(g_chatter==0)
+			{
+				chatSpam = "private.  Only you and whoever interacts will see messages.";
+			}
+			else if(g_chatter==1)
+			{
+				chatSpam = "whisper.  The public will hear messages up to 10m away.";
+			}
+			else if(g_chatter==2)
+			{
+				chatSpam = "normal.  The public will hear messages up to 20m away!";
+			}
+            offerMenu(id, "How far should the diaper chatter go?\n\nThe current setting is "+chatSpam, g_ChatterMenu);
         }
         else if(msg == "Crinkle❤Volume")
         {
             g_currMenu = msg;
-            offerMenu(id, "How loud should the crinkling be?", g_chanceOptions);
+            offerMenu(id, "How loud should the crinkling be?\nCurrent value: "+(string)llRound(g_CrinkleVolume*200.0)+"%", g_chanceOptions);
         }
         else if(msg == "Wet❤Volume")
         {
             g_currMenu = msg;
-            offerMenu(id, "How loud should the wetting sound be?", g_chanceOptions);
+            offerMenu(id, "How loud should the wetting sound be?\nCurrent value: "+(string)llRound(g_WetVolume*300)+"%", g_chanceOptions);
         }
         else if(msg == "Mess❤Volume")
         {
             g_currMenu = msg;
-            offerMenu(id, "How loud should the messing sound be?", g_chanceOptions);
+            offerMenu(id, "How loud should the messing sound be?\nCurrent value: "+(string)llRound(g_MessVolume*100)+"%", g_chanceOptions);
         }
         else // Serve menu
         {
