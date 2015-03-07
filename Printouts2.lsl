@@ -1,10 +1,7 @@
 /*==========================================================
-DrizzleScript v1.00
+DrizzleScript
 Created By: Ryhn Teardrop
-Date: Dec 3rd, 2011
-
-Programming Contributors: Ryhn Teardrop, Brache Spyker
-Resource Contributors: Murreki Fasching
+Original Date: Dec 3rd, 2011
 
 License: RPL v1.5 (Outlined at http://www.opensource.org/licenses/RPL-1.5)
 
@@ -209,7 +206,6 @@ parseLinkedMessage(string msg)
     index = llSubStringIndex(msg, ":"); //Pull the sent name out
     g_toucherName = llGetSubString(msg, 0, index);
     msg = llGetSubString(msg, index+1, -1);
-
 
 }
 
@@ -688,15 +684,6 @@ constructPrint(string data, integer append, string printoutType)
     }
 }
 
-// Accepts the name of an animation to be played, requests permission, and plays the animation.
-// @animName = The name of an animation in the Diaper's inventory
-playAnimation(string animName)
-{
-    llOwnerSay("Animating!");
-    llRequestPermissions(llGetOwner(), PERMISSION_TRIGGER_ANIMATION);
-    llStartAnimation(animName);
-}
-
 //This function is passed a (potentially) tokenized (*first, *oFullName, etc) string,
 //it's job is to remove the tokens if they exist, and replace them with the proper information (First name, Full name, etc.)
 //@printout = A potentially tokenized string in need of processing.
@@ -947,6 +934,7 @@ displayPrintout()
         {
             temp = processPrint(carer_checkWetMess5);
         }
+        //todo: fill gap
         else if((g_wetLevel >= 5 || g_wetLevel >= 6) && g_messLevel >= 3) // Catch all for very used diapers.
         {
             temp = processPrint(carer_checkWetMess6);
@@ -1096,7 +1084,6 @@ displayPrintout()
             }
         }
     }
-    //Shouldn't this be here instead?
     if(temp) //Allow for empty notecards to silence printouts
     {
         index = llSubStringIndex(temp, " "); // First space in the sentence.
@@ -1121,7 +1108,6 @@ displayPrintout()
         }
     }
     llSetObjectName(name); // Restore the name of the diaper.
-    
 }
 
 default
@@ -1172,7 +1158,9 @@ default
             }
             else
             {
-                llOwnerSay("Done reading your notecard! :3");   
+                llOwnerSay("Done reading your notecard! :3");
+                llOwnerSay("Printout2 Script Memory Used: " + (string) llGetUsedMemory() + " Bytes");
+                llOwnerSay("Printout2 Script Memory Remaining: " + (string) llGetFreeMemory() + " Bytes");
             }
         }
     }
