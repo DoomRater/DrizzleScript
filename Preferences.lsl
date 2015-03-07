@@ -1,8 +1,7 @@
 /*==========================================================
-DrizzleScript v1.00
+DrizzleScript
 Created By: Ryhn Teardrop
 Original Date: Dec 3rd, 2011
-Last Modified: March 6th, 2015
 
 Programming Contributors: Ryhn Teardrop, Brache Spyker
 Resource Contributors: Murreki Fasching, Brache Spyker
@@ -42,21 +41,18 @@ integer g_mainPrim;
 string g_mainPrimName = ""; // By default, set to "".
 
 //menu variables passed to preferences
-//  integer g_wetLevel;
-//  integer g_messLevel;
-    integer g_wetChance;
-    integer g_messChance;
-    integer g_wetTimer;
-    integer g_messTimer;
-    integer g_tummyRub;
-    integer g_tickle;
-    integer g_gender;
-//  integer g_isOn;
-    integer g_interact;
-    integer g_chatter;
-    float g_CrinkleVolume;
-    float g_WetVolume;
-    float g_MessVolume;
+integer g_wetChance;
+integer g_messChance;
+integer g_wetTimer;
+integer g_messTimer;
+integer g_tummyRub;
+integer g_tickle;
+integer g_gender;
+integer g_interact;
+integer g_chatter;
+float g_CrinkleVolume;
+float g_WetVolume;
+float g_MessVolume;
 
 //Old variables used in my prim-sculptie based system.
 //list g_Ruffles;
@@ -67,28 +63,21 @@ string g_mainPrimName = ""; // By default, set to "".
 //list g_AppearanceMenu = ["<--BACK", "★", "★", "Tapes", "Ruffles", "Color", "Skins", "Panel"];
 //list g_ColorMenu = ["<--BACK", "★", "★"];
 
-
 /*
     This function is customized to work with Zyriik's Puppy Pawz Pampers model.
     It assumes that the main model is named "Main Shape" and searches through the link set until it discovers it.
 */  
-findPrims()
-{
+findPrims() {
     
-    if(g_mainPrimName == "") // No specified prim. Look for root.
-    {
+    if(g_mainPrimName == "") { // No specified prim. Look for root.
         g_mainPrim = 1;
     }
-    else // Specified prim. Find it.
-    {
+    else {// Specified prim. Find it.
         integer i; // Used to loop through the linked objects
         integer primCount = llGetNumberOfPrims(); //should be attached, not sat on
-        for(i = 1; i <= primCount; i++)
-        { 
+        for(i = 1; i <= primCount; i++) {
             string primName = (string) llGetLinkPrimitiveParams(i, [PRIM_NAME]); // Get the name of linked object i
-        
-            if(g_mainPrimName == primName)  // Is this the prim?
-            {
+            if(g_mainPrimName == primName) { // Is this the prim?
                 g_mainPrim = i;
             }    
         }
@@ -101,62 +90,48 @@ findPrims()
 //@readLocation = The index used to determine where to start reading the list
 //@id = Key used to dispatch finished page
 //---- This function generates the page to be displayed (This function curiously is used to display page 1)
-integer prevPage(string MenuText, list l, integer readLocation, key id)
-{
+integer prevPage(string MenuText, list l, integer readLocation, key id) {
     if(readLocation < -1) return readLocation;
             
     readLocation -= 22; //Go back two pages (11 for current page, 11 more to get readLocation to the start of the page)
     
-    if(readLocation == -1) //First page
-    {
+    if(readLocation == -1) {//First page
         //@temp = elements 0 through 9 in g_Skins, and then 10 and 11 are Help and Next-->
         list temp = ["Help", "NEXT-->"] + llList2List(l, readLocation+1, readLocation+10);
-        readLocation += 11; // Moving the readLocation forward 11 elements is incorrect.
-        
+        readLocation += 11;
         offerMenu(id, MenuText, temp);
-        
         return readLocation;       
     }
-    else
-    {
+    else {
         list temp = ["Help", "<--PREV", "NEXT-->"] + llList2List(l, readLocation+1, readLocation+10);
         readLocation += 11;
         offerMenu(id, MenuText, temp);
-        
         return readLocation;
     }
 }
 
 //@id = The key used to send the menu out.
 //This function determines which page needs to be generated
-handlePrev(key id)
-{
-   
-    if(g_currMenu == "Skins")
-    {
+handlePrev(key id) {
+    if(g_currMenu == "Skins") {
          g_currCount = prevPage("Choose a skin:",g_Skins, g_currCount, id);
     }
-    else if(g_currMenu == "Printouts")
-    {
+    else if(g_currMenu == "Printouts") {
         g_currCount = prevPage("Choose a Printout style:",g_Printouts, g_currCount, id);
     }
          
     /* Old code from prim-sculptie based build
-    if(g_currMenu == "Tapes")
-    {
-        g_currCount = prevPage(g_Tapes, g_currCount, id);
+    if(g_currMenu == "Tapes") {
+    //    g_currCount = prevPage(g_Tapes, g_currCount, id);
     }
-    else if(g_currMenu == "Ruffles")
-    {
-         g_currCount = prevPage(g_Ruffles, g_currCount, id);
+    else if(g_currMenu == "Ruffles") {
+    //     g_currCount = prevPage(g_Ruffles, g_currCount, id);
     }
-    else if(g_currMenu == "Color")
-    {
+    else if(g_currMenu == "Color") {
     //     g_currCount = prevPage(g_Colors, g_currCount, id);
     }
-    else if(g_currMenu == "Panel")
-    {
-         g_currCount = prevPage(g_Panels, g_currCount, id);
+    else if(g_currMenu == "Panel") {
+    //     g_currCount = prevPage(g_Panels, g_currCount, id);
     }*/
 }
 
@@ -164,161 +139,121 @@ handlePrev(key id)
 //@readLocation = The index used to determine where to start reading the list
 //@id = Key used to dispatch finished page
 //---- This function generates the page to be displayed
-integer nextPage(string MenuText, list l, integer readLocation, key id)
-{
+integer nextPage(string MenuText, list l, integer readLocation, key id) {
     integer maxReadLocation = llGetListLength(l);
     integer i;
     list temp;
     list stars;
     
     if(readLocation > maxReadLocation) return readLocation; // Invalid readLocation
-    if(readLocation+11 > maxReadLocation) //This is the last page, and it wont be full
-    {
+    if(readLocation+11 > maxReadLocation) { //This is the last page, and it wont be full
         temp = llList2List(l, readLocation, readLocation+10);
         readLocation += 11;
-        
         integer numStars = 10 - (llGetListLength(temp)); // 10 stars leaves room for Help and <--PREV
-
-       
         //Add the stars for filler
-        for(i = 0; i < numStars; i++)
-        {
+        for(i = 0; i < numStars; i++) {
             stars += ["★"];
         }
-        
         temp = ["Help", "<--PREV"] + stars + temp;
-        
         g_currMenuButtons = temp;
         offerMenu(id, MenuText, temp);
     }
-    else // Full page.
-    {
+    else { // Full page.
         temp = ["<--PREV","NEXT-->"] + llList2List(l, readLocation, readLocation+10); 
         readLocation += 11;
         offerMenu(id, MenuText, temp);
     }
-    
     return readLocation;
 }
 
 //@id = The key used to send the menu out.
 //This function determines which page needs to be generated
-handleNext(key id)
-{
-    if(g_currMenu == "Skins")
-    {
+handleNext(key id) {
+    if(g_currMenu == "Skins") {
          g_currCount = nextPage("Choose a skin:",g_Skins, g_currCount, id);
     }
-    else if(g_currMenu == "Printouts")
-    {
+    else if(g_currMenu == "Printouts") {
         g_currCount = nextPage("Choose a Printout style:",g_Printouts, g_currCount, id);
     }
          
     /* Old code for a prim-based build.
-    if(g_currMenu == "Tapes")
-    {
+    if(g_currMenu == "Tapes") {
         g_currCount = nextPage(g_Tapes, g_currCount, id);
     }
-    else if(g_currMenu == "Skins")
-    {
+    else if(g_currMenu == "Skins") {
          g_currCount = nextPage(g_Skins, g_currCount, id);
     }
-    else if(g_currMenu == "Ruffles")
-    {
+    else if(g_currMenu == "Ruffles") {
          g_currCount = nextPage(g_Ruffles, g_currCount, id);
     }
-    else if(g_currMenu == "Colors")
-    {
+    else if(g_currMenu == "Colors") {
          g_currCount = nextPage(g_Colors, g_currCount, id);
     }
-    else if(g_currMenu == "Panel")
-    {
+    else if(g_currMenu == "Panel") {
          g_currCount = nextPage(g_Panels, g_currCount, id);
     }
-    */  
+    */
 }
 
-loadAllTextures(list l)
-{
+loadAllTextures(list l) {
     integer i;
-    
-    for(i = 0; i < g_PrintTextueLength; i++)
-    {
+    for(i = 0; i < g_PrintTextueLength; i++) {
         string temp = llList2String(l, i);  //seems less confusing to just use llList2String than typecasting a single List2list entry...
         string prefix = llGetSubString(temp, 0, llSubStringIndex(temp, ":"));
         string name = llGetSubString(temp, llSubStringIndex(temp, ":") + 1, llStringLength(temp));
-        
-        if(prefix == "SKIN:")
-        {
+        if(prefix == "SKIN:") {
             g_Skins += name;  
         }
         //Add additional textures that need to be loaded for other diaper types here
     }
 }
 
-loadPrintouts(list l)
-{
+loadPrintouts(list l) {
     integer i;
-    
-    for(i = 0; i < g_PrintCardLength; i++)
-    {
+    for(i = 0; i < g_PrintCardLength; i++) {
         string temp = llList2String(l, i);
         string prefix = llGetSubString(temp, 0, llSubStringIndex(temp, ":"));
         string name = llGetSubString(temp, llSubStringIndex(temp, ":") + 1, llStringLength(temp));
-        if(prefix == "PRINT:")
-        {
+        if(prefix == "PRINT:") {
             g_Printouts += name;
         }
     }
 }
 
-loadInventoryList()
-{
+loadInventoryList() {
     list result = [];
     integer n = llGetInventoryNumber(INVENTORY_TEXTURE);
-    
-    while(n)
-    {
+    while(n) {
         result = llGetInventoryName(INVENTORY_TEXTURE, --n) + result;
     }
     g_PrintTextueLength = llGetListLength(result);
-    
     loadAllTextures(result);
-    
     result = [];
     n = llGetInventoryNumber(INVENTORY_NOTECARD);
-    
-    while(n)
-    {
+    while(n) {
         result = llGetInventoryName(INVENTORY_NOTECARD, --n) + result;
     }
     g_PrintCardLength = llGetListLength(result);
-    
     loadPrintouts(result);
-    
 }
-integer generateChan(key id)
-{
+integer generateChan(key id) {
     string channel = "0xE" +  llGetSubString((string)id, 0, 6);
     return (integer) channel;
 }
 
 //Identical to llDialog except channel isn't passed, and
 //this function tucks in a few lines of code to track the last menu accessed
-offerMenu(key id, string dialogMessage, list buttons)
-{
+offerMenu(key id, string dialogMessage, list buttons) {
     g_currMenuButtons = buttons;
     g_currMenuMessage = dialogMessage;
     llDialog(id, dialogMessage, buttons,g_uniqueChan);   
 }
 
-handleMenuChoice(string msg, key id)
-{
+handleMenuChoice(string msg, key id) {
 
     /* Old code from a prim-sculptie based build.
     
-    if(msg == "Tapes")
-    {
+    if(msg == "Tapes") {
         g_currMenu = msg;
         g_currCount = -1;
         list temp = llList2List(g_Tapes, g_currCount+1, g_currCount+10) + ["NEXT-->", "HELP"];
@@ -326,8 +261,7 @@ handleMenuChoice(string msg, key id)
         offerMenu(id, "Choose a the tape texture you'd like: ", temp);
         g_currCount += 11;
     }
-    else if(msg == "Panel")
-    {
+    else if(msg == "Panel") {
         g_currMenu = msg;
         g_currCount = -1;
         list temp = llList2List(g_Panels, g_currCount+1, g_currCount+10) + ["NEXT-->", "HELP"];
@@ -335,8 +269,7 @@ handleMenuChoice(string msg, key id)
         offerMenu(id, "Choose a the panel texture you'd like: ", temp);
         g_currCount += 11;   
     }
-    else if(msg == "Ruffles")
-    {
+    else if(msg == "Ruffles") {
         g_currMenu = msg;
         g_currCount = -1;
         list temp = llList2List(g_Ruffles, g_currCount+1, g_currCount+10) + ["NEXT-->", "HELP"];
@@ -345,18 +278,15 @@ handleMenuChoice(string msg, key id)
         //llDialog(id, "Choose a the panel texture you'd like: ", temp, g_uniqueChan);
         g_currCount += 11;   
     }
-    else if(msg == "WetTex")
-    {
+    else if(msg == "WetTex") {
         g_currMenu = msg;
         //Incomplete
     }
-    else if(msg == "MessTex")
-    {
+    else if(msg == "MessTex") {
         g_currMenu = msg;
         //Incomplete
     }
-    else if(msg == "Colors")
-    {
+    else if(msg == "Colors") {
         g_currMenu = msg;
         g_currCount = -1;
         list temp = llList2List(g_ColorMenu, g_currCount+1, g_currCount+10) + ["NEXT-->", "HELP"];
@@ -364,8 +294,7 @@ handleMenuChoice(string msg, key id)
         offerMenu(id, "Adjust your colors!", temp);
         g_currCount += 11;  
     }
-    else if(msg == "Training")
-    {
+    else if(msg == "Training") {
         g_currMenu = msg;
         g_currCount = -1;
         offerMenu(id, "How potty trained are you?", g_TrainingMenu);   
@@ -375,8 +304,7 @@ handleMenuChoice(string msg, key id)
 
 //@name = Texture name
 //@prefix = Texture's type
-applyTexture(string name, string prefix)
-{
+applyTexture(string name, string prefix) {
     string texture = prefix + name;
     vector repeats;
     vector offset;
@@ -393,28 +321,27 @@ applyTexture(string name, string prefix)
     llSetLinkPrimitiveParamsFast(g_mainPrim, [PRIM_TEXTURE, ALL_SIDES, texture, repeats, offset, radRotation]);
 }
 
-integer contains(list l, string test)
-{
-    if(~llListFindList(l, [test])) // test found, it's in the list!
-    {
+integer contains(list l, string test) {
+    if(~llListFindList(l, [test])) {// test found, it's in the list!
         return TRUE;   
     }
-    else return FALSE;
+    else {
+		return FALSE;
+	}
 }
 
-parseSettings(string temp)
-{
+parseSettings(string temp) {
     integer index; // Used to hold the location of a comma in the CSV
 	
     //I opted to not use llCSV2List to avoid the overhead associated with storing and cutting up lists.
     //I'm simply finding commas in the string, and cutting out the values between them.
     
     index = llSubStringIndex(temp, ",");
-//    g_wetLevel = (integer) llGetSubString(temp, 0, index-1);
+//  g_wetLevel = (integer) llGetSubString(temp, 0, index-1);
     temp = llGetSubString(temp, index+1, -1); // Remove the used data.
     
     index = llSubStringIndex(temp, ",");
-//    g_messLevel = (integer) llGetSubString(temp, 0, index-1);
+//  g_messLevel = (integer) llGetSubString(temp, 0, index-1);
     temp = llGetSubString(temp, index+1, -1);
     
     index = llSubStringIndex(temp, ",");
@@ -446,7 +373,7 @@ parseSettings(string temp)
     temp = llGetSubString(temp, index+1, -1);
 
     index = llSubStringIndex(temp, ",");
-//    g_isOn = (integer) llGetSubString(temp, 0, index-1);
+//  g_isOn = (integer) llGetSubString(temp, 0, index-1);
     temp = llGetSubString(temp, index+1, -1);
 
     index = llSubStringIndex(temp, ",");
@@ -467,11 +394,9 @@ parseSettings(string temp)
 
     //The last value is all that remains, just store it.
     g_MessVolume = (float) temp;
-
 }
 
-printDebugSettings()
-{
+printDebugSettings() {
     llOwnerSay("Wet Hold: " + (string) g_wetChance + "%");
     llOwnerSay("Mess Hold: " + (string) g_messChance + "%");
     llOwnerSay("Wet Frequency: " + (string) g_wetTimer + " Minute(s)");
@@ -488,48 +413,37 @@ printDebugSettings()
     llOwnerSay("Free Memory: " + (string) llGetFreeMemory());
 }
 
-default
-{
+default {
     
-    state_entry()
-    {
+    state_entry() {
         g_uniqueChan = generateChan(llGetOwner()) + 1; // Remove collision with Menu listen handler via +1
         llListen(g_uniqueChan, "", "", "");
         loadInventoryList();
         findPrims();   
     }
     
-    attach(key id)
-    {
-        if(id) // Attached
-        {
+    attach(key id) {
+        if(id) { // Attached
             findPrims();    
         }
     }
     
-    changed(integer change)
-    {
-        if(change & CHANGED_OWNER | CHANGED_INVENTORY)
-        {
+    changed(integer change) {
+        if(change & CHANGED_OWNER | CHANGED_INVENTORY) {
             llResetScript();
         }
     }
     
-    on_rez(integer start_param)
-    {
+    on_rez(integer start_param) {
         llResetScript(); 
     }
     
-    link_message(integer sender_num, integer num, string msg, key id)
-    {
-		if(num == 6)
-		{
+    link_message(integer sender_num, integer num, string msg, key id) {
+		if(num == 6) {
 			parseSettings(msg);
 		}
-        else if(num == -1)
-        {
-			if(msg == "Options")
-			{
+        else if(num == -1) {
+			if(msg == "Options") {
 				offerMenu(id, "Adjust your settings!", g_SettingsMenu);
 			}
 		}
@@ -537,281 +451,227 @@ default
     
     listen(integer chan, string name, key id, string msg)
     {
-        if(msg == "★") // Someone misclicked in the menu!
-        {
+        if(msg == "★") {// Someone misclicked in the menu!
             llOwnerSay("The stars are just there to look pretty! =p");
             offerMenu(id, g_currMenuMessage, g_currMenuButtons);
         }
-        else if(msg == "<--BACK")
-        {
+        else if(msg == "<--BACK") {
             g_currMenu = "";
             offerMenu(id, "Adjust your settings!", g_SettingsMenu);
         }
-		else if(msg=="DEBUG")
-		{
+		else if(msg=="DEBUG") {
 			printDebugSettings();
 		}
-        else if(contains(g_Skins, msg) && g_currMenu == "Skins")
-        {
+        else if(contains(g_Skins, msg) && g_currMenu == "Skins") {
             applyTexture(msg, "SKIN:");
             g_currMenu = "";
             offerMenu(id, "Adjust your settings!", g_SettingsMenu);
         }
-        else if(contains(g_Printouts, msg)  && g_currMenu == "Printouts") // new printout notecard!
-        {
+        else if(contains(g_Printouts, msg)  && g_currMenu == "Printouts") {// new printout notecard!
             llMessageLinked(LINK_THIS, -3, g_currMenu + ":" + msg, NULL_KEY); //whew!
             g_currMenu = "";
             offerMenu(id, "Adjust your settings!", g_SettingsMenu);
         }
-        else if(msg == "NEXT-->")
-        {
+        else if(msg == "NEXT-->") {
             handleNext(id);
         }
-        else if(msg == "<--PREV")
-        {
+        else if(msg == "<--PREV") {
             handlePrev(id);
         }
-        else if(g_currMenu == "Crinkle❤Volume")
-        {
+        else if(g_currMenu == "Crinkle❤Volume") {
             llMessageLinked(LINK_THIS, -3, g_currMenu + ":" + msg, NULL_KEY);
             g_currMenu = "";
             offerMenu(id, "Adjust your settings!", g_SettingsMenu);
         }
-        else if(g_currMenu == "Wet❤Volume")
-        {
+        else if(g_currMenu == "Wet❤Volume") {
             llMessageLinked(LINK_THIS, -3, g_currMenu + ":" + msg, NULL_KEY);
             g_currMenu = "";
             offerMenu(id, "Adjust your settings!", g_SettingsMenu);
         }
-        else if(g_currMenu == "Mess❤Volume")
-        {
+        else if(g_currMenu == "Mess❤Volume") {
             llMessageLinked(LINK_THIS, -3, g_currMenu + ":" + msg, NULL_KEY);
             g_currMenu = "";
             offerMenu(id, "Adjust your settings!", g_SettingsMenu);
         }            
-        else if(g_currMenu == "Mess%")
-        {
+        else if(g_currMenu == "Mess%") {
             //Mess%:10%
             llMessageLinked(LINK_THIS, -3, g_currMenu + ":" + msg, NULL_KEY);
             g_currMenu = "";
             offerMenu(id, "Adjust your settings!", g_SettingsMenu);
         }
-        else if(g_currMenu == "Wet%")
-        {
+        else if(g_currMenu == "Wet%") {
             //Wet%:10%
             llMessageLinked(LINK_THIS, -3, g_currMenu + ":" + msg, NULL_KEY);
             g_currMenu = "";
             offerMenu(id, "Adjust your settings!", g_SettingsMenu);
         }
-        else if(g_currMenu == "Mess❤Timer")
-        {
+        else if(g_currMenu == "Mess❤Timer") {
             //Mess❤Timer:10
             llMessageLinked(LINK_THIS, -3, g_currMenu + ":" + msg, NULL_KEY);
             g_currMenu = "";
             offerMenu(id, "Adjust your settings!", g_SettingsMenu);
         }
-        else if(g_currMenu == "Wet❤Timer")
-        {
+        else if(g_currMenu == "Wet❤Timer") {
             //Wet❤Timer:10
             llMessageLinked(LINK_THIS, -3, g_currMenu + ":" + msg, NULL_KEY);
             g_currMenu = "";
             offerMenu(id, "Adjust your settings!", g_SettingsMenu);
         }
-        else if(g_currMenu == "❤Tickle❤")
-        {
+        else if(g_currMenu == "❤Tickle❤") {
             //❤Tickle❤:??
             llMessageLinked(LINK_THIS, -3, g_currMenu + ":" + msg, NULL_KEY);
             g_currMenu = "";
             offerMenu(id, "Adjust your settings!", g_SettingsMenu);
         }
-        else if(g_currMenu == "Tummy❤Rub")
-        {
+        else if(g_currMenu == "Tummy❤Rub") {
             //Tummy❤Rub:??
             llMessageLinked(LINK_THIS, -3, g_currMenu + ":" + msg, NULL_KEY);
             g_currMenu = "";
             offerMenu(id, "Adjust your settings!", g_SettingsMenu);
         }
-        else if(msg == "Boy") //Sent to main to update values and pass to Printouts
-        {
+        else if(msg == "Boy") { //Sent to main to update values and pass to Printouts
             llMessageLinked(LINK_THIS, -3, "Gender:0", NULL_KEY);
             offerMenu(id, "Adjust your settings!", g_SettingsMenu);
         }
-        else if(msg == "Girl")
-        {
+        else if(msg == "Girl") {
             llMessageLinked(LINK_THIS, -3, "Gender:1", NULL_KEY);
             offerMenu(id, "Adjust your settings!", g_SettingsMenu);
         }
         //Security settings
-        else if(msg == "Everyone")
-        {
+        else if(msg == "Everyone") {
             llMessageLinked(LINK_THIS, -3, "Others:1", NULL_KEY);
             offerMenu(id, "Adjust your settings!", g_SettingsMenu);
         }
-        else if(msg == "Carers❤&❤Me")
-        {
+        else if(msg == "Carers❤&❤Me") {
             llMessageLinked(LINK_THIS, -3, "Others:0", NULL_KEY);
             offerMenu(id, "Adjust your settings!", g_SettingsMenu);
         }
         //chat spam level
-        else if(msg == "Normal")
-        {
+        else if(msg == "Normal") {
             llMessageLinked(LINK_THIS, -3, "Chatter:2", NULL_KEY);
             offerMenu(id, "Adjust your settings!", g_SettingsMenu);
         }
-        else if(msg == "Whisper")
-        {
+        else if(msg == "Whisper") {
             llMessageLinked(LINK_THIS, -3, "Chatter:1", NULL_KEY);
             offerMenu(id, "Adjust your settings!", g_SettingsMenu);
         }
-        else if(msg == "Private")
-        {
+        else if(msg == "Private") {
             llMessageLinked(LINK_THIS, -3, "Chatter:0", NULL_KEY);
             offerMenu(id, "Adjust your settings!", g_SettingsMenu);
         }
-        else if(msg == "Skins")
-        {
+        else if(msg == "Skins") {
             g_currMenu = msg;
             g_currCount = -1;
             list temp;
-            
-            if(llGetListLength(g_Skins) <= 11)
-            {
+            if(llGetListLength(g_Skins) <= 11) {
                 temp = ["Help"] + llList2List(g_Skins, g_currCount+1, g_currCount+11);
                 g_currCount += 12; //g_currCount is now 11 (starts at -1)
             }
-            else
-            {
+            else {
                 temp = ["Help", "NEXT-->"] + llList2List(g_Skins, g_currCount+1, g_currCount+10); // This is a list of 10 skins
                 g_currCount += 11; //g_currCount is now 10 (starts at -1)
             }
             offerMenu(id, "Choose a Skin:", temp);
         }   
-        else if(msg == "Help")
-        {
-            if (g_currMenu == "Skins")
-            {
+        else if(msg == "Help") {
+            if (g_currMenu == "Skins") {
                 llOwnerSay("To add your own skins, simply prefix the name of a texture you want to add with:\n\nSKIN:\n\n. . . And drag it into your diaper!");
             }
-            else if(g_currMenu == "Printouts")
-            {
+            else if(g_currMenu == "Printouts") {
                 llOwnerSay("To add new printout cards, simply prefix the name of a preformatted notecard you want to add with:\n\nPRINT:\n\n. . . And drag it into your diaper!");
             }
             llDialog(id, g_currMenuMessage, g_currMenuButtons, g_uniqueChan);
         }
         //todo: Merge changing of potty settings, volume settings, etc with main
-        else if(msg == "Potty")
-        {
+        else if(msg == "Potty") {
             g_currMenu = msg;
             offerMenu(id, "Adjust your potty settings!", g_PottyMenu);  
         }
-        else if(msg == "Volume")
-        {
+        else if(msg == "Volume") {
             g_currMenu = msg;
             offerMenu(id, "Adjust your volume settings!", g_VolumeMenu);  
         }
-        else if(msg == "Mess❤Timer")
-		{
+        else if(msg == "Mess❤Timer") {
             g_currMenu = msg;
             offerMenu(id, "Mess Frequency (How often you potty)\n\n==This is in Minutes==\nCurrent Value: "+(string)g_messTimer, g_timerOptions);   
         }
-        else if(msg == "Wet❤Timer")
-        {
+        else if(msg == "Wet❤Timer") {
             g_currMenu = msg;
             offerMenu(id, "Wet Frequency (How often you wet)\n\n==This is in Minutes==\nCurrent Value: "+(string)g_wetTimer, g_timerOptions);   
         }
-        else if(msg == "Wet%")
-        {
+        else if(msg == "Wet%") {
             g_currMenu = msg;
             offerMenu(id, "Chance to hold it! (Wet)\nCurrent Chance: "+(string)g_wetChance+"%", g_chanceOptions);   
         }
-        else if(msg == "Mess%")
-        {
+        else if(msg == "Mess%") {
             g_currMenu = msg;
             offerMenu(id, "Chance to hold it! (Mess)\nCurrent Chance: "+(string)g_messChance+"%", g_chanceOptions);
         }
-        else if(msg == "❤Tickle❤")
-        {
+        else if(msg == "❤Tickle❤") {
             g_currMenu = msg;
             offerMenu(id, "Chance to resist tickles!\nCurrent Chance: "+(string)g_tickle+"%", g_chanceOptions);   
         }
-        else if(msg == "Tummy❤Rub")
-        {
+        else if(msg == "Tummy❤Rub") {
             g_currMenu = msg;
             offerMenu(id, "Chance to resist tummy rubs!\nCurrent Chance: "+(string)g_tummyRub+"%", g_chanceOptions);   
         }
-        else if(msg == "Printouts")
-        {
+        else if(msg == "Printouts") {
             g_currMenu = msg;
             g_currCount = -1;
             list temp;
         
-            if(llGetListLength(g_Printouts) <= 11)
-            {
+            if(llGetListLength(g_Printouts) <= 11) {
                 temp = ["Help"] + llList2List(g_Printouts, g_currCount+1, g_currCount+11);
                 g_currCount += 12; //g_currCount is now 11 (starts at -1)
             }
-            else
-            {
+            else {
                 temp = ["Help", "NEXT-->"] + llList2List(g_Printouts, g_currCount+1, g_currCount+10); // This is a list of 10 skins
                 g_currCount += 11; //g_currCount is now 10 (starts at -1)
             }
-
             offerMenu(id, "Choose a Printout style:", temp);
         }
-        else if(msg == "Gender")
-        {
+        else if(msg == "Gender") {
             g_currMenu = msg;
             offerMenu(id, "Are you a boy or a girl?", g_GenderMenu);   
         }
-        else if(msg == "Interactions")
-        {
+        else if(msg == "Interactions") {
 			string allowedInteractions;
             g_currMenu = msg;
-			if(g_interact==0)
-			{
+			if(g_interact==0) {
 				allowedInteractions = "only carers and yourself are";
 			}
-			else if(g_interact==1)
-			{
+			else if(g_interact==1) {
 				allowedInteractions = "everyone is";
 			}
             offerMenu(id, "Who should be able to interact with this diaper?\n\nCurrently "+allowedInteractions+" allowed.", g_InteractionsOptions);
         }
-        else if(msg == "Chatter")
-        {
+        else if(msg == "Chatter") {
 			string chatSpam;
             g_currMenu = msg;
-			if(g_chatter==0)
-			{
+			if(g_chatter==0) {
 				chatSpam = "private.  Only you and whoever interacts will see messages.";
 			}
-			else if(g_chatter==1)
-			{
+			else if(g_chatter==1) {
 				chatSpam = "whisper.  The public will hear messages up to 10m away.";
 			}
-			else if(g_chatter==2)
-			{
+			else if(g_chatter==2) {
 				chatSpam = "normal.  The public will hear messages up to 20m away!";
 			}
             offerMenu(id, "How far should the diaper chatter go?\n\nThe current setting is "+chatSpam, g_ChatterMenu);
         }
-        else if(msg == "Crinkle❤Volume")
-        {
+        else if(msg == "Crinkle❤Volume") {
             g_currMenu = msg;
             offerMenu(id, "How loud should the crinkling be?\nCurrent value: "+(string)llRound(g_CrinkleVolume*200.0)+"%", g_chanceOptions);
         }
-        else if(msg == "Wet❤Volume")
-        {
+        else if(msg == "Wet❤Volume") {
             g_currMenu = msg;
             offerMenu(id, "How loud should the wetting sound be?\nCurrent value: "+(string)llRound(g_WetVolume*300)+"%", g_chanceOptions);
         }
-        else if(msg == "Mess❤Volume")
-        {
+        else if(msg == "Mess❤Volume") {
             g_currMenu = msg;
             offerMenu(id, "How loud should the messing sound be?\nCurrent value: "+(string)llRound(g_MessVolume*100)+"%", g_chanceOptions);
         }
-        else if(msg == "<--TOP")
-		{
+        else if(msg == "<--TOP") {
             llMessageLinked(LINK_THIS, -3, "Cancel:"+(string)id, NULL_KEY);
 		}
     }
