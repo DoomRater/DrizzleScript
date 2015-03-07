@@ -1,0 +1,31 @@
+/*
+//Changes by Brache Spyker:
+//-updated the Frand calls to truly generate numbers from 1-100 (were previously only reaching 1-99)
+//-added calls to sounds and llRequestControls() so we can tell when the user is crinkling
+//-Added option to silence diaper chatter or make it whisper instead of going all over the place
+//-Notecards can now be gender inspecific- two example notecards are included
+//-Now as many different notecards can be added as memory allows, just like diaper textures
+//-crinkle sounds and wetting sounds added (not configurable yet)
+//-BUGFIX: tummy rub messings always displaying as if previously messy
+//-BUGFIX: when others checked a diaper it didn't check for dry messy messages
+//-heavily updated notecards
+//-Added lots more security checks to the listens; people can't just spoof carer actions if they know the listen channel now
+//Default gender is girl in this script
+//-timesheldWet is reset properly when you wet, regardless of HOW you wet- before it only reset on timer
+//-BUGFIX: once you started flooding, you didn't stop flooding
+//-timesheldMess now resets under any messing not just timer
+//-nearby avatars could flood the lists and cause memory crashes, so now we're flushing those lists and storing a max of 12.
+//todo: add RP name option to printouts
+//todo: allow others to interact with diaper but not check or change
+//todo: allow toggling of carer access to diaper options menu
+//todo: add more gender options, including hermaphodite, gender neutral, and RANDOM MODE
+//Todo: add some restrictions on who can do what.
+//BUGFIX: parseSettings was not interpreting the volume settings as floats and thus failed to load the correct values
+//3/6/15:
+//Moved changelist to bottom of script
+//General code audit and cleanup, making names of variables more consistent with existing code
+//changed some division to multiplication
+//3/7/15:
+//bunch of code cleanup
+//allow preferences to return to main menu after
+*/
