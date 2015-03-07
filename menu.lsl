@@ -140,7 +140,7 @@ playMessSound(float volume)
     }
 }
 
-// This function recieves a CSV(Comma Separated Values) of the current settings, and parses it to 
+// This function receives a CSV(Comma Separated Values) of the current settings, and parses it to 
 // properly set the current state of the diaper.
 // @temp = A CSV of the settings sent from SaveSettings.lsl
 parseSettings(string temp)
@@ -252,8 +252,7 @@ sendSettings()
     (string) g_MessVolume;
     
     //For lite consider shifting to LINK_THIS
-    llMessageLinked(LINK_ALL_CHILDREN, 6, csv, NULL_KEY);
-    
+    llMessageLinked(LINK_SET, 6, csv, NULL_KEY);
     return;
 }
 
@@ -876,9 +875,9 @@ default
             toggleHide(); // Needs to keep in mind what Should and SHOULD NOT be visible
             adjustWetMessPrims(); // Ensure prims are properly hidden/shown after a state change.
         }
-		//todo: this will become just the prints and skins for preferences
         else if(msg == "Options" && userRank < 2) //Outsiders should never be able to invoke this
         {
+			sendSettings(); //make sure preferences knows the current settings
             llMessageLinked(LINK_THIS, -1, msg, id); // Tell Preferences script to talk to id
         }
         else if(contains(g_ButtonizedAvatars,msg)) //Start of Caretaker handling
@@ -1023,10 +1022,6 @@ default
         else if(msg == "Wedgie")
         {
              llMessageLinked(LINK_THIS, -4, (string) g_gender + ":" + (string) g_wetLevel + ":" + (string) g_messLevel + ":" + "Wedgie" + ":" + llKey2Name(id), id);
-        }
-        else
-        {
-            //todo: merge as much of preferences here as possible
         }
     }//End of listen(integer, string, key, string)
             
