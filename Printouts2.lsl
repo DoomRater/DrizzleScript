@@ -313,7 +313,6 @@ constructPrint(string data, integer append, string printoutType)
             carer_checkWet3to4Mess3 += data;
             return;    
         }
-        
         else if(printoutType == "@CareCheckWet5-6Mess3")
         {
             carer_checkWetMess6 += data;
@@ -922,7 +921,7 @@ displayPrintout()
         {
             temp = processPrint(carer_checkWetMess2);
         }
-        else if((g_wetLevel == 5 || g_wetLevel == 6) && g_messLevel == 1)
+        else if(g_wetLevel >= 5 && g_messLevel == 1)
         {
             temp = processPrint(carer_checkWetMess3);
         }
@@ -934,8 +933,19 @@ displayPrintout()
         {
             temp = processPrint(carer_checkWetMess5);
         }
-        //todo: fill gap
-        else if((g_wetLevel >= 5 || g_wetLevel >= 6) && g_messLevel >= 3) // Catch all for very used diapers.
+		else if(g_wetLevel >= 5 && g_messLevel == 2)
+		{
+			temp = processPrint(carer_checkWet5to6Mess2);
+		}
+        else if((g_wetLevel == 1 || g_wetLevel == 2) && g_messLevel >= 3)
+        {
+            temp = processPrint(carer_checkWet1to2Mess3);
+        }
+        else if((g_wetLevel == 3 || g_wetLevel == 4) && g_messLevel >= 3)
+        {
+            temp = processPrint(carer_checkWet3to4Mess3);
+        }
+        else if(g_wetLevel >= 5 && g_messLevel >= 3) // Catch all for very used diapers.
         {
             temp = processPrint(carer_checkWetMess6);
         }
