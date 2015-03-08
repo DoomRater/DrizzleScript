@@ -206,7 +206,7 @@ clearCustomPrints() {
 }
 
 loadCustomPrints() {
-    llOwnerSay("Printouts1: Loading your notecard, this may take a minute or two!");
+    llOwnerSay("Printouts1: Loading "+g_PrintoutCard+" notecard, this may take a minute or two!");
     g_lineNum = 0;
     //todo:  change this to load a specified printout notecard instead of by gender
     if(llGetInventoryType("PRINT:" + g_PrintoutCard) != -1) {
@@ -610,7 +610,6 @@ constructPrint(string data, integer append, string printoutType) {
 //This function is passed a (potentially) tokenized (*first, *oFullName, etc) string,
 //it's job is to remove the tokens if they exist, and replace them with the proper information (First name, Full name, etc.)
 //@printout = A potentially tokenized string in need of processing.
-//todo: Allow private printouts and printouts to caretakers interacting with the diaper!
 string processPrint(string printout) {
     string temp = printout; // Preserves the original data
     string fName; // First name of the User/Carer/Outsider, re-used.
