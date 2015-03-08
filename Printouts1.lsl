@@ -134,8 +134,7 @@ string wetTease;
 string messTease;
 string wetMessTease;
 
-clearCustomPrints()
-{
+clearCustomPrints() {
     wet1="";
     wet2="";
     wet3="";
@@ -206,17 +205,14 @@ clearCustomPrints()
     wetMessTease="";
 }
 
-loadCustomPrints()
-{
+loadCustomPrints() {
     llOwnerSay("Printouts1: Loading your notecard, this may take a minute or two!");
     g_lineNum = 0;
     //todo:  change this to load a specified printout notecard instead of by gender
-    if(llGetInventoryType("PRINT:" + g_PrintoutCard) != -1)
-    {
+    if(llGetInventoryType("PRINT:" + g_PrintoutCard) != -1) {
         g_lineQuery = llGetNotecardLine("PRINT:" + g_PrintoutCard, g_lineNum);
     }
-    else
-    {
+    else {
         llOwnerSay("No Notecard Found!\n Please drag this notecard into your model: PRINT:" + g_PrintoutCard);
     }
 }
@@ -225,10 +221,8 @@ loadCustomPrints()
 // and pulls it apart, gathering values for the global values:
 // g_useLevel, g_useType, and g_toucherName
 // @msg = Example - "1:g_wetLevel:Ryhn Teardrop"
-parseLinkedMessage(string msg)
-{
+parseLinkedMessage(string msg) {
     integer index;
-    
     //I need to handle parsing the information for a change now.
     
     index = llSubStringIndex(msg, ":"); // Pull out wet level
@@ -246,620 +240,369 @@ parseLinkedMessage(string msg)
     index = llSubStringIndex(msg, ":"); //Pull the sent name out
     g_toucherName = llGetSubString(msg, 0, index);
     msg = llGetSubString(msg, index+1, llStringLength(msg));
-    
 }
 
 //@data = Unprocessed line of text from printout
 //@append = Flags True/False if this is an addition to a prior printout
 //@printoutType = Information that identifies which variable should be updated
-constructPrint(string data, integer append, string printoutType)
-{
-    //TODO: Replace immediate tokens (User related tokens) on construction
-    
-    //llSay(0, "Printout Script: [Memory Used] " + (string) llGetUsedMemory() + " Bytes.");
-    //llSay(0, "=== Processing: " + data + " ===");
-    //llSay(0, "Printout Script: [Memory Remaining] " + (string) llGetFreeMemory() + " Bytes.");
-    //llOwnerSay("Constructing print. . .");
-    if(append == TRUE)
-    {
-        if(printoutType == "@Wet1")
-        {
+constructPrint(string data, integer append, string printoutType) {
+    if(append == TRUE) {
+        if(printoutType == "@Wet1") {
             wet1 += data;
-            return; 
         }
-        else if(printoutType == "@Wet2")
-        {
+        else if(printoutType == "@Wet2") {
             wet2 += data;
-            return;
         }
-        else if(printoutType == "@Wet3")
-        {
+        else if(printoutType == "@Wet3") {
             wet3 += data;
-            return;   
         }
-        else if(printoutType == "@Wet4")
-        {
+        else if(printoutType == "@Wet4") {
             wet4 += data;
-            return;
         }
-        else if(printoutType == "@Wet5")
-        {
+        else if(printoutType == "@Wet5") {
             wet5 += data;
-            return;
         }
-        else if(printoutType == "@Wet6")
-        {
+        else if(printoutType == "@Wet6") {
             wet6 += data;
-            return;
         }// End of wetting printouts
-        else if(printoutType == "@Mess1")
-        {
+        else if(printoutType == "@Mess1") {
             mess1 += data;
-            return;   
         }
-        else if(printoutType == "@Mess2")
-        {
+        else if(printoutType == "@Mess2") {
             mess2 += data;
-            return;   
         }
-        else if(printoutType == "@Mess3")
-        {
+        else if(printoutType == "@Mess3") {
             mess3 += data;
-            return;   
         }// End of messing printouts
-        else if(printoutType == "@uChange") // Messages starting with the "u" prefix are self-oriented prints. Self Change, etc.
-        {
+        else if(printoutType == "@uChange") { // Messages starting with the "u" prefix are self-oriented prints. Self Change, etc.
             self_change += data;
-            return;   
         }
-        else if(printoutType == "@uCheckClean")
-        {
+        else if(printoutType == "@uCheckClean") {
             self_checkClean += data;
-            return;
         }
-        else if(printoutType == "@uCheckWet1")
-        {
+        else if(printoutType == "@uCheckWet1") {
             self_checkWet1 += data;
-            return;
         }
-        else if(printoutType == "@uCheckWet2")
-        {
+        else if(printoutType == "@uCheckWet2") {
             self_checkWet2 += data;
-            return;
         }
-        else if(printoutType == "@uCheckWet3")
-        {
+        else if(printoutType == "@uCheckWet3") {
             self_checkWet3 += data;
-            return;
         }
-        else if(printoutType == "@uCheckWet4")
-        {
+        else if(printoutType == "@uCheckWet4") {
             self_checkWet4 += data;
-            return;
         }
-        else if(printoutType == "@uCheckWet5")
-        {
+        else if(printoutType == "@uCheckWet5") {
             self_checkWet5 += data;
-            return;
         }
-        else if(printoutType == "@uCheckWet6")
-        {
+        else if(printoutType == "@uCheckWet6") {
             self_checkWet6 += data;
-            return;
         }
-        else if(printoutType == "@uCheckMess1")
-        {
+        else if(printoutType == "@uCheckMess1") {
             self_checkMess1 += data;
-            return;
         }
-        else if(printoutType == "@uCheckMess2")
-        {
+        else if(printoutType == "@uCheckMess2") {
             self_checkMess2 += data;
-            return;
         }
-        else if(printoutType == "@uCheckMess3")
-        {
+        else if(printoutType == "@uCheckMess3") {
             self_checkMess3 += data;
-            return;
         }
-        else if(printoutType == "@uCheckWet1-2Mess1")
-        {
+        else if(printoutType == "@uCheckWet1-2Mess1") {
             self_checkWetMess1 += data;
-            return;
         }
-        else if(printoutType == "@uCheckWet3-4Mess1")
-        {
+        else if(printoutType == "@uCheckWet3-4Mess1") {
             self_checkWetMess2 += data;
-            return;
         }
-        else if(printoutType == "@uCheckWet5-6Mess1")
-        {
+        else if(printoutType == "@uCheckWet5-6Mess1") {
             self_checkWetMess3 += data;
-            return;
         }
-        else if(printoutType == "@uCheckWet1-2Mess2")
-        {
+        else if(printoutType == "@uCheckWet1-2Mess2") {
             self_checkWetMess4 += data;
-            return;
         }
-        else if(printoutType == "@uCheckWet3-4Mess2")
-        {
+        else if(printoutType == "@uCheckWet3-4Mess2") {
             self_checkWetMess5 += data;
-            return;
         }
-        else if(printoutType == "@uCheckWet5-6Mess2")
-        {
+        else if(printoutType == "@uCheckWet5-6Mess2") {
             self_checkWet5To6Mess2 += data;   
         }
-        else if(printoutType == "@uCheckWet1-2Mess3")
-        {
-            // Gap 6/30/2013
+        else if(printoutType == "@uCheckWet1-2Mess3") {
             self_checkWet1To2Mess3 += data;
         }
-        else if(printoutType == "@uCheckWet3-4Mess3")
-        {
-            // ^^^^
+        else if(printoutType == "@uCheckWet3-4Mess3") {
             self_checkWet3To4Mess3 += data;
         }
-        else if(printoutType == "@uCheckWet5-6Mess3")
-        {
+        else if(printoutType == "@uCheckWet5-6Mess3") {
             self_checkWetMess6 += data;
-            return;
         }
-        else if(printoutType == "@oChange") // Messages beginning with the "o" prefix involve others interacting with the diaper.
-        {
+        else if(printoutType == "@oChange") { // Messages beginning with the "o" prefix involve others interacting with the diaper.
             other_change += data;
-            return;   
         }
-        else if(printoutType == "@oCheckClean")
-        {
+        else if(printoutType == "@oCheckClean") {
             other_checkClean += data;
-            return;   
         }
-        else if(printoutType == "@oCheckWet1")
-        {
+        else if(printoutType == "@oCheckWet1") {
             other_checkWet1 += data;
-            return;   
         }
-        else if(printoutType == "@oCheckWet2")
-        {
+        else if(printoutType == "@oCheckWet2") {
             other_checkWet2 += data;
-            return;    
         }
-        else if(printoutType == "@oCheckWet3")
-        {
+        else if(printoutType == "@oCheckWet3") {
             other_checkWet3 += data;
-            return;    
         }
-        else if(printoutType == "@oCheckWet4")
-        {
+        else if(printoutType == "@oCheckWet4") {
             other_checkWet4 += data;
-            return;    
         }
-        else if(printoutType == "@oCheckWet5")
-        {
+        else if(printoutType == "@oCheckWet5") {
             other_checkWet5 += data;
-            return;    
         }
-        else if(printoutType == "@oCheckWet6")
-        {
+        else if(printoutType == "@oCheckWet6") {
             other_checkWet6 += data;
-            return;    
         }
-        else if(printoutType == "@oCheckMess1")
-        {
+        else if(printoutType == "@oCheckMess1") {
             other_checkMess1 += data;
-            return;    
         }
-        else if(printoutType == "@oCheckMess2")
-        {
+        else if(printoutType == "@oCheckMess2") {
             other_checkMess2 += data;
-            return;    
         }
-        else if(printoutType == "@oCheckMess3")
-        {
+        else if(printoutType == "@oCheckMess3") {
             other_checkMess3 += data;
-            return; 
         }
-        else if(printoutType == "@oCheckWet1-2Mess1")
-        {
+        else if(printoutType == "@oCheckWet1-2Mess1") {
             other_checkWetMess1 += data;
-            return;
         }
-        else if(printoutType == "@oCheckWet3-4Mess1")
-        {
+        else if(printoutType == "@oCheckWet3-4Mess1") {
             other_checkWetMess2 += data;
-            return;
         }
-        else if(printoutType == "@oCheckWet5-6Mess1")
-        {
+        else if(printoutType == "@oCheckWet5-6Mess1") {
             other_checkWetMess3 += data;
-            return;    
         }
-        else if(printoutType == "@oCheckWet1-2Mess2")
-        {
+        else if(printoutType == "@oCheckWet1-2Mess2") {
             other_checkWetMess4 += data;
-            return;   
         }
-        else if(printoutType == "@oCheckWet3-4Mess2")
-        {
+        else if(printoutType == "@oCheckWet3-4Mess2") {
             other_checkWetMess5 += data;
-            return;   
         }
-        else if(printoutType == "@oCheckWet5-6Mess2")
-        {
+        else if(printoutType == "@oCheckWet5-6Mess2") {
             other_checkWet5To6Mess2 += data;
-            return;   
         }
-        else if(printoutType == "@oCheckWet1-2Mess3")
-        {
-            // Gap 6/30/2013
+        else if(printoutType == "@oCheckWet1-2Mess3") {
             other_checkWet1To2Mess3 += data;
-            return; 
         }
-        else if(printoutType == "@oCheckWet3-4Mess3")
-        {
-            // ^^^^
+        else if(printoutType == "@oCheckWet3-4Mess3") {
             other_checkWet3To4Mess3 += data;
-            return; 
         }
-        else if(printoutType == "@oCheckWet5-6Mess3")
-        {
+        else if(printoutType == "@oCheckWet5-6Mess3") {
             other_checkWetMess6 += data;
-            return;
         }
-        else if(printoutType == "@oPoke")
-        {
+        else if(printoutType == "@oPoke") {
             other_pokeClean += data;
-            return;
         }
-        else if(printoutType == "@oPokeWet")
-        {
+        else if(printoutType == "@oPokeWet") {
             other_pokeWet += data;
-            return;
         }
-        else if(printoutType == "@oPokeMess")
-        {
+        else if(printoutType == "@oPokeMess") {
             other_pokeMess += data;
-            return;
         }
-        else if(printoutType == "@oPokeWetMess")
-        {
+        else if(printoutType == "@oPokeWetMess") {
             other_pokeWetMess += data;
-            return;
         }
-        else if(printoutType == "@oRaspberry")
-        {
+        else if(printoutType == "@oRaspberry") {
             other_raspberry += data;
-            return;
         }
-        else if(printoutType == "@oTease")
-        {
+        else if(printoutType == "@oTease") {
             cleanTease += data;
-            return;
         }
-        else if(printoutType == "@oWetTease1")
-        {
+        else if(printoutType == "@oWetTease1") {
             wetTease += data;
-            return;
         }
-        else if(printoutType == "@oMessTease1")
-        {
+        else if(printoutType == "@oMessTease1") {
             messTease += data;
-            return;
         }
-        else if(printoutType == "@oWetMessTease1")
-        {
+        else if(printoutType == "@oWetMessTease1") {
             wetMessTease += data;
-            return;
         }
-        else if(printoutType == "@CareChange")
-        {
+        else if(printoutType == "@CareChange") {
             carer_change += data;
-            return; 
         }
-        //Etc. . .
     }
     else // Not appending, initialize/replace the printout!
     {
-        if(printoutType == "@Wet1")
-        {
+        if(printoutType == "@Wet1") {
             wet1 = data;
-            return; 
         }
-        else if(printoutType == "@Wet2")
-        {
+        else if(printoutType == "@Wet2") {
             wet2 = data;
-            return;
         }
-        else if(printoutType == "@Wet3")
-        {
+        else if(printoutType == "@Wet3") {
             wet3 = data;
-            return;   
         }
-        else if(printoutType == "@Wet4")
-        {
+        else if(printoutType == "@Wet4") {
             wet4 = data;
-            return;
         }
-        else if(printoutType == "@Wet5")
-        {
+        else if(printoutType == "@Wet5") {
             wet5 = data;
-            return;
         }
-        else if(printoutType == "@Wet6")
-        {
+        else if(printoutType == "@Wet6") {
             wet6 = data;
-            return;
         }// End of wetting printouts
-        else if(printoutType == "@Mess1")
-        {
+        else if(printoutType == "@Mess1") {
             mess1 = data;
-            return;   
         }
-        else if(printoutType == "@Mess2")
-        {
+        else if(printoutType == "@Mess2") {
             mess2 = data;
-            return;   
         }
-        else if(printoutType == "@Mess3")
-        {
+        else if(printoutType == "@Mess3") {
             mess3 = data;
-            return;   
         }
-        else if(printoutType == "@uChange")
-        {
+        else if(printoutType == "@uChange") {
             self_change = data;
-            return;   
         }
-        else if(printoutType == "@uCheckClean")
-        {
+        else if(printoutType == "@uCheckClean") {
             self_checkClean = data;
-            return;
         }
-        else if(printoutType == "@uCheckWet1")
-        {
+        else if(printoutType == "@uCheckWet1") {
             self_checkWet1 = data;
-            return;
         }
-        else if(printoutType == "@uCheckWet2")
-        {
+        else if(printoutType == "@uCheckWet2") {
             self_checkWet2 = data;
-            return;
         }
-        else if(printoutType == "@uCheckWet3")
-        {
+        else if(printoutType == "@uCheckWet3") {
             self_checkWet3 = data;
-            return;
         }
-        else if(printoutType == "@uCheckWet4")
-        {
+        else if(printoutType == "@uCheckWet4") {
             self_checkWet4 = data;
-            return;
         }
-        else if(printoutType == "@uCheckWet5")
-        {
+        else if(printoutType == "@uCheckWet5") {
             self_checkWet5 = data;
-            return;
         }
-        else if(printoutType == "@uCheckWet6")
-        {
+        else if(printoutType == "@uCheckWet6") {
             self_checkWet6 = data;
-            return;
         }
-        else if(printoutType == "@uCheckMess1")
-        {
+        else if(printoutType == "@uCheckMess1") {
             self_checkMess1 = data;
-            return;
         }
-        else if(printoutType == "@uCheckMess2")
-        {
+        else if(printoutType == "@uCheckMess2") {
             self_checkMess2 = data;
-            return;
         }
-        else if(printoutType == "@uCheckMess3")
-        {
+        else if(printoutType == "@uCheckMess3") {
             self_checkMess3 = data;
-            return;
         }
-        else if(printoutType == "@uCheckWet1-2Mess1")
-        {
+        else if(printoutType == "@uCheckWet1-2Mess1") {
             self_checkWetMess1 = data;
-            return;
         }
-        else if(printoutType == "@uCheckWet3-4Mess1")
-        {
+        else if(printoutType == "@uCheckWet3-4Mess1") {
             self_checkWetMess2 = data;
-            return;
         }
-        else if(printoutType == "@uCheckWet5-6Mess1")
-        {
+        else if(printoutType == "@uCheckWet5-6Mess1") {
             self_checkWetMess3 = data;
-            return;
         }
-        else if(printoutType == "@uCheckWet1-2Mess2")
-        {
+        else if(printoutType == "@uCheckWet1-2Mess2") {
             self_checkWetMess4 = data;
-            return;
         }
-        else if(printoutType == "@uCheckWet3-4Mess2")
-        {
+        else if(printoutType == "@uCheckWet3-4Mess2") {
             self_checkWetMess5 = data;
-            return;
         }
-        else if(printoutType == "@uCheckWet5-6Mess2")
-        {
+        else if(printoutType == "@uCheckWet5-6Mess2") {
             self_checkWet5To6Mess2 = data;
-            return;
         }
-        else if(printoutType == "@uCheckWet1-2Mess3")
-        {
-            // Gap 6/30/2013
+        else if(printoutType == "@uCheckWet1-2Mess3") {
             self_checkWet1To2Mess3 = data;
-            return;
         }
-        else if(printoutType == "@uCheckWet3-4Mess3")
-        {
-            // ^^^^
+        else if(printoutType == "@uCheckWet3-4Mess3") {
             self_checkWet3To4Mess3 = data;
-            return;
         }
-        else if(printoutType == "@uCheckWet5-6Mess3")
-        {
+        else if(printoutType == "@uCheckWet5-6Mess3") {
             self_checkWetMess6 = data;
-            return;
         }
-        else if(printoutType == "@oChange")
-        {
+        else if(printoutType == "@oChange") {
             other_change = data;
-            return;   
         }
-        else if(printoutType == "@oCheckClean")
-        {
+        else if(printoutType == "@oCheckClean") {
             other_checkClean = data;
-            return;   
         }
-        else if(printoutType == "@oCheckWet1")
-        {
+        else if(printoutType == "@oCheckWet1") {
             other_checkWet1 = data;
-            return;   
         }
-        else if(printoutType == "@oCheckWet2")
-        {
+        else if(printoutType == "@oCheckWet2") {
             other_checkWet2 = data;
-            return;    
         }
-        else if(printoutType == "@oCheckWet3")
-        {
+        else if(printoutType == "@oCheckWet3") {
             other_checkWet3 = data;
-            return;    
         }
-        else if(printoutType == "@oCheckWet4")
-        {
+        else if(printoutType == "@oCheckWet4") {
             other_checkWet4 = data;
-            return;    
         }
-        else if(printoutType == "@oCheckWet5")
-        {
+        else if(printoutType == "@oCheckWet5") {
             other_checkWet5 = data;
-            return;    
         }
-        else if(printoutType == "@oCheckWet6")
-        {
+        else if(printoutType == "@oCheckWet6") {
             other_checkWet6 = data;
-            return;    
         }
-        else if(printoutType == "@oCheckMess1")
-        {
+        else if(printoutType == "@oCheckMess1") {
             other_checkMess1 = data;
-            return;    
         }
-        else if(printoutType == "@oCheckMess2")
-        {
+        else if(printoutType == "@oCheckMess2") {
             other_checkMess2 = data;
-            return;    
         }
-        else if(printoutType == "@oCheckMess3")
-        {
+        else if(printoutType == "@oCheckMess3") {
             other_checkMess3 = data;
-            return; 
         }
-        else if(printoutType == "@oCheckWet1-2Mess1")
-        {
+        else if(printoutType == "@oCheckWet1-2Mess1") {
             other_checkWetMess1 = data;
-            return;
         }
-        else if(printoutType == "@oCheckWet3-4Mess1")
-        {
+        else if(printoutType == "@oCheckWet3-4Mess1") {
             other_checkWetMess2 = data;
-            return;
         }
-        else if(printoutType == "@oCheckWet5-6Mess1")
-        {
+        else if(printoutType == "@oCheckWet5-6Mess1") {
             other_checkWetMess3 = data;
-            return;    
         }
-        else if(printoutType == "@oCheckWet1-2Mess2")
-        {
+        else if(printoutType == "@oCheckWet1-2Mess2") {
             other_checkWetMess4 = data;
-            return;   
         }
-        else if(printoutType == "@oCheckWet3-4Mess2")
-        {
+        else if(printoutType == "@oCheckWet3-4Mess2") {
             other_checkWetMess5 = data;
-            return;   
         }
-        else if(printoutType == "@oCheckWet5-6Mess2")
-        {
+        else if(printoutType == "@oCheckWet5-6Mess2") {
             other_checkWet5To6Mess2 = data;
-            return;
         }
-        else if(printoutType == "@oCheckWet1-2Mess3")
-        {
-            // Gap 6/30/2013
+        else if(printoutType == "@oCheckWet1-2Mess3") {
             other_checkWet1To2Mess3 = data;
-            return;
         }
-        else if(printoutType == "@oCheckWet3-4Mess3")
-        {
-            // ^^^^
+        else if(printoutType == "@oCheckWet3-4Mess3") {
             other_checkWet3To4Mess3 = data;
-            return;
         }
-        else if(printoutType == "@oCheckWet5-6Mess3")
-        {
+        else if(printoutType == "@oCheckWet5-6Mess3") {
             other_checkWetMess6 = data;
-            return;
         }
-        else if(printoutType == "@oPoke")
-        {
+        else if(printoutType == "@oPoke") {
             other_pokeClean = data;
-            return;
         }
-        else if(printoutType == "@oPokeWet")
-        {
+        else if(printoutType == "@oPokeWet") {
             other_pokeWet = data;
-            return;
         }
-        else if(printoutType == "@oPokeMess")
-        {
+        else if(printoutType == "@oPokeMess") {
             other_pokeMess = data;
-            return;
         }
-        else if(printoutType == "@oPokeWetMess")
-        {
+        else if(printoutType == "@oPokeWetMess") {
             other_pokeWetMess = data;
-            return;
         }
-        else if(printoutType == "@oRaspberry")
-        {
+        else if(printoutType == "@oRaspberry") {
             other_raspberry = data;
-            return;
         }
-        else if(printoutType == "@oTease")
-        {
+        else if(printoutType == "@oTease") {
             cleanTease = data;
-            return;
         }
-        else if(printoutType == "@oWetTease")
-        {
+        else if(printoutType == "@oWetTease") {
             wetTease = data;
-            return;
         }
-        else if(printoutType == "@oMessTease")
-        {
+        else if(printoutType == "@oMessTease") {
             messTease = data;
-            return;
         }
-        else if(printoutType == "@oWetMessTease")
-        {
+        else if(printoutType == "@oWetMessTease") {
             wetMessTease = data;
-            return;
         }
-        else if(printoutType == "@CareChange")
-        {
+        else if(printoutType == "@CareChange") {
             carer_change = data;
-            return; 
         }
     }
 }
@@ -868,186 +611,150 @@ constructPrint(string data, integer append, string printoutType)
 //it's job is to remove the tokens if they exist, and replace them with the proper information (First name, Full name, etc.)
 //@printout = A potentially tokenized string in need of processing.
 //todo: Allow private printouts and printouts to caretakers interacting with the diaper!
-string processPrint(string printout)
-{
+string processPrint(string printout) {
     string temp = printout; // Preserves the original data
     string fName; // First name of the User/Carer/Outsider, re-used.
     integer spaceLocation; // Holds the location of the space in a user name. I use this to cut out the first name.
     
     integer index = llSubStringIndex(temp, "*first"); //Search for *first in the printout
-    
-    while(~index) // Keep going while there's more tokens to replace!
-    {
-        temp = llDeleteSubString(temp, index, index+5); //Delete * to t from *first -- I'm deleting the *first token.
-        
-        fName = llKey2Name(llGetOwner()); // At first, fName is the full name of the user.
-        spaceLocation = llSubStringIndex(fName, " "); // I find the space. . .
-        fName = llDeleteSubString(fName, spaceLocation, -1); // . . . And only keep the first name!
-        
-        temp = llInsertString(temp, index, fName); // Name replacement!
-        
-        index = llSubStringIndex(temp, "*first"); // There could be more than one *first to replace in a printout!
+    while(~index) { //this code may not work well once RP names are implemented
+        temp = llDeleteSubString(temp, index, index+5);
+        fName = llKey2Name(llGetOwner());
+        spaceLocation = llSubStringIndex(fName, " ");
+        fName = llDeleteSubString(fName, spaceLocation, -1);
+        temp = llInsertString(temp, index, fName);
+        index = llSubStringIndex(temp, "*first");
     }
-    
-    index = llSubStringIndex(temp, "*fullName"); // Search for *fullName in the printout
-    
-    while(~index) // Don't stop replacing until we get all the tokens of this type!
-    {
-        temp = llDeleteSubString(temp, index, index+8); //Delete * to e from *fullName -- I'm deleting the *fullName token.
-        temp = llInsertString(temp, index, llKey2Name(llGetOwner())); //Name replacement
-        
-        index = llSubStringIndex(temp, "*fullName"); // Any more to replace?
+	
+    index = llSubStringIndex(temp, "*fullName"); //Search for *fullName in the printout
+    while(~index) { //This section is more easily adapted to RP names
+        temp = llDeleteSubString(temp, index, index+8);
+        temp = llInsertString(temp, index, llKey2Name(llGetOwner()));
+        index = llSubStringIndex(temp, "*fullName");
     }
-    
+	
     index = llSubStringIndex(temp, "*oFirstName"); // Search for *oFirstName" in the printout
-    
-    while(~index)
-    {
-        temp = llDeleteSubString(temp, index, index+10); // Delete * to e from *oFirstName -- I'm deleting the *oFirstName token.
-        
-        fName = g_toucherName; // Name of the outsider
-        spaceLocation = llSubStringIndex(fName, " "); // Find the space in their name
-        fName = llDeleteSubString(fName, spaceLocation, -1); // Only save the first name.
-        
-        temp = llInsertString(temp, index, fName); // Name replacement
-        
+    while(~index) {
+        temp = llDeleteSubString(temp, index, index+10);
+        fName = g_toucherName;
+        spaceLocation = llSubStringIndex(fName, " ");
+        fName = llDeleteSubString(fName, spaceLocation, -1);
+        temp = llInsertString(temp, index, fName);
         index = llSubStringIndex(temp, "*oFirstName");   
     }
-    
+	
     index = llSubStringIndex(temp, "*oFullName");
-    
-    while(~index)
-    {
-        temp = llDeleteSubString(temp, index, index+9); // Delete * to e from *oFullName
-        temp = llInsertString(temp, index, g_toucherName); // Name replacement
+    while(~index) {
+        temp = llDeleteSubString(temp, index, index+9);
+        temp = llInsertString(temp, index, g_toucherName);
         index = llSubStringIndex(temp, "*oFullName");  
     }
-    //todo: process pronouns and persons
-
+	
     index = llSubStringIndex(temp, "*Sub");
-    while(~index)
-    {
-        temp = llDeleteSubString(temp, index, index+3); // Delete * to b
-        temp = llInsertString(temp, index, llList2String(["He","She"],g_gender)); //Capital subject replacement
+    while(~index) { //Capital subject replacement
+        temp = llDeleteSubString(temp, index, index+3);
+        temp = llInsertString(temp, index, llList2String(["He","She"],g_gender));
         index = llSubStringIndex(temp, "*Sub");  
     }
-
+	
     index = llSubStringIndex(temp, "*sub");
-    while(~index)
-    {
-        temp = llDeleteSubString(temp, index, index+3); // Delete * to b
-        temp = llInsertString(temp, index, llList2String(["he","she"],g_gender)); //lowercase subject replacement
+    while(~index) { //lowercase subject replacement
+        temp = llDeleteSubString(temp, index, index+3);
+        temp = llInsertString(temp, index, llList2String(["he","she"],g_gender));
         index = llSubStringIndex(temp, "*sub");  
     }
-
+	
     index = llSubStringIndex(temp, "*Obj");
-    while(~index)
-    {
-        temp = llDeleteSubString(temp, index, index+3); // Delete * to j
-        temp = llInsertString(temp, index, llList2String(["Him","Her"],g_gender)); //Capital object replacement
+    while(~index) { //Capital object replacement
+        temp = llDeleteSubString(temp, index, index+3);
+        temp = llInsertString(temp, index, llList2String(["Him","Her"],g_gender));
         index = llSubStringIndex(temp, "*Obj");  
     }
-    
+	
     index = llSubStringIndex(temp, "*obj");
-    while(~index)
-    {
-        temp = llDeleteSubString(temp, index, index+3); // Delete * to j
-        temp = llInsertString(temp, index, llList2String(["him","her"],g_gender)); //lowercase object replacement
+    while(~index) { //lowercase object replacement
+        temp = llDeleteSubString(temp, index, index+3);
+        temp = llInsertString(temp, index, llList2String(["him","her"],g_gender));
         index = llSubStringIndex(temp, "*obj");  
     }
-    
+	
     index = llSubStringIndex(temp, "*Con");
-    while(~index)
-    {
-        temp = llDeleteSubString(temp, index, index+3); // Delete * to n
-        temp = llInsertString(temp, index, llList2String(["He's","She's"],g_gender)); //Capital contraction replacement
+    while(~index) { //Capital contraction replacement
+        temp = llDeleteSubString(temp, index, index+3);
+        temp = llInsertString(temp, index, llList2String(["He's","She's"],g_gender));
         index = llSubStringIndex(temp, "*Con");  
     }
-    
+	
     index = llSubStringIndex(temp, "*con");
-    while(~index)
-    {
-        temp = llDeleteSubString(temp, index, index+3); // Delete * to n
-        temp = llInsertString(temp, index, llList2String(["he's","she's"],g_gender)); //lowercase contraction replacement
+    while(~index) { //lowercase contraction replacement
+        temp = llDeleteSubString(temp, index, index+3);
+        temp = llInsertString(temp, index, llList2String(["he's","she's"],g_gender));
         index = llSubStringIndex(temp, "*con");  
     }
-    
+	
     index = llSubStringIndex(temp, "*Ref");
-    while(~index)
-    {
-        temp = llDeleteSubString(temp, index, index+3); // Delete * to f
-        temp = llInsertString(temp, index, llList2String(["Himself","Herself"],g_gender)); //Capital reflexive replacement
+    while(~index) { //Capital reflexive replacement
+        temp = llDeleteSubString(temp, index, index+3);
+        temp = llInsertString(temp, index, llList2String(["Himself","Herself"],g_gender));
         index = llSubStringIndex(temp, "*Ref");  
     }
-    
+	
     index = llSubStringIndex(temp, "*ref");
-    while(~index)
-    {
-        temp = llDeleteSubString(temp, index, index+3); // Delete * to f
-        temp = llInsertString(temp, index, llList2String(["himself","herself"],g_gender)); //lowercase reflexive replacement
+    while(~index) { //lowercase reflexive replacement
+        temp = llDeleteSubString(temp, index, index+3);
+        temp = llInsertString(temp, index, llList2String(["himself","herself"],g_gender));
         index = llSubStringIndex(temp, "*ref");  
     }
-
+	
     index = llSubStringIndex(temp, "*Pos1");
-    while(~index)
-    {
-        temp = llDeleteSubString(temp, index, index+4); // Delete * to 1
-        temp = llInsertString(temp, index, llList2String(["His","Her"],g_gender)); //Capital possessive replacement
+    while(~index) { //Capital possessive determinitive replacement
+        temp = llDeleteSubString(temp, index, index+4);
+        temp = llInsertString(temp, index, llList2String(["His","Her"],g_gender));
         index = llSubStringIndex(temp, "*Pos1");  
     }
-    
     index = llSubStringIndex(temp, "*pos1");
-    while(~index)
-    {
-        temp = llDeleteSubString(temp, index, index+4); // Delete * to 1
-        temp = llInsertString(temp, index, llList2String(["his","her"],g_gender)); //lowercase object replacement
+    while(~index) { //lowercase possessive determinitive replacement
+        temp = llDeleteSubString(temp, index, index+4);
+        temp = llInsertString(temp, index, llList2String(["his","her"],g_gender));
         index = llSubStringIndex(temp, "*pos1");  
     }
 
     index = llSubStringIndex(temp, "*Pos2");
-    while(~index)
-    {
-        temp = llDeleteSubString(temp, index, index+4); // Delete * to 2
-        temp = llInsertString(temp, index, llList2String(["His","Hers"],g_gender)); //Capital object replacement
+    while(~index) { //Capital possessive pronoun replacement
+        temp = llDeleteSubString(temp, index, index+4);
+        temp = llInsertString(temp, index, llList2String(["His","Hers"],g_gender));
         index = llSubStringIndex(temp, "*Pos2");  
     }
     
     index = llSubStringIndex(temp, "*pos2");
-    while(~index)
-    {
-        temp = llDeleteSubString(temp, index, index+4); // Delete * to 2
-        temp = llInsertString(temp, index, llList2String(["his","hers"],g_gender)); //lowercase object replacement
+    while(~index) { //lowercase possessive pronoun replacement
+        temp = llDeleteSubString(temp, index, index+4);
+        temp = llInsertString(temp, index, llList2String(["his","hers"],g_gender));
         index = llSubStringIndex(temp, "*pos2");  
     }
-
+	//todo: add species specific replacements for gender instead of or in addition to current system
     index = llSubStringIndex(temp, "*Per");
-    while(~index)
-    {
-        temp = llDeleteSubString(temp, index, index+3); // Delete * to 1
-        temp = llInsertString(temp, index, llList2String(["Boy","Girl"],g_gender)); //Capital object replacement
+    while(~index) { //Capital replacement for reference to gender
+        temp = llDeleteSubString(temp, index, index+3);
+        temp = llInsertString(temp, index, llList2String(["Boy","Girl"],g_gender));
         index = llSubStringIndex(temp, "*Per");  
     }
     
     index = llSubStringIndex(temp, "*per");
-    while(~index)
-    {
-        temp = llDeleteSubString(temp, index, index+3); // Delete * to 1
-        temp = llInsertString(temp, index, llList2String(["boy","girl"],g_gender)); //lowercase object replacement
+    while(~index) { //lowercase replacement for reference to gender
+        temp = llDeleteSubString(temp, index, index+3);
+        temp = llInsertString(temp, index, llList2String(["boy","girl"],g_gender));
         index = llSubStringIndex(temp, "*per");  
     }
-    //whew!  It's kinda slow though.
 
     temp = llStringTrim(temp, STRING_TRIM); // Remove any spaces that could potentially be hanging at the start or end of my string.
-    
     return temp; // Send back the fully modified string
 }
 
 // Displays the appropriate printout given a usage type
 // @g_useType - A global variable set when parsing printout messages from main.
 // NOTE: Animations, when implemented, will go in the if-else chain.
-// todo: make this able to play private messages too when that setting is made.
-displayPrintout()
-{
+displayPrintout() {
     string temp; // Used to prevent the original printouts from being altered.
     string name; // Holds the original name of the object.
     integer index;  // Used to locate the first space in any given printout. This lets me set the name of the object
@@ -1055,298 +762,217 @@ displayPrintout()
 
     name = llGetObjectName(); // Preserve the name of the Diaper
     
-    if(g_useType == "Carer Change") // Diaper change commencing
-    {
-        temp = processPrint(carer_change); // Send tokenized printout to be processed, we'll use the result.
+    if(g_useType == "Carer Change") { // Diaper change commencing
+        temp = processPrint(carer_change); 
     }
-    else if(g_useType == "Normal Change") // Changed by a random outsider.
-    {
+    else if(g_useType == "Normal Change") { // Changed by a random outsider.
         temp = processPrint(other_change);
     }
-    else if(g_useType == "Self Change") // User changed themselves!
-    {
+    else if(g_useType == "Self Change") { // User changed themselves!
         temp = processPrint(self_change);
     }
-    else if(g_useType == "g_wetLevel") // They've wet!
-    {
-        if(g_wetLevel == 1) // How wet are they?
-        {
+    else if(g_useType == "g_wetLevel") { // They've wet!
+        if(g_wetLevel == 1) { // How wet are they?
             temp = processPrint(wet1);
-             
-            //Animation Goes Here! EX: playAnimation("myAnimation");
-            //Should wetting sounds go here too?  Currently they are elsewhere.
         }
-        else if(g_wetLevel == 2)
-        {
+        else if(g_wetLevel == 2) {
             temp = processPrint(wet2);
-            
-            //Animation Goes Here! EX: playAnimation("myAnimation");
         }
-        else if(g_wetLevel == 3)
-        {
+        else if(g_wetLevel == 3) {
             temp = processPrint(wet3);
-            
-            //Animation Goes Here! EX: playAnimation("myAnimation");
         }
-        else if(g_wetLevel == 4)
-        {
+        else if(g_wetLevel == 4) {
             temp = processPrint(wet4);
-            
-            //Animation Goes Here! EX: playAnimation("myAnimation");
         }
-        else if(g_wetLevel == 5)
-        {
+        else if(g_wetLevel == 5) {
             temp = processPrint(wet5);
-            
-            //Animation Goes Here! EX: playAnimation("myAnimation");
         }
-        else
-        {
+        else {
             temp = processPrint(wet6);
-            
-            //Animation Goes Here! EX: playAnimation("myAnimation");
         }
-        
     }
-    else if(g_useType == "g_messLevel") // The user messed!
-    {
-        if(g_messLevel == 1) // How messy are they?
-        {
+    else if(g_useType == "g_messLevel") { // The user messed!
+        if(g_messLevel == 1) {
             temp = processPrint(mess1);
-            
-            //Animation Goes Here! EX: playAnimation("myAnimation");
         }
-        else if(g_messLevel == 2)
-        {
+        else if(g_messLevel == 2) {
             temp = processPrint(mess2);
-            
-            //You get the idea on animations.
         }
-        else
-        {
+        else {
             temp = processPrint(mess3);
         }
     }
-    else if(g_useType == "Self Check")
-    {
-        if(g_wetLevel == 0 && g_messLevel == 0)
-        {
+    else if(g_useType == "Self Check") {
+		//There are different messages for when messy, when wet, and when both wet and messy
+		//wet
+        if(g_wetLevel == 0 && g_messLevel == 0) {
             temp = processPrint(self_checkClean);
         }
-        else if(g_wetLevel == 1 && g_messLevel == 0) // Wet Once
-        {
+        else if(g_wetLevel == 1 && g_messLevel == 0) {
             temp = processPrint(self_checkWet1);
         }
-        else if(g_wetLevel == 2 && g_messLevel == 0) // Wet Twice
-        {
+        else if(g_wetLevel == 2 && g_messLevel == 0) {
             temp = processPrint(self_checkWet2);
         }
-        else if(g_wetLevel == 3 && g_messLevel == 0) // Wet Three times
-        {
+        else if(g_wetLevel == 3 && g_messLevel == 0) {
             temp = processPrint(self_checkWet3);
         }
-        else if(g_wetLevel == 4 && g_messLevel == 0) // Wet Four times
-        {
+        else if(g_wetLevel == 4 && g_messLevel == 0) {
             temp = processPrint(self_checkWet4);
         }
-        else if(g_wetLevel == 5 && g_messLevel == 0) // . . .
-        {
+        else if(g_wetLevel == 5 && g_messLevel == 0) {
             temp = processPrint(self_checkWet5);
         }
-        else if(g_wetLevel >= 6 && g_messLevel == 0) // Etc.
-        {
+        else if(g_wetLevel >= 6 && g_messLevel == 0) { //catch-all for very wet diapers.
             temp = processPrint(self_checkWet6);
         }
-        else if(g_wetLevel == 0 && g_messLevel == 1)
-        {
+		//messy
+        else if(g_wetLevel == 0 && g_messLevel == 1) {
             temp = processPrint(self_checkMess1);
         }
-        else if(g_wetLevel == 0 && g_messLevel == 2)
-        {
+        else if(g_wetLevel == 0 && g_messLevel == 2) {
             temp = processPrint(self_checkMess2);
         }
-        else if(g_wetLevel == 0 && g_messLevel >= 3) // Catch all for very stinky diapers.
-        {
+        else if(g_wetLevel == 0 && g_messLevel >= 3) { //Catch all for very stinky diapers.
             temp = processPrint(self_checkMess3);
         }
-        else if((g_wetLevel == 1 || g_wetLevel == 2) && g_messLevel == 1) // Wet 1 or 2 Times, Messed Once.
-        {
+		//both wet and messy
+        else if((g_wetLevel == 1 || g_wetLevel == 2) && g_messLevel == 1) {
             temp = processPrint(self_checkWetMess1);
         }
-        else if((g_wetLevel == 3 || g_wetLevel == 4) && g_messLevel == 1) // Wet 3 or 4 Times, Messed Once.
-        {
+        else if((g_wetLevel == 3 || g_wetLevel == 4) && g_messLevel == 1) {
             temp = processPrint(self_checkWetMess2);
         }
-        else if(g_wetLevel >= 5 && g_messLevel == 1)
-        {
+        else if(g_wetLevel >= 5 && g_messLevel == 1) { //catch-all for very wet diapers.
             temp = processPrint(self_checkWetMess3);
         }
-        else if((g_wetLevel == 1 || g_wetLevel == 2) && g_messLevel == 2)
-        {
+        else if((g_wetLevel == 1 || g_wetLevel == 2) && g_messLevel == 2) {
             temp = processPrint(self_checkWetMess4);
         }
-        else if((g_wetLevel == 3 || g_wetLevel == 4) && g_messLevel == 2)
-        {
+        else if((g_wetLevel == 3 || g_wetLevel == 4) && g_messLevel == 2) {
             temp = processPrint(self_checkWetMess5);
         }
-        else if(g_wetLevel >= 5 && g_messLevel == 2) //fix
-        {
+        else if(g_wetLevel >= 5 && g_messLevel == 2) { //catch-all for very wet diapers.
             temp = processPrint(self_checkWet5To6Mess2);
         }
-        else if((g_wetLevel == 1 || g_wetLevel == 2) && g_messLevel >= 3)
-        {
+        else if((g_wetLevel == 1 || g_wetLevel == 2) && g_messLevel >= 3) {
             temp = processPrint(self_checkWet1To2Mess3);
         }
-        else if((g_wetLevel == 3 || g_wetLevel == 4) && g_messLevel >= 3)
-        {
+        else if((g_wetLevel == 3 || g_wetLevel == 4) && g_messLevel >= 3) {
             temp = processPrint(self_checkWet3To4Mess3);
         }
-        else if(g_wetLevel >= 5 && g_messLevel >= 3) // Catch all for very stinky, and very wet diapers.
-        {
+        else if(g_wetLevel >= 5 && g_messLevel >= 3) {// Catch all for very stinky, and very wet diapers.
             temp = processPrint(self_checkWetMess6);
         }
     }
-    else if(g_useType == "Other Check")
-    {
-        if(g_wetLevel == 0 && g_messLevel == 0)
-        {
+    else if(g_useType == "Other Check") {
+	//wet
+        if(g_wetLevel == 0 && g_messLevel == 0) {
             temp = processPrint(other_checkClean);
         }
-        else if(g_wetLevel == 1 && g_messLevel == 0) // Wet Once
-        {
+        else if(g_wetLevel == 1 && g_messLevel == 0) {
             temp = processPrint(other_checkWet1);
         }
-        else if(g_wetLevel == 2 && g_messLevel == 0) // Wet Twice
-        {
+        else if(g_wetLevel == 2 && g_messLevel == 0) {
             temp = processPrint(other_checkWet2);
         }
-        else if(g_wetLevel == 3 && g_messLevel == 0) // . . .
-        {
+        else if(g_wetLevel == 3 && g_messLevel == 0) {
             temp = processPrint(other_checkWet3);
         }
-        else if(g_wetLevel == 4 && g_messLevel == 0) // . . .
-        {
+        else if(g_wetLevel == 4 && g_messLevel == 0) {
             temp = processPrint(other_checkWet4);
         }
-        else if(g_wetLevel == 5 && g_messLevel == 0) // . . .
-        {
+        else if(g_wetLevel == 5 && g_messLevel == 0) {
             temp = processPrint(other_checkWet5);
         }
-        else if(g_wetLevel >= 6 && g_messLevel == 0) // . . .
-        {
+        else if(g_wetLevel >= 6 && g_messLevel == 0) {
             temp = processPrint(other_checkWet6);
         }
-        else if(g_wetLevel == 0 && g_messLevel == 1)
-        {
+		//messy
+        else if(g_wetLevel == 0 && g_messLevel == 1) {
             temp = processPrint(other_checkMess1);
         }
-        else if(g_wetLevel == 0 && g_messLevel == 2)
-        {
+        else if(g_wetLevel == 0 && g_messLevel == 2) {
             temp = processPrint(other_checkMess2);
         }
-        else if(g_wetLevel == 0 && g_messLevel >= 3) // Catch all for very stinky diapers.
-        {
+        else if(g_wetLevel == 0 && g_messLevel >= 3) {// Catch all for very stinky diapers.
             temp = processPrint(other_checkMess3);
         }
-        else if((g_wetLevel == 1 || g_wetLevel == 2) && g_messLevel == 1) // Wet 1 or 2 Times, Messed Once.
-        {
+		//both wet and messy
+        else if((g_wetLevel == 1 || g_wetLevel == 2) && g_messLevel == 1) {
             temp = processPrint(other_checkWetMess1);
         }
-        else if((g_wetLevel == 3 || g_wetLevel == 4) && g_messLevel == 1) // Wet 3 or 4 Times, Messed Once.
-        {
+        else if((g_wetLevel == 3 || g_wetLevel == 4) && g_messLevel == 1) {
             temp = processPrint(other_checkWetMess2);
         }
-        else if(g_wetLevel >= 5 && g_messLevel == 1)
-        {
+        else if(g_wetLevel >= 5 && g_messLevel == 1) { //Catch-all for very wet diapers.
             temp = processPrint(other_checkWetMess3);
         }
-        else if((g_wetLevel == 1 || g_wetLevel == 2) && g_messLevel == 2)
-        {
+        else if((g_wetLevel == 1 || g_wetLevel == 2) && g_messLevel == 2) {
             temp = processPrint(other_checkWetMess4);
         }
-        else if((g_wetLevel == 3 || g_wetLevel == 4) && g_messLevel == 2)
-        {
+        else if((g_wetLevel == 3 || g_wetLevel == 4) && g_messLevel == 2) {
             temp = processPrint(other_checkWetMess5);
         }
-        else if(g_wetLevel >= 5 && g_messLevel == 2)
-        {
+        else if(g_wetLevel >= 5 && g_messLevel == 2) { //catch all for very wet diapers.
             temp = processPrint(other_checkWet5To6Mess2);
         }
-        else if((g_wetLevel == 1 || g_wetLevel == 2) && g_messLevel >= 3) // Little wet, very messy
-        {
+        else if((g_wetLevel == 1 || g_wetLevel == 2) && g_messLevel >= 3) {
             temp = processPrint(other_checkWet1To2Mess3);
         }
-        else if((g_wetLevel == 3 || g_wetLevel == 4) && g_messLevel >= 3) // Sorta wet, very messy
-        {
+        else if((g_wetLevel == 3 || g_wetLevel == 4) && g_messLevel >= 3) {
             temp = processPrint(other_checkWet3To4Mess3);
         }
-        else if(g_wetLevel >= 5 && g_messLevel >= 3) // Very wet, very messy
-        {
+        else if(g_wetLevel >= 5 && g_messLevel >= 3) {//Catch-all for very wet and messy diapers.
             temp = processPrint(other_checkWetMess6);
         }
     }
-    else if(g_useType == "Poke")
-    {
-        if(g_wetLevel == 0 && g_messLevel == 0)
-        {
+    else if(g_useType == "Poke") {
+        if(g_wetLevel == 0 && g_messLevel == 0) {
             temp = processPrint(other_pokeClean);
         }
-        else if(g_wetLevel >= 1 && g_messLevel == 0)
-        {
+        else if(g_wetLevel >= 1 && g_messLevel == 0) {
             temp = processPrint(other_pokeWet);
         }
-        else if(g_wetLevel == 0 && g_messLevel >= 1)
-        {
+        else if(g_wetLevel == 0 && g_messLevel >= 1) {
             temp = processPrint(other_pokeMess);
         }
-        else if(g_wetLevel >= 1 && g_messLevel >= 1)
-        {
+        else if(g_wetLevel >= 1 && g_messLevel >= 1) {
             temp = processPrint(other_pokeWetMess);
         }
     }
-    else if(g_useType == "Raspberry")
-    {
+    else if(g_useType == "Raspberry") {
         temp = processPrint(other_raspberry);
     }
-    else if(g_useType == "Tease")
-    {
-        if(g_wetLevel == 0 && g_messLevel == 0)
-        {
+    else if(g_useType == "Tease") {
+        if(g_wetLevel == 0 && g_messLevel == 0) {
             temp = processPrint(cleanTease);
         }
-        else if(g_wetLevel >= 1 && g_messLevel == 0)
-        {
+        else if(g_wetLevel >= 1 && g_messLevel == 0) {
             temp = processPrint(wetTease);
         }
-        else if(g_wetLevel == 0 && g_messLevel >= 1)
-        {
+        else if(g_wetLevel == 0 && g_messLevel >= 1) {
             temp = processPrint(messTease);
         }
-        else if(g_wetLevel >= 1 && g_messLevel >= 1)
-        {
+        else if(g_wetLevel >= 1 && g_messLevel >= 1) {
             temp = processPrint(wetMessTease);
         }
     }
-    if(temp) //Let's not bother saying anything if the message is empty...  allows for silent notecards!
-    {
-        index = llSubStringIndex(temp, " "); // First space in the sentence.
-        llSetObjectName(llGetSubString(temp, 0, index - 1)); // Sets object name to first word in the sentence.
-        temp = llDeleteSubString(temp, 0, index); // Removes first word in the sentence.
-
-        if(g_chatter > 1)
-        {
-            llSay(0, "/me " + temp); //print well formatted output loudly!
+    if(temp) { //Don't chat at all if we didn't assign temp anything
+		//Remove first word in sentence
+        index = llSubStringIndex(temp, " ");
+        llSetObjectName(llGetSubString(temp, 0, index - 1));
+        temp = llDeleteSubString(temp, 0, index);
+		//determine chatter reach
+        if(g_chatter > 1) {
+            llSay(0, "/me " + temp);
         }
-        else if(g_chatter == 1)
-        {
-            llWhisper(0, "/me "+temp); //little quieter
+        else if(g_chatter == 1) {
+            llWhisper(0, "/me "+temp);
         }
-        else
-        {
-        //todo: compare g_toucherKey to owner and also send formatted output to the toucher
+        else {
             llOwnerSay("/me "+temp);
-            if(g_toucherKey != llGetOwner())
-            {
+            if(g_toucherKey != llGetOwner()) {
                 llInstantMessage(g_toucherKey,"/me "+temp);
             }
         }
@@ -1354,10 +980,8 @@ displayPrintout()
     llSetObjectName(name); // Restore the original name of the diaper.
 }
 
-default
-{
-    state_entry()
-    {
+default {
+    state_entry() {
         loadCustomPrints();   //load the default notecard on script reset
     }
     
@@ -1368,44 +992,31 @@ default
     //4. Goto 1
     //
     // To fully understand this event, you need to look at the format of data in the notecards!
-    dataserver(key query_id, string data)
-    {
-        if(g_lineQuery == query_id)
-        {
-            if(data != EOF)
-            {
+    dataserver(key query_id, string data) {
+        if(g_lineQuery == query_id) {
+            if(data != EOF) {
                 ++g_lineNum; //Next Line
-                
                 integer index = llSubStringIndex(data, ":");
-                if(index == -1) // This line is not the start of a printout
-                {
+                if(index == -1) { // This line is not the start of a printout
                     index = llSubStringIndex(data, "|"); //Is it a 'next line' for a printout?
-                    if(index == -1) // Garbage, discard it.
-                    {
+                    if(index == -1) { // Garbage, discard it.
                         g_lineQuery = llGetNotecardLine("PRINT:" + g_PrintoutCard, g_lineNum);
-                        
                         return;
                     }
-                    else // Next line!
-                    {
+                    else { // Next line!
                         data = llGetSubString(data, index+1, llStringLength(data)); // Get rid of the pesky |
                         constructPrint(data, TRUE, g_printoutType);
                     }
                 }
-                else // New line, let's take care of it!
-                {                
+                else { // New line, let's take care of it!
                     g_printoutType = llGetSubString(data, 0, index-1);
                     data = llGetSubString(data, index+1, llStringLength(data)); // Get rid of the type-header
-                    
                     constructPrint(data, FALSE, g_printoutType);
                 }
-                
-                // Get the next line based on gender!
-                // Todo: make this based on the notecard picked, instead of assuming gender
+                // Get the next line from the requested notecard!
                 g_lineQuery = llGetNotecardLine("PRINT:" + g_PrintoutCard, g_lineNum);
             }
-            else
-            {
+            else {
                 llOwnerSay("Done reading your notecard! :3");
                 llOwnerSay("Printout1 Script Memory Used: " + (string) llGetUsedMemory() + " Bytes");
                 llOwnerSay("Printout1 Script Memory Remaining: " + (string) llGetFreeMemory() + " Bytes");
@@ -1420,40 +1031,35 @@ default
     //Case 4: XXXXX, -2, g_gender:Silent, xxxxx  | Diaper should only print out to self
     //case 5: xxxxx, -2, g_gender:High,xxxx   | High spammy diaper!
     //Case 6: xxxxx, -2, g_gender:Low, xxxx   | Low spammy diaper, whispers
-    link_message(integer sender_num, integer num, string msg, key id)
-    {
-        if(num != -2) //If the num is not -2, exit immediately, the message wasn't intended for us.
-            return; 
-        else 
-        {
+    link_message(integer sender_num, integer num, string msg, key id) {
+        if(num != -2) { //the message isn't intended for us.
+            return;
+		}
+        else {
             integer index = llSubStringIndex(msg, ":"); //Pull out the gender *Always first in list
             g_gender = (integer) llGetSubString(msg, 0, index-1);
             msg = llGetSubString(msg, index+1, -1); //Cut msg down to reflect change and move on
-            if(llGetSubString(msg,0,5) == "Update") //new notecard selected!
-            {
+            if(llGetSubString(msg,0,5) == "Update") {//new notecard selected!
                 g_PrintoutCard = llGetSubString(msg,7,-1);
                 clearCustomPrints();
-                loadCustomPrints(); //Load new printouts
+                loadCustomPrints();
             }
-            else if (msg == "Gender") //We actually don't need to do anything!
+            else if (msg == "Gender") { //We no longer need to do anything!
                 return;
-            else if (msg == "Silent") //only to self, must add toucher to the list of printouts as well
-            {
+			}
+            else if (msg == "Silent") { //only to self and potentially toucher
                 g_chatter = 0;
             }
-            else if (msg == "High") //llSay, 20 meters
-            {
+            else if (msg == "High") { //llSay, 20 meters
                 g_chatter = 2;
             }
-            else if (msg == "Low") //llWhisper, 10 meters
-            {
+            else if (msg == "Low") { //llWhisper, 10 meters
                 g_chatter = 1;
             }
-            else
-            {
+            else { // We got a message from main, let's print it!
                 g_toucherKey = id;
-                parseLinkedMessage(msg); // Pull apart the message and set the appropriate global variables
-                displayPrintout(); // Make the correct llSay execute!
+                parseLinkedMessage(msg);
+                displayPrintout();
             }
         }
     }
