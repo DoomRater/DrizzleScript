@@ -166,7 +166,7 @@ clearCustomPrints() {
 }
 
 loadCustomPrints() {
-    llOwnerSay("Printouts2: Loading your notecard, this may take a minute or two!");
+    llOwnerSay("Printouts2: Loading "+g_PrintoutCard+" notecard, this may take a minute or two!");
     g_lineNum = 0;
     
     if(llGetInventoryType("PRINT:" + g_PrintoutCard) != -1) {
