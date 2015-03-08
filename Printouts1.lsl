@@ -1177,7 +1177,7 @@ displayPrintout()
         {
             temp = processPrint(self_checkWetMess2);
         }
-        else if((g_wetLevel >= 5 || g_wetLevel >= 6) && g_messLevel == 1)
+        else if(g_wetLevel >= 5 && g_messLevel == 1)
         {
             temp = processPrint(self_checkWetMess3);
         }
@@ -1189,7 +1189,7 @@ displayPrintout()
         {
             temp = processPrint(self_checkWetMess5);
         }
-        else if((g_wetLevel == 5 || g_wetLevel == 6) && g_messLevel == 2)
+        else if(g_wetLevel >= 5 && g_messLevel == 2) //fix
         {
             temp = processPrint(self_checkWet5To6Mess2);
         }
@@ -1201,7 +1201,7 @@ displayPrintout()
         {
             temp = processPrint(self_checkWet3To4Mess3);
         }
-        else if((g_wetLevel >= 5 || g_wetLevel >= 6) && g_messLevel >= 3) // Catch all for very stinky, and very wet diapers.
+        else if(g_wetLevel >= 5 && g_messLevel >= 3) // Catch all for very stinky, and very wet diapers.
         {
             temp = processPrint(self_checkWetMess6);
         }
