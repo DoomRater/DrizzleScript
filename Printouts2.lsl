@@ -14,9 +14,7 @@ the software together, so everyone has access to something potentially excellent
 *Leave this header here, but if you contribute, add your name to the list!*
 ============================================================*/
 
-/*
-* Local Variables used by Prinouts2.lsl to handle loading/displaying printouts.
-*/
+//* Local Variables used by Prinouts2.lsl to handle loading/displaying printouts.
 
 integer g_wetLevel; // 0, 1, 2, . . .
 integer g_messLevel;
@@ -32,9 +30,7 @@ key g_toucherKey; //in case we need to print to the toucher
 string g_useType; // "Wet" "Mess"
 string g_PrintoutCard = "Default";
 
-/*
-* Variables which hold all printouts in memory for speed.
-*/
+//Variables which hold all printouts in memory for speed.
 
 //Wet Prints in Printouts1 (6)
 
@@ -51,25 +47,23 @@ string carer_checkWet6;
 string carer_checkMess1;
 string carer_checkMess2;
 string carer_checkMess3;
-string carer_CheckWet1to2Mess1; //
-string carer_CheckWet3to4Mess1; // OUTDATED, update from Printouts to get the right ranges vvvv
-string carer_CheckWet5to6Mess1; //1 to 2 Wet + 1 Mess, 3 to 4 Wet + 2 Mess, 5 to 6 Wet + 2 Mess 
+string carer_CheckWet1to2Mess1;
+string carer_CheckWet3to4Mess1;
+string carer_CheckWet5to6Mess1;
 string carer_CheckWet1to2Mess2;
 string carer_CheckWet3to4Mess2;
+string carer_checkWet5to6Mess2;
+string carer_checkWet1to2Mess3;
+string carer_checkWet3to4Mess3;
 string carer_CheckWet5to6Mess3;
-string carer_forceWet1;     //Prints for carer 'Force' options
+string carer_forceWet1;         //Prints for carer 'Force' options
 string carer_forceWet2;
 string carer_forceMess1; 
 string carer_forceMess2;
 
-//Gaps filled 12/10/13
-string carer_checkWet5to6Mess2;
-string carer_checkWet1to2Mess3;
-string carer_checkWet3to4Mess3;
+//Other Check in Printouts1 (19)
 
-//Other Check in Printouts1 (16)
-
-//Self Check in Printouts1 (16)
+//Self Check in Printouts1 (19)
 
 //Special Print for Super-Flooding
 string instantFlood;
