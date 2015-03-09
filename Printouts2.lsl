@@ -51,12 +51,12 @@ string carer_checkWet6;
 string carer_checkMess1;
 string carer_checkMess2;
 string carer_checkMess3;
-string carer_checkWetMess1; //
-string carer_checkWetMess2; // OUTDATED, update from Printouts to get the right ranges vvvv
-string carer_checkWetMess3; //1 to 2 Wet + 1 Mess, 3 to 4 Wet + 2 Mess, 5 to 6 Wet + 2 Mess 
-string carer_checkWetMess4;
-string carer_checkWetMess5;
-string carer_checkWetMess6;
+string carer_CheckWet1to2Mess1; //
+string carer_CheckWet3to4Mess1; // OUTDATED, update from Printouts to get the right ranges vvvv
+string carer_CheckWet5to6Mess1; //1 to 2 Wet + 1 Mess, 3 to 4 Wet + 2 Mess, 5 to 6 Wet + 2 Mess 
+string carer_CheckWet1to2Mess2;
+string carer_CheckWet3to4Mess2;
+string carer_CheckWet5to6Mess3;
 string carer_forceWet1;     //Prints for carer 'Force' options
 string carer_forceWet2;
 string carer_forceMess1; 
@@ -91,9 +91,9 @@ string tickle_close; // Unused
 
 //Spanking Prints
 string cleanSpank;
-string wetSpank1;
-string wetSpank2;
-string wetSpank3;
+string wetSpank1to2;
+string wetSpank3to4;
+string wetSpank5to6;
 string messSpank1;
 string messSpank2;
 
@@ -101,9 +101,9 @@ string messSpank2;
 
 //Wedgies
 string cleanWedgie;
-string wetWedgie1;
-string wetWedgie2;
-string wetWedgie3;
+string wetWedgie1to2;
+string wetWedgie3to4;
+string wetWedgie5to6;
 string messWedgie1;
 string messWedgie2;
 
@@ -122,15 +122,15 @@ clearCustomPrints() {
     carer_checkMess1="";
     carer_checkMess2="";
     carer_checkMess3="";
-    carer_checkWetMess1="";
-    carer_checkWetMess2="";
-    carer_checkWetMess3="";
-    carer_checkWetMess4="";
-    carer_checkWetMess5="";
+    carer_CheckWet1to2Mess1="";
+    carer_CheckWet3to4Mess1="";
+    carer_CheckWet5to6Mess1="";
+    carer_CheckWet1to2Mess2="";
+    carer_CheckWet3to4Mess2="";
     carer_checkWet5to6Mess2="";
     carer_checkWet1to2Mess3="";
     carer_checkWet3to4Mess3="";
-    carer_checkWetMess6="";
+    carer_CheckWet5to6Mess3="";
     carer_forceWet1="";
     carer_forceWet2="";
     carer_forceMess1=""; 
@@ -151,16 +151,16 @@ clearCustomPrints() {
     tickle_close="";
 
     cleanSpank="";
-    wetSpank1="";
-    wetSpank2="";
-    wetSpank3="";
+    wetSpank1to2="";
+    wetSpank3to4="";
+    wetSpank5to6="";
     messSpank1="";
     messSpank2="";
 
     cleanWedgie="";
-    wetWedgie1="";
-    wetWedgie2="";
-    wetWedgie3="";
+    wetWedgie1to2="";
+    wetWedgie3to4="";
+    wetWedgie5to6="";
     messWedgie1="";
     messWedgie2="";
 }
@@ -239,19 +239,19 @@ constructPrint(string data, integer append, string printoutType) {
             carer_checkMess3 += data;
         }
         else if(printoutType == "@CareCheckWet1-2Mess1") {
-            carer_checkWetMess1 += data;
+            carer_CheckWet1to2Mess1 += data;
         }
         else if(printoutType == "@CareCheckWet3-4Mess1") {
-            carer_checkWetMess2 += data;
+            carer_CheckWet3to4Mess1 += data;
         }
         else if(printoutType == "@CareCheckWet5-6Mess1") {
-            carer_checkWetMess3 += data;
+            carer_CheckWet5to6Mess1 += data;
         }
         else if(printoutType == "@CareCheckWet1-2Mess2") {
-            carer_checkWetMess4 += data;
+            carer_CheckWet1to2Mess2 += data;
         }
         else if(printoutType == "@CareCheckWet3-4Mess2") {
-            carer_checkWetMess5 += data;
+            carer_CheckWet3to4Mess2 += data;
         }
         else if(printoutType == "@CareCheckWet5-6Mess2") {
             carer_checkWet5to6Mess2 += data;
@@ -263,7 +263,7 @@ constructPrint(string data, integer append, string printoutType) {
             carer_checkWet3to4Mess3 += data;
         }
         else if(printoutType == "@CareCheckWet5-6Mess3") {
-            carer_checkWetMess6 += data;
+            carer_CheckWet5to6Mess3 += data;
         }
         else if(printoutType == "@CareForceWet1") {
             carer_forceWet1 += data;
@@ -284,13 +284,13 @@ constructPrint(string data, integer append, string printoutType) {
             cleanSpank += data;
         }
         else if(printoutType == "@oSpankWet1-2") {
-            wetSpank1 += data;
+            wetSpank1to2 += data;
         }
         else if(printoutType == "@oSpankWet3-4") {
-            wetSpank2 += data;
+            wetSpank3to4 += data;
         }
         else if(printoutType == "@oSpankWet5-6") {
-            wetSpank3 += data;
+            wetSpank5to6 += data;
         }
         else if(printoutType == "@oSpankMess1") {
             messSpank1 += data;
@@ -329,13 +329,13 @@ constructPrint(string data, integer append, string printoutType) {
             tummyRub2 += data;
         }
         else if(printoutType == "@oWedgieWet1-2") {
-            wetWedgie1 += data;
+            wetWedgie1to2 += data;
         }
         else if(printoutType == "@oWedgieWet3-4") {
-            wetWedgie2 += data;
+            wetWedgie3to4 += data;
         }
         else if(printoutType == "@oWedgieWet5-6") {
-            wetWedgie3 += data;
+            wetWedgie5to6 += data;
         }
         else if(printoutType == "@oWedgieMess1") {
             messWedgie1 += data;
@@ -376,19 +376,19 @@ constructPrint(string data, integer append, string printoutType) {
             carer_checkMess3 = data;
         }
         else if(printoutType == "@CareCheckWet1-2Mess1") {
-            carer_checkWetMess1 = data;
+            carer_CheckWet1to2Mess1 = data;
         }
         else if(printoutType == "@CareCheckWet3-4Mess1") {
-            carer_checkWetMess2 = data;
+            carer_CheckWet3to4Mess1 = data;
         }
         else if(printoutType == "@CareCheckWet5-6Mess1") {
-            carer_checkWetMess3 = data;
+            carer_CheckWet5to6Mess1 = data;
         }
         else if(printoutType == "@CareCheckWet1-2Mess2") {
-            carer_checkWetMess4 = data;
+            carer_CheckWet1to2Mess2 = data;
         }
         else if(printoutType == "@CareCheckWet3-4Mess2") {
-            carer_checkWetMess5 = data;
+            carer_CheckWet3to4Mess2 = data;
         }
         else if(printoutType == "@CareCheckWet5-6Mess2") {
             carer_checkWet5to6Mess2 = data;
@@ -400,7 +400,7 @@ constructPrint(string data, integer append, string printoutType) {
             carer_checkWet3to4Mess3 = data;
         }
         else if(printoutType == "@CareCheckWet5-6Mess3") {
-            carer_checkWetMess6 = data;
+            carer_CheckWet5to6Mess3 = data;
             return;    
         }
         else if(printoutType == "@CareForceWet1") {
@@ -422,13 +422,13 @@ constructPrint(string data, integer append, string printoutType) {
             cleanSpank = data;
         }
         else if(printoutType == "@oSpankWet1-2") {
-            wetSpank1 = data;
+            wetSpank1to2 = data;
         }
         else if(printoutType == "@oSpankWet3-4") {
-            wetSpank2 = data;
+            wetSpank3to4 = data;
         }
         else if(printoutType == "@oSpankWet5-6") {
-            wetSpank3 = data;
+            wetSpank5to6 = data;
         }
         else if(printoutType == "@oSpankMess1") {
             messSpank1 = data;
@@ -467,13 +467,13 @@ constructPrint(string data, integer append, string printoutType) {
             tummyRub2 = data;
         }
         else if(printoutType == "@oWedgieWet1-2") {
-            wetWedgie1 = data;
+            wetWedgie1to2 = data;
         }
         else if(printoutType == "@oWedgieWet3-4") {
-            wetWedgie2 = data;
+            wetWedgie3to4 = data;
         }
         else if(printoutType == "@oWedgieWet5-6") {
-            wetWedgie3 = data;
+            wetWedgie5to6 = data;
         }
         else if(printoutType == "@oWedgieMess1") {
             messWedgie1 = data;
@@ -671,19 +671,19 @@ displayPrintout() {
         }
 		//Wet and messy
         else if((g_wetLevel == 1 || g_wetLevel == 2) && g_messLevel == 1) {
-            temp = processPrint(carer_checkWetMess1);
+            temp = processPrint(carer_CheckWet1to2Mess1);
         }
         else if((g_wetLevel == 3 || g_wetLevel == 4) && g_messLevel == 1) {
-            temp = processPrint(carer_checkWetMess2);
+            temp = processPrint(carer_CheckWet3to4Mess1);
         }
         else if(g_wetLevel >= 5 && g_messLevel == 1) {//Catch all for very wet diapers.
-            temp = processPrint(carer_checkWetMess3);
+            temp = processPrint(carer_CheckWet5to6Mess1);
         }
         else if((g_wetLevel == 1 || g_wetLevel == 2) && g_messLevel == 2) {
-            temp = processPrint(carer_checkWetMess4);
+            temp = processPrint(carer_CheckWet1to2Mess2);
         }
         else if((g_wetLevel == 3 || g_wetLevel == 4) && g_messLevel == 2) {
-            temp = processPrint(carer_checkWetMess5);
+            temp = processPrint(carer_CheckWet3to4Mess2);
         }
 		else if(g_wetLevel >= 5 && g_messLevel == 2) {//catch all for very wet diapers.
 			temp = processPrint(carer_checkWet5to6Mess2);
@@ -695,7 +695,7 @@ displayPrintout() {
             temp = processPrint(carer_checkWet3to4Mess3);
         }
         else if(g_wetLevel >= 5 && g_messLevel >= 3) {// Catch all for very used diapers.
-            temp = processPrint(carer_checkWetMess6);
+            temp = processPrint(carer_CheckWet5to6Mess3);
         }
     }
     else if(g_useType == "Self Flood") {// Flood Printout!
@@ -749,13 +749,13 @@ displayPrintout() {
                 temp = processPrint(cleanSpank);
             }
             else if(g_wetLevel == 1 || g_wetLevel == 2) {
-                temp = processPrint(wetSpank1);
+                temp = processPrint(wetSpank1to2);
             }
             else if(g_wetLevel == 3 || g_wetLevel == 4) {
-                temp = processPrint(wetSpank2);
+                temp = processPrint(wetSpank3to4);
             }
             else if(g_wetLevel >= 5) {
-                temp = processPrint(wetSpank3);
+                temp = processPrint(wetSpank5to6);
             }
         }
     }
@@ -793,15 +793,15 @@ displayPrintout() {
         }
         else
         {
-			//wetWedgie1 is a clean wedgie
+			//wetWedgie1to2 is a clean wedgie
             if(g_wetLevel >= 0 && g_wetLevel <= 2) {
-                temp = processPrint(wetWedgie1); 
+                temp = processPrint(wetWedgie1to2); 
             }
             else if(g_wetLevel == 3 || g_wetLevel == 4) {
-                temp = processPrint(wetWedgie1);
+                temp = processPrint(wetWedgie3to4);
             }
             else if(g_wetLevel >= 5) {
-                temp = processPrint(wetWedgie2);
+                temp = processPrint(wetWedgie5to6);
             }
         }
     }
