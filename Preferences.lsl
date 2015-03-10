@@ -558,7 +558,7 @@ default {
         else if(g_currMenu == "Wet%") {
             //Wet%:10%
             llMessageLinked(LINK_THIS, -3, g_currMenu + ":" + msg, NULL_KEY);
-            offerMenu(id, m_wetchance(), g_currMenuButtons);
+            offerMenu(id, m_wetChance(), g_currMenuButtons);
         }
         else if(g_currMenu == "Mess❤Timer") {
             //Mess❤Timer:10
