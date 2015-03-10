@@ -413,6 +413,68 @@ printDebugSettings() {
     llOwnerSay("Free Memory: " + (string) llGetFreeMemory());
 }
 
+//Function calls to ensure that preferences menu options update correctly.
+string m_wetTimer() {
+	return "Wet Frequency (How often you wet)\n\n==This is in Minutes==\nCurrent Value: "+(string)g_wetTimer;
+}
+
+string m_messTimer() {
+	return "Mess Frequency (How often you potty)\n\n==This is in Minutes==\nCurrent Value: "+(string)g_messTimer;
+}
+
+string m_wetChance() {
+	return "Chance to hold it! (Wet)\nCurrent Chance: "+(string)g_wetChance+"%";
+}
+
+string m_messChance() {
+	return "Chance to hold it! (Mess)\nCurrent Chance: "+(string)g_messChance+"%";
+}
+
+string m_tickleChance() {
+	return "Chance to resist tickles!\nCurrent Chance: "+(string)g_tickle+"%";
+}
+
+string m_tummyRubChance() {
+	return "Chance to resist tummy rubs!\nCurrent Chance: "+(string)g_tummyRub+"%";
+}
+
+string m_interactions() {
+	string allowedInteractions;
+	if(g_interact==0) {
+		allowedInteractions = "only carers and yourself are";
+	}
+	else if(g_interact==1) {
+		allowedInteractions = "everyone is";
+	}
+    return "Who should be able to interact with this diaper?\n\nCurrently "+allowedInteractions+" allowed.";
+}
+
+string m_chatter() {
+	string chatSpam;
+	if(g_chatter==0) {
+		chatSpam = "private.  Only you and whoever interacts will see messages.";
+	}
+	else if(g_chatter==1) {
+		chatSpam = "whisper.  The public will hear messages up to 10m away.";
+	}
+	else if(g_chatter==2) {
+		chatSpam = "normal.  The public will hear messages up to 20m away!";
+	}
+    return "How far should the diaper chatter go?\n\nThe current setting is "+chatSpam;
+}
+
+string m_crinkleVolume() {
+	return "How loud should the crinkling be?\nCurrent value: "+(string)llRound(g_CrinkleVolume*200.0)+"%";
+}
+
+string m_wetVolume() {
+	return "How loud should the wetting sound be?\nCurrent value: "+(string)llRound(g_WetVolume*300)+"%";
+}
+
+string m_messVolume() {
+	return "How loud should the messing sound be?\nCurrent value: "+(string)llRound(g_MessVolume*100)+"%";
+}
+
 default {
     
     state_entry() {
@@ -478,45 +540,45 @@ default {
         }
         else if(g_currMenu == "Crinkle❤Volume") {
             llMessageLinked(LINK_THIS, -3, g_currMenu + ":" + msg, NULL_KEY);
-            offerMenu(id, g_currMenuMessage, g_currMenuButtons);
+            offerMenu(id, m_crinkleVolume(), g_currMenuButtons);
         }
         else if(g_currMenu == "Wet❤Volume") {
             llMessageLinked(LINK_THIS, -3, g_currMenu + ":" + msg, NULL_KEY);
-            offerMenu(id, g_currMenuMessage, g_currMenuButtons);
+            offerMenu(id, m_wetVolume(), g_currMenuButtons);
         }
         else if(g_currMenu == "Mess❤Volume") {
             llMessageLinked(LINK_THIS, -3, g_currMenu + ":" + msg, NULL_KEY);
-            offerMenu(id, g_currMenuMessage, g_currMenuButtons);
+            offerMenu(id, m_messVolume(), g_currMenuButtons);
         }            
         else if(g_currMenu == "Mess%") {
             //Mess%:10%
             llMessageLinked(LINK_THIS, -3, g_currMenu + ":" + msg, NULL_KEY);
-            offerMenu(id, g_currMenuMessage, g_currMenuButtons);
+            offerMenu(id, m_messChance(), g_currMenuButtons);
         }
         else if(g_currMenu == "Wet%") {
             //Wet%:10%
             llMessageLinked(LINK_THIS, -3, g_currMenu + ":" + msg, NULL_KEY);
-            offerMenu(id, g_currMenuMessage, g_currMenuButtons);
+            offerMenu(id, m_wetchance(), g_currMenuButtons);
         }
         else if(g_currMenu == "Mess❤Timer") {
             //Mess❤Timer:10
             llMessageLinked(LINK_THIS, -3, g_currMenu + ":" + msg, NULL_KEY);
-            offerMenu(id, g_currMenuMessage, g_currMenuButtons);
+            offerMenu(id, m_messTimer(), g_currMenuButtons);
         }
         else if(g_currMenu == "Wet❤Timer") {
             //Wet❤Timer:10
             llMessageLinked(LINK_THIS, -3, g_currMenu + ":" + msg, NULL_KEY);
-            offerMenu(id, g_currMenuMessage, g_currMenuButtons);
+            offerMenu(id, m_wetTimer(), g_currMenuButtons);
         }
         else if(g_currMenu == "❤Tickle❤") {
             //❤Tickle❤:??
             llMessageLinked(LINK_THIS, -3, g_currMenu + ":" + msg, NULL_KEY);
-            offerMenu(id, g_currMenuMessage, g_currMenuButtons);
+            offerMenu(id, m_tickleChance(), g_currMenuButtons);
         }
         else if(g_currMenu == "Tummy❤Rub") {
             //Tummy❤Rub:??
             llMessageLinked(LINK_THIS, -3, g_currMenu + ":" + msg, NULL_KEY);
-            offerMenu(id, g_currMenuMessage, g_currMenuButtons);
+            offerMenu(id, m_tummyRubChance(), g_currMenuButtons);
         }
         else if(msg == "Boy") { //Sent to main to update values and pass to Printouts
             llMessageLinked(LINK_THIS, -3, "Gender:0", NULL_KEY);
@@ -529,24 +591,24 @@ default {
         //Security settings
         else if(msg == "Everyone") {
             llMessageLinked(LINK_THIS, -3, "Others:1", NULL_KEY);
-            offerMenu(id, g_currMenuMessage, g_currMenuButtons);
+            offerMenu(id, m_interactions(), g_currMenuButtons);
         }
         else if(msg == "Carers❤&❤Me") {
             llMessageLinked(LINK_THIS, -3, "Others:0", NULL_KEY);
-            offerMenu(id, g_currMenuMessage, g_currMenuButtons);
+            offerMenu(id, m_interactions(), g_currMenuButtons);
         }
         //chat spam level
         else if(msg == "Normal") {
             llMessageLinked(LINK_THIS, -3, "Chatter:2", NULL_KEY);
-            offerMenu(id, g_currMenuMessage, g_currMenuButtons);
+            offerMenu(id, m_chatter(), g_currMenuButtons);
         }
         else if(msg == "Whisper") {
             llMessageLinked(LINK_THIS, -3, "Chatter:1", NULL_KEY);
-            offerMenu(id, g_currMenuMessage, g_currMenuButtons);
+            offerMenu(id, m_chatter(), g_currMenuButtons);
         }
         else if(msg == "Private") {
             llMessageLinked(LINK_THIS, -3, "Chatter:0", NULL_KEY);
-            offerMenu(id, g_currMenuMessage, g_currMenuButtons);
+            offerMenu(id, m_chatter(), g_currMenuButtons);
         }
         else if(msg == "Skins") {
             g_currMenu = msg;
@@ -582,27 +644,27 @@ default {
         }
         else if(msg == "Mess❤Timer") {
             g_currMenu = msg;
-            offerMenu(id, "Mess Frequency (How often you potty)\n\n==This is in Minutes==\nCurrent Value: "+(string)g_messTimer, g_timerOptions);   
+            offerMenu(id, m_messTimer(), g_timerOptions);   
         }
         else if(msg == "Wet❤Timer") {
             g_currMenu = msg;
-            offerMenu(id, "Wet Frequency (How often you wet)\n\n==This is in Minutes==\nCurrent Value: "+(string)g_wetTimer, g_timerOptions);   
+            offerMenu(id, m_wetTimer(), g_timerOptions);   
         }
         else if(msg == "Wet%") {
             g_currMenu = msg;
-            offerMenu(id, "Chance to hold it! (Wet)\nCurrent Chance: "+(string)g_wetChance+"%", g_chanceOptions);   
+            offerMenu(id, m_wetChance(), g_chanceOptions);   
         }
         else if(msg == "Mess%") {
             g_currMenu = msg;
-            offerMenu(id, "Chance to hold it! (Mess)\nCurrent Chance: "+(string)g_messChance+"%", g_chanceOptions);
+            offerMenu(id, m_messChance(), g_chanceOptions);
         }
         else if(msg == "❤Tickle❤") {
             g_currMenu = msg;
-            offerMenu(id, "Chance to resist tickles!\nCurrent Chance: "+(string)g_tickle+"%", g_chanceOptions);   
+            offerMenu(id, m_tickleChance(), g_chanceOptions);   
         }
         else if(msg == "Tummy❤Rub") {
             g_currMenu = msg;
-            offerMenu(id, "Chance to resist tummy rubs!\nCurrent Chance: "+(string)g_tummyRub+"%", g_chanceOptions);   
+            offerMenu(id, m_tummyRubChance(), g_chanceOptions);   
         }
         else if(msg == "Printouts") {
             g_currMenu = msg;
@@ -624,41 +686,24 @@ default {
             offerMenu(id, "Are you a boy or a girl?", g_GenderMenu);   
         }
         else if(msg == "Interactions") {
-			string allowedInteractions;
             g_currMenu = msg;
-			if(g_interact==0) {
-				allowedInteractions = "only carers and yourself are";
-			}
-			else if(g_interact==1) {
-				allowedInteractions = "everyone is";
-			}
-            offerMenu(id, "Who should be able to interact with this diaper?\n\nCurrently "+allowedInteractions+" allowed.", g_InteractionsOptions);
+            offerMenu(id, m_interactions(), g_InteractionsOptions);
         }
         else if(msg == "Chatter") {
-			string chatSpam;
             g_currMenu = msg;
-			if(g_chatter==0) {
-				chatSpam = "private.  Only you and whoever interacts will see messages.";
-			}
-			else if(g_chatter==1) {
-				chatSpam = "whisper.  The public will hear messages up to 10m away.";
-			}
-			else if(g_chatter==2) {
-				chatSpam = "normal.  The public will hear messages up to 20m away!";
-			}
-            offerMenu(id, "How far should the diaper chatter go?\n\nThe current setting is "+chatSpam, g_ChatterMenu);
+            offerMenu(id, m_chatter(), g_ChatterMenu);
         }
         else if(msg == "Crinkle❤Volume") {
             g_currMenu = msg;
-            offerMenu(id, "How loud should the crinkling be?\nCurrent value: "+(string)llRound(g_CrinkleVolume*200.0)+"%", g_chanceOptions);
+            offerMenu(id, m_crinkleVolume(), g_chanceOptions);
         }
         else if(msg == "Wet❤Volume") {
             g_currMenu = msg;
-            offerMenu(id, "How loud should the wetting sound be?\nCurrent value: "+(string)llRound(g_WetVolume*300)+"%", g_chanceOptions);
+            offerMenu(id, m_wetVolume(), g_chanceOptions);
         }
         else if(msg == "Mess❤Volume") {
             g_currMenu = msg;
-            offerMenu(id, "How loud should the messing sound be?\nCurrent value: "+(string)llRound(g_MessVolume*100)+"%", g_chanceOptions);
+            offerMenu(id, m_messVolume(), g_chanceOptions);
         }
         else if(msg == "<--TOP") {
             llMessageLinked(LINK_THIS, -3, "Cancel:"+(string)id, NULL_KEY);
