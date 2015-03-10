@@ -96,14 +96,14 @@ integer prevPage(string MenuText, list l, integer readLocation, key id) {
     readLocation -= 22; //Go back two pages (11 for current page, 11 more to get readLocation to the start of the page)
     
     if(readLocation == -1) {//First page
-        //@temp = elements 0 through 9 in g_Skins, and then 10 and 11 are Help and Next-->
-        list temp = ["Help", "NEXT-->"] + llList2List(l, readLocation+1, readLocation+10);
+        //@temp = elements 0 through 9 in g_Skins, and then 10 and 11 are Back and Next-->
+        list temp = ["<--BACK", "NEXT-->"] + llList2List(l, readLocation+1, readLocation+10);
         readLocation += 11;
         offerMenu(id, MenuText, temp);
         return readLocation;       
     }
     else {
-        list temp = ["Help", "<--PREV", "NEXT-->"] + llList2List(l, readLocation+1, readLocation+10);
+        list temp = ["<--BACK", "<--PREV", "NEXT-->"] + llList2List(l, readLocation+1, readLocation+10);
         readLocation += 11;
         offerMenu(id, MenuText, temp);
         return readLocation;
@@ -149,17 +149,17 @@ integer nextPage(string MenuText, list l, integer readLocation, key id) {
     if(readLocation+11 > maxReadLocation) { //This is the last page, and it wont be full
         temp = llList2List(l, readLocation, readLocation+10);
         readLocation += 11;
-        integer numStars = 10 - (llGetListLength(temp)); // 10 stars leaves room for Help and <--PREV
+        integer numStars = 10 - (llGetListLength(temp)); // 10 stars leaves room for Back and <--PREV
         //Add the stars for filler
         for(i = 0; i < numStars; i++) {
             stars += ["★"];
         }
-        temp = ["Help", "<--PREV"] + stars + temp;
+        temp = ["<--BACK", "<--PREV"] + stars + temp;
         g_currMenuButtons = temp;
         offerMenu(id, MenuText, temp);
     }
     else { // Full page.
-        temp = ["<--PREV","NEXT-->"] + llList2List(l, readLocation, readLocation+10); 
+        temp = ["<--BACK","<--PREV","NEXT-->"] + llList2List(l, readLocation, readLocation+10); 
         readLocation += 11;
         offerMenu(id, MenuText, temp);
     }
@@ -553,11 +553,11 @@ default {
             g_currCount = -1;
             list temp;
             if(llGetListLength(g_Skins) <= 11) {
-                temp = ["Help"] + llList2List(g_Skins, g_currCount+1, g_currCount+11);
+                temp = ["<--BACK"] + llList2List(g_Skins, g_currCount+1, g_currCount+11);
                 g_currCount += 12; //g_currCount is now 11 (starts at -1)
             }
             else {
-                temp = ["Help", "NEXT-->"] + llList2List(g_Skins, g_currCount+1, g_currCount+10); // This is a list of 10 skins
+                temp = ["<--BACK", "NEXT-->"] + llList2List(g_Skins, g_currCount+1, g_currCount+10); // This is a list of 10 skins
                 g_currCount += 11; //g_currCount is now 10 (starts at -1)
             }
             offerMenu(id, "Choose a Skin:", temp);
@@ -610,11 +610,11 @@ default {
             list temp;
         
             if(llGetListLength(g_Printouts) <= 11) {
-                temp = ["Help"] + llList2List(g_Printouts, g_currCount+1, g_currCount+11);
+                temp = ["<--BACK"] + llList2List(g_Printouts, g_currCount+1, g_currCount+11);
                 g_currCount += 12; //g_currCount is now 11 (starts at -1)
             }
             else {
-                temp = ["Help", "NEXT-->"] + llList2List(g_Printouts, g_currCount+1, g_currCount+10); // This is a list of 10 skins
+                temp = ["<--BACK", "NEXT-->"] + llList2List(g_Printouts, g_currCount+1, g_currCount+10); // This is a list of 10 skins
                 g_currCount += 11; //g_currCount is now 10 (starts at -1)
             }
             offerMenu(id, "Choose a Printout style:", temp);
