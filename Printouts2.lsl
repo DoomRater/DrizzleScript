@@ -29,6 +29,8 @@ string g_toucherName; // "Self" or "Tickle" or "Forced"
 key g_toucherKey; //in case we need to print to the toucher
 string g_useType; // "Wet" "Mess"
 string g_PrintoutCard = "Default";
+integer isDebug = FALSE;
+//set isDebug to 1 (TRUE) to enable all debug messages, and to 2 to disable info messages
 
 //Variables which hold all printouts in memory for speed.
 
@@ -160,7 +162,9 @@ clearCustomPrints() {
 }
 
 loadCustomPrints() {
-    llOwnerSay("Printouts2: Loading "+g_PrintoutCard+" notecard, this may take a minute or two!");
+	if(isDebug < 2) {
+		llOwnerSay("Printouts2: Loading "+g_PrintoutCard+" notecard, this may take a minute or two!");
+	}
     g_lineNum = 0;
     
     if(llGetInventoryType("PRINT:" + g_PrintoutCard) != -1) {
@@ -868,9 +872,13 @@ default
             }
             else
             {
-                llOwnerSay("Done reading your notecard! :3");
-                llOwnerSay("Printout2 Script Memory Used: " + (string) llGetUsedMemory() + " Bytes");
-                llOwnerSay("Printout2 Script Memory Remaining: " + (string) llGetFreeMemory() + " Bytes");
+				if(isDebug < 2) {
+					llOwnerSay("Done reading your notecard! :3");
+				}
+                if(isDebug == TRUE) {
+					llOwnerSay("Printout2 Script Memory Used: " + (string) llGetUsedMemory() + " Bytes");
+					llOwnerSay("Printout2 Script Memory Remaining: " + (string) llGetFreeMemory() + " Bytes");
+				}
             }
         }
     }
