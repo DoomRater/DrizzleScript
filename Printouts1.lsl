@@ -1015,7 +1015,7 @@ default {
             }
             else {
 				if(isDebug < 2) {
-					llOwnerSay("Done reading your notecard! :3");
+					llOwnerSay("Printout1: Done reading your notecard! :3");
 				}
 				if(isDebug == TRUE) {
 					llOwnerSay("Printout1 Script Memory Used: " + (string) llGetUsedMemory() + " Bytes");
