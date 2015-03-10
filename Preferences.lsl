@@ -464,13 +464,11 @@ default {
 		}
         else if(contains(g_Skins, msg) && g_currMenu == "Skins") {
             applyTexture(msg, "SKIN:");
-            g_currMenu = "";
-            offerMenu(id, "Adjust your settings!", g_SettingsMenu);
-        }
+            offerMenu(id, g_currMenuMessage, g_currMenuButtons);
+			}
         else if(contains(g_Printouts, msg)  && g_currMenu == "Printouts") {// new printout notecard!
             llMessageLinked(LINK_THIS, -3, g_currMenu + ":" + msg, NULL_KEY); //whew!
-            g_currMenu = "";
-            offerMenu(id, "Adjust your settings!", g_SettingsMenu);
+            offerMenu(id, g_currMenuMessage, g_currMenuButtons);
         }
         else if(msg == "NEXT-->") {
             handleNext(id);
@@ -480,84 +478,75 @@ default {
         }
         else if(g_currMenu == "Crinkle❤Volume") {
             llMessageLinked(LINK_THIS, -3, g_currMenu + ":" + msg, NULL_KEY);
-            g_currMenu = "";
-            offerMenu(id, "Adjust your settings!", g_SettingsMenu);
+            offerMenu(id, g_currMenuMessage, g_currMenuButtons);
         }
         else if(g_currMenu == "Wet❤Volume") {
             llMessageLinked(LINK_THIS, -3, g_currMenu + ":" + msg, NULL_KEY);
-            g_currMenu = "";
-            offerMenu(id, "Adjust your settings!", g_SettingsMenu);
+            offerMenu(id, g_currMenuMessage, g_currMenuButtons);
         }
         else if(g_currMenu == "Mess❤Volume") {
             llMessageLinked(LINK_THIS, -3, g_currMenu + ":" + msg, NULL_KEY);
-            g_currMenu = "";
-            offerMenu(id, "Adjust your settings!", g_SettingsMenu);
+            offerMenu(id, g_currMenuMessage, g_currMenuButtons);
         }            
         else if(g_currMenu == "Mess%") {
             //Mess%:10%
             llMessageLinked(LINK_THIS, -3, g_currMenu + ":" + msg, NULL_KEY);
-            g_currMenu = "";
-            offerMenu(id, "Adjust your settings!", g_SettingsMenu);
+            offerMenu(id, g_currMenuMessage, g_currMenuButtons);
         }
         else if(g_currMenu == "Wet%") {
             //Wet%:10%
             llMessageLinked(LINK_THIS, -3, g_currMenu + ":" + msg, NULL_KEY);
-            g_currMenu = "";
-            offerMenu(id, "Adjust your settings!", g_SettingsMenu);
+            offerMenu(id, g_currMenuMessage, g_currMenuButtons);
         }
         else if(g_currMenu == "Mess❤Timer") {
             //Mess❤Timer:10
             llMessageLinked(LINK_THIS, -3, g_currMenu + ":" + msg, NULL_KEY);
-            g_currMenu = "";
-            offerMenu(id, "Adjust your settings!", g_SettingsMenu);
+            offerMenu(id, g_currMenuMessage, g_currMenuButtons);
         }
         else if(g_currMenu == "Wet❤Timer") {
             //Wet❤Timer:10
             llMessageLinked(LINK_THIS, -3, g_currMenu + ":" + msg, NULL_KEY);
-            g_currMenu = "";
-            offerMenu(id, "Adjust your settings!", g_SettingsMenu);
+            offerMenu(id, g_currMenuMessage, g_currMenuButtons);
         }
         else if(g_currMenu == "❤Tickle❤") {
             //❤Tickle❤:??
             llMessageLinked(LINK_THIS, -3, g_currMenu + ":" + msg, NULL_KEY);
-            g_currMenu = "";
-            offerMenu(id, "Adjust your settings!", g_SettingsMenu);
+            offerMenu(id, g_currMenuMessage, g_currMenuButtons);
         }
         else if(g_currMenu == "Tummy❤Rub") {
             //Tummy❤Rub:??
             llMessageLinked(LINK_THIS, -3, g_currMenu + ":" + msg, NULL_KEY);
-            g_currMenu = "";
-            offerMenu(id, "Adjust your settings!", g_SettingsMenu);
+            offerMenu(id, g_currMenuMessage, g_currMenuButtons);
         }
         else if(msg == "Boy") { //Sent to main to update values and pass to Printouts
             llMessageLinked(LINK_THIS, -3, "Gender:0", NULL_KEY);
-            offerMenu(id, "Adjust your settings!", g_SettingsMenu);
+            offerMenu(id, g_currMenuMessage, g_currMenuButtons);
         }
         else if(msg == "Girl") {
             llMessageLinked(LINK_THIS, -3, "Gender:1", NULL_KEY);
-            offerMenu(id, "Adjust your settings!", g_SettingsMenu);
+            offerMenu(id, g_currMenuMessage, g_currMenuButtons);
         }
         //Security settings
         else if(msg == "Everyone") {
             llMessageLinked(LINK_THIS, -3, "Others:1", NULL_KEY);
-            offerMenu(id, "Adjust your settings!", g_SettingsMenu);
+            offerMenu(id, g_currMenuMessage, g_currMenuButtons);
         }
         else if(msg == "Carers❤&❤Me") {
             llMessageLinked(LINK_THIS, -3, "Others:0", NULL_KEY);
-            offerMenu(id, "Adjust your settings!", g_SettingsMenu);
+            offerMenu(id, g_currMenuMessage, g_currMenuButtons);
         }
         //chat spam level
         else if(msg == "Normal") {
             llMessageLinked(LINK_THIS, -3, "Chatter:2", NULL_KEY);
-            offerMenu(id, "Adjust your settings!", g_SettingsMenu);
+            offerMenu(id, g_currMenuMessage, g_currMenuButtons);
         }
         else if(msg == "Whisper") {
             llMessageLinked(LINK_THIS, -3, "Chatter:1", NULL_KEY);
-            offerMenu(id, "Adjust your settings!", g_SettingsMenu);
+            offerMenu(id, g_currMenuMessage, g_currMenuButtons);
         }
         else if(msg == "Private") {
             llMessageLinked(LINK_THIS, -3, "Chatter:0", NULL_KEY);
-            offerMenu(id, "Adjust your settings!", g_SettingsMenu);
+            offerMenu(id, g_currMenuMessage, g_currMenuButtons);
         }
         else if(msg == "Skins") {
             g_currMenu = msg;
@@ -580,7 +569,7 @@ default {
             else if(g_currMenu == "Printouts") {
                 llOwnerSay("To add new printout cards, simply prefix the name of a preformatted notecard you want to add with:\n\nPRINT:\n\n. . . And drag it into your diaper!");
             }
-            llDialog(id, g_currMenuMessage, g_currMenuButtons, g_uniqueChan);
+            offerMenu(id, g_currMenuMessage, g_currMenuButtons);
         }
         //todo: Merge changing of potty settings, volume settings, etc with main
         else if(msg == "Potty") {
