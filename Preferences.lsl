@@ -96,14 +96,14 @@ integer prevPage(string MenuText, list l, integer readLocation, key id) {
     readLocation -= 22; //Go back two pages (11 for current page, 11 more to get readLocation to the start of the page)
     
     if(readLocation == -1) {//First page
-        //@temp = elements 0 through 9 in g_Skins, and then 10 and 11 are Help and Next-->
-        list temp = ["Help", "NEXT-->"] + llList2List(l, readLocation+1, readLocation+10);
+        //@temp = elements 0 through 9 in g_Skins, and then 10 and 11 are Back and Next-->
+        list temp = ["<--BACK", "NEXT-->"] + llList2List(l, readLocation+1, readLocation+10);
         readLocation += 11;
         offerMenu(id, MenuText, temp);
         return readLocation;       
     }
     else {
-        list temp = ["Help", "<--PREV", "NEXT-->"] + llList2List(l, readLocation+1, readLocation+10);
+        list temp = ["<--BACK", "<--PREV", "NEXT-->"] + llList2List(l, readLocation+1, readLocation+10);
         readLocation += 11;
         offerMenu(id, MenuText, temp);
         return readLocation;
@@ -149,17 +149,17 @@ integer nextPage(string MenuText, list l, integer readLocation, key id) {
     if(readLocation+11 > maxReadLocation) { //This is the last page, and it wont be full
         temp = llList2List(l, readLocation, readLocation+10);
         readLocation += 11;
-        integer numStars = 10 - (llGetListLength(temp)); // 10 stars leaves room for Help and <--PREV
+        integer numStars = 10 - (llGetListLength(temp)); // 10 stars leaves room for Back and <--PREV
         //Add the stars for filler
         for(i = 0; i < numStars; i++) {
             stars += ["★"];
         }
-        temp = ["Help", "<--PREV"] + stars + temp;
+        temp = ["<--BACK", "<--PREV"] + stars + temp;
         g_currMenuButtons = temp;
         offerMenu(id, MenuText, temp);
     }
     else { // Full page.
-        temp = ["<--PREV","NEXT-->"] + llList2List(l, readLocation, readLocation+10); 
+        temp = ["<--BACK","<--PREV","NEXT-->"] + llList2List(l, readLocation, readLocation+10); 
         readLocation += 11;
         offerMenu(id, MenuText, temp);
     }
@@ -464,13 +464,11 @@ default {
 		}
         else if(contains(g_Skins, msg) && g_currMenu == "Skins") {
             applyTexture(msg, "SKIN:");
-            g_currMenu = "";
-            offerMenu(id, "Adjust your settings!", g_SettingsMenu);
-        }
+            offerMenu(id, g_currMenuMessage, g_currMenuButtons);
+			}
         else if(contains(g_Printouts, msg)  && g_currMenu == "Printouts") {// new printout notecard!
             llMessageLinked(LINK_THIS, -3, g_currMenu + ":" + msg, NULL_KEY); //whew!
-            g_currMenu = "";
-            offerMenu(id, "Adjust your settings!", g_SettingsMenu);
+            offerMenu(id, g_currMenuMessage, g_currMenuButtons);
         }
         else if(msg == "NEXT-->") {
             handleNext(id);
@@ -480,95 +478,86 @@ default {
         }
         else if(g_currMenu == "Crinkle❤Volume") {
             llMessageLinked(LINK_THIS, -3, g_currMenu + ":" + msg, NULL_KEY);
-            g_currMenu = "";
-            offerMenu(id, "Adjust your settings!", g_SettingsMenu);
+            offerMenu(id, g_currMenuMessage, g_currMenuButtons);
         }
         else if(g_currMenu == "Wet❤Volume") {
             llMessageLinked(LINK_THIS, -3, g_currMenu + ":" + msg, NULL_KEY);
-            g_currMenu = "";
-            offerMenu(id, "Adjust your settings!", g_SettingsMenu);
+            offerMenu(id, g_currMenuMessage, g_currMenuButtons);
         }
         else if(g_currMenu == "Mess❤Volume") {
             llMessageLinked(LINK_THIS, -3, g_currMenu + ":" + msg, NULL_KEY);
-            g_currMenu = "";
-            offerMenu(id, "Adjust your settings!", g_SettingsMenu);
+            offerMenu(id, g_currMenuMessage, g_currMenuButtons);
         }            
         else if(g_currMenu == "Mess%") {
             //Mess%:10%
             llMessageLinked(LINK_THIS, -3, g_currMenu + ":" + msg, NULL_KEY);
-            g_currMenu = "";
-            offerMenu(id, "Adjust your settings!", g_SettingsMenu);
+            offerMenu(id, g_currMenuMessage, g_currMenuButtons);
         }
         else if(g_currMenu == "Wet%") {
             //Wet%:10%
             llMessageLinked(LINK_THIS, -3, g_currMenu + ":" + msg, NULL_KEY);
-            g_currMenu = "";
-            offerMenu(id, "Adjust your settings!", g_SettingsMenu);
+            offerMenu(id, g_currMenuMessage, g_currMenuButtons);
         }
         else if(g_currMenu == "Mess❤Timer") {
             //Mess❤Timer:10
             llMessageLinked(LINK_THIS, -3, g_currMenu + ":" + msg, NULL_KEY);
-            g_currMenu = "";
-            offerMenu(id, "Adjust your settings!", g_SettingsMenu);
+            offerMenu(id, g_currMenuMessage, g_currMenuButtons);
         }
         else if(g_currMenu == "Wet❤Timer") {
             //Wet❤Timer:10
             llMessageLinked(LINK_THIS, -3, g_currMenu + ":" + msg, NULL_KEY);
-            g_currMenu = "";
-            offerMenu(id, "Adjust your settings!", g_SettingsMenu);
+            offerMenu(id, g_currMenuMessage, g_currMenuButtons);
         }
         else if(g_currMenu == "❤Tickle❤") {
             //❤Tickle❤:??
             llMessageLinked(LINK_THIS, -3, g_currMenu + ":" + msg, NULL_KEY);
-            g_currMenu = "";
-            offerMenu(id, "Adjust your settings!", g_SettingsMenu);
+            offerMenu(id, g_currMenuMessage, g_currMenuButtons);
         }
         else if(g_currMenu == "Tummy❤Rub") {
             //Tummy❤Rub:??
             llMessageLinked(LINK_THIS, -3, g_currMenu + ":" + msg, NULL_KEY);
-            g_currMenu = "";
-            offerMenu(id, "Adjust your settings!", g_SettingsMenu);
+            offerMenu(id, g_currMenuMessage, g_currMenuButtons);
         }
         else if(msg == "Boy") { //Sent to main to update values and pass to Printouts
             llMessageLinked(LINK_THIS, -3, "Gender:0", NULL_KEY);
-            offerMenu(id, "Adjust your settings!", g_SettingsMenu);
+            offerMenu(id, g_currMenuMessage, g_currMenuButtons);
         }
         else if(msg == "Girl") {
             llMessageLinked(LINK_THIS, -3, "Gender:1", NULL_KEY);
-            offerMenu(id, "Adjust your settings!", g_SettingsMenu);
+            offerMenu(id, g_currMenuMessage, g_currMenuButtons);
         }
         //Security settings
         else if(msg == "Everyone") {
             llMessageLinked(LINK_THIS, -3, "Others:1", NULL_KEY);
-            offerMenu(id, "Adjust your settings!", g_SettingsMenu);
+            offerMenu(id, g_currMenuMessage, g_currMenuButtons);
         }
         else if(msg == "Carers❤&❤Me") {
             llMessageLinked(LINK_THIS, -3, "Others:0", NULL_KEY);
-            offerMenu(id, "Adjust your settings!", g_SettingsMenu);
+            offerMenu(id, g_currMenuMessage, g_currMenuButtons);
         }
         //chat spam level
         else if(msg == "Normal") {
             llMessageLinked(LINK_THIS, -3, "Chatter:2", NULL_KEY);
-            offerMenu(id, "Adjust your settings!", g_SettingsMenu);
+            offerMenu(id, g_currMenuMessage, g_currMenuButtons);
         }
         else if(msg == "Whisper") {
             llMessageLinked(LINK_THIS, -3, "Chatter:1", NULL_KEY);
-            offerMenu(id, "Adjust your settings!", g_SettingsMenu);
+            offerMenu(id, g_currMenuMessage, g_currMenuButtons);
         }
         else if(msg == "Private") {
             llMessageLinked(LINK_THIS, -3, "Chatter:0", NULL_KEY);
-            offerMenu(id, "Adjust your settings!", g_SettingsMenu);
+            offerMenu(id, g_currMenuMessage, g_currMenuButtons);
         }
         else if(msg == "Skins") {
             g_currMenu = msg;
             g_currCount = -1;
             list temp;
             if(llGetListLength(g_Skins) <= 11) {
-                temp = ["Help"] + llList2List(g_Skins, g_currCount+1, g_currCount+11);
+                temp = ["<--BACK"] + llList2List(g_Skins, g_currCount+1, g_currCount+11);
                 g_currCount += 12; //g_currCount is now 11 (starts at -1)
             }
             else {
-                temp = ["Help", "NEXT-->"] + llList2List(g_Skins, g_currCount+1, g_currCount+10); // This is a list of 10 skins
+                temp = ["<--BACK", "NEXT-->"] + llList2List(g_Skins, g_currCount+1, g_currCount+10); // This is a list of 10 skins
                 g_currCount += 11; //g_currCount is now 10 (starts at -1)
             }
             offerMenu(id, "Choose a Skin:", temp);
@@ -580,7 +569,7 @@ default {
             else if(g_currMenu == "Printouts") {
                 llOwnerSay("To add new printout cards, simply prefix the name of a preformatted notecard you want to add with:\n\nPRINT:\n\n. . . And drag it into your diaper!");
             }
-            llDialog(id, g_currMenuMessage, g_currMenuButtons, g_uniqueChan);
+            offerMenu(id, g_currMenuMessage, g_currMenuButtons);
         }
         //todo: Merge changing of potty settings, volume settings, etc with main
         else if(msg == "Potty") {
@@ -621,11 +610,11 @@ default {
             list temp;
         
             if(llGetListLength(g_Printouts) <= 11) {
-                temp = ["Help"] + llList2List(g_Printouts, g_currCount+1, g_currCount+11);
+                temp = ["<--BACK"] + llList2List(g_Printouts, g_currCount+1, g_currCount+11);
                 g_currCount += 12; //g_currCount is now 11 (starts at -1)
             }
             else {
-                temp = ["Help", "NEXT-->"] + llList2List(g_Printouts, g_currCount+1, g_currCount+10); // This is a list of 10 skins
+                temp = ["<--BACK", "NEXT-->"] + llList2List(g_Printouts, g_currCount+1, g_currCount+10); // This is a list of 10 skins
                 g_currCount += 11; //g_currCount is now 10 (starts at -1)
             }
             offerMenu(id, "Choose a Printout style:", temp);
