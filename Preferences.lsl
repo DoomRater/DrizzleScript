@@ -414,6 +414,10 @@ printDebugSettings() {
 }
 
 //Function calls to ensure that preferences menu options update correctly.
+string m_topMenu() {
+	return "Adjust "+llKey2Name(llGetOwner())+"'s settings!";
+}
+
 string m_wetTimer() {
 	return "Wet Frequency (How often you wet)\n\n==This is in Minutes==\nCurrent Value: "+(string)g_wetTimer;
 }
@@ -441,7 +445,7 @@ string m_tummyRubChance() {
 string m_interactions() {
 	string allowedInteractions;
 	if(g_interact==0) {
-		allowedInteractions = "only carers and yourself are";
+		allowedInteractions = "only carers and the owner are";
 	}
 	else if(g_interact==1) {
 		allowedInteractions = "everyone is";
@@ -452,7 +456,7 @@ string m_interactions() {
 string m_chatter() {
 	string chatSpam;
 	if(g_chatter==0) {
-		chatSpam = "private.  Only you and whoever interacts will see messages.";
+		chatSpam = "private.  Only the owner and whoever interacts will see messages.";
 	}
 	else if(g_chatter==1) {
 		chatSpam = "whisper.  The public will hear messages up to 10m away.";
@@ -506,7 +510,7 @@ default {
 		}
         else if(num == -1) {
 			if(msg == "Options") {
-				offerMenu(id, "Adjust your settings!", g_SettingsMenu);
+				offerMenu(id, m_topMenu(), g_SettingsMenu);
 			}
 		}
     }
@@ -519,7 +523,7 @@ default {
         }
         else if(msg == "<--BACK") {
             g_currMenu = "";
-            offerMenu(id, "Adjust your settings!", g_SettingsMenu);
+            offerMenu(id, m_topMenu(), g_SettingsMenu);
         }
 		else if(msg=="DEBUG") {
 			printDebugSettings();
@@ -657,11 +661,11 @@ default {
         //todo: Merge changing of potty settings, volume settings, etc with main
         else if(msg == "Potty") {
             g_currMenu = msg;
-            offerMenu(id, "Adjust your potty settings!", g_PottyMenu);  
+            offerMenu(id, "Adjust "+llKey2Name(llGetOwner())+"'s potty settings!", g_PottyMenu);  
         }
         else if(msg == "Volume") {
             g_currMenu = msg;
-            offerMenu(id, "Adjust your volume settings!", g_VolumeMenu);  
+            offerMenu(id, "Adjust "+llKey2Name(llGetOwner())+"'s volume settings!", g_VolumeMenu);  
         }
         else if(msg == "Mess❤Timer") {
             g_currMenu = msg;
