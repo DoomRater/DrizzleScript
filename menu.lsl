@@ -64,7 +64,7 @@ string g_newCarer = "";
 
 integer g_isCrinkling = 0;  //just to tell the diaper if someone is still walking
 
-string g_exitText = "";  //text entered here will be spoken to the owner when the diaper is removed.
+string g_exitText = ""; //text entered here will be spoken to the owner when the diaper is removed.
 
 /* Puppy Pawz Pampers Variables */
 integer g_wetPrim;
@@ -73,6 +73,22 @@ integer g_messPrim;
 
 //list g_appearanceMenu = ["Tapes", "Ruffles", "Colors", "Panel"]; <-- Old menu option from a prim-sculptie based build.
 
+init()
+{
+    llListenRemove(g_uniqueChan);
+    g_uniqueChan = generateChan(llGetOwner()); // Used to avoid diapers talking to one another via menus.
+    llListen(g_uniqueChan, "", "", "");        
+    if(g_isOn == FALSE) {
+        llSetTimerEvent(0.0); // Used to check for wet/mess occurances
+    }
+    else if(g_isOn == TRUE) {
+        llSensorRepeat("", "", AGENT, 96.0, PI, 6.0); // Used to populate a few menus.
+        llSetTimerEvent(60.0);
+    }
+    llRequestPermissions(llGetOwner(),PERMISSION_TAKE_CONTROLS); //so we can see whether someone is moving and make them crinkle!
+    loadSettingsAndCarers(); // Make sure Prim 6 holds the default values on first boot!
+    findMessWetPrims(); // This locates the link number of the wet/mess prims for a model.
+}
 
 playWetAnimation() {
     if(llGetInventoryType("DrizzleWetAnim") != -1) { // Animation exists in inventory
@@ -319,7 +335,7 @@ handleChange(string msg, key id) {
     else if(msg == "Other") {
         llMessageLinked(LINK_THIS, -2, (string) g_gender + ":" + (string) g_wetLevel + ":" + (string) g_messLevel + ":" + "Normal Change" + ":" + llKey2Name(id), id);
     }
-	adjustWetMessPrims();
+    adjustWetMessPrims();
     sendSettings();
 }//End handleChange(string, id)
 // This function is called to manage wettings
@@ -455,13 +471,13 @@ integer isHidden() {
 toggleOnOff() {
     g_isOn = !g_isOn;
     if(g_isOn == FALSE) {
-		llSensorRemove();
+        llSensorRemove();
         llSetTimerEvent(0.0);
     }
     else {
         llResetTime();
         llSetTimerEvent(60.0);  //Check to see if a user wet/messed themselves once a minute.
-		llSensorRepeat("", "", AGENT, 96.0, PI, 6.0);
+        llSensorRepeat("", "", AGENT, 96.0, PI, 6.0);
     }
     sendSettings(); // Update the stored settings to reflect the on-off state.
 }
@@ -476,8 +492,8 @@ integer contains(list l, string test) {
         return TRUE;   
     }
     else {
-		return FALSE;
-	}
+        return FALSE;
+    }
 }
 
 printDebugSettings() {
@@ -512,8 +528,8 @@ integer isCarer(string name) {
         return TRUE;
     }
     else {
-		return FALSE;
-	}
+        return FALSE;
+    }
 }
 
 /* Basic function for printing out the carer's list with a header */
@@ -567,8 +583,8 @@ integer getToucherRank(key id) {
         return 1;
     }
     else {
-		return 2; // Outsider
-	}
+        return 2; // Outsider
+    }
 }
  
 // This function is customized to work with Zyriik's Puppy Pawz Pampers model.
@@ -589,9 +605,9 @@ findMessWetPrims() {
 }
 
 mainMenu(key id) {
-	integer userRank = getToucherRank(id);
+    integer userRank = getToucherRank(id);
     if(userRank == 0) {
-		llDialog(id, "User Menu for " + llKey2Name(llGetOwner()) + "'s diaper.", g_userMenu, g_uniqueChan);
+        llDialog(id, "User Menu for " + llKey2Name(llGetOwner()) + "'s diaper.", g_userMenu, g_uniqueChan);
     }
     else if(userRank == 1) {
         llDialog(id, "Carer Menu for " + llKey2Name(llGetOwner()) + "'s diaper.", g_careMenu, g_uniqueChan);
@@ -604,18 +620,7 @@ mainMenu(key id) {
 
 default {
     state_entry() {
-        g_uniqueChan = generateChan(llGetOwner()); // Used to avoid diapers talking to one another via menus.
-        llListen(g_uniqueChan, "", "", "");        
-        if(g_isOn == FALSE) {
-            llSetTimerEvent(0.0); // Used to check for wet/mess occurances
-        }
-        else if(g_isOn == TRUE) {
-	        llSensorRepeat("", "", AGENT, 96.0, PI, 6.0); // Used to populate a few menus.
-            llSetTimerEvent(60.0);
-        }
-        llRequestPermissions(llGetOwner(),PERMISSION_TAKE_CONTROLS); //so we can see whether someone is moving and make them crinkle!
-        loadSettingsAndCarers(); // Make sure Prim 6 holds the default values on first boot!
-        findMessWetPrims(); // This locates the link number of the wet/mess prims for a model.
+        init();
     }
     
     run_time_permissions(integer perm) {  //The proper way to handle permissions
@@ -632,7 +637,7 @@ default {
         else {
             if(g_isCrinkling == FALSE) { //only start playing the sound if we weren't already looping it, so not to spam sound events.
                 startCrinkleSound(g_CrinkleVolume);
-			}
+            }
             g_isCrinkling = TRUE;
         }
     }
@@ -641,11 +646,15 @@ default {
         if(id) { // Attached
             findMessWetPrims();  // This locates the link number of the wet/mess prims for a model.
         }
+        else if(g_exitText)
+        {
+            llOwnerSay(g_exitText); //bye bye :(
+        }
     }
     
     changed(integer change) {
         if(change & CHANGED_OWNER) {
-            llResetScript();
+            init();
         } 
     }
     //Searches the area, stashing the names of those nearby in one list, and their keys in another
@@ -677,14 +686,14 @@ default {
     }
     
     on_rez(integer start_param) {
-        llResetScript(); // Pulls new data
+        init(); // Pulls new data
     }
     
     touch_start(integer total_number) {
         key id = llDetectedOwner(0);
         integer userRank = getToucherRank(id); // 0 = Owner, 1 = Carer, 2 = Outsider
         if(g_isOn) { // Diaper's On
-			mainMenu(id);
+            mainMenu(id);
         }
         else { // Diaper's Off
             if(userRank == 0) {
@@ -705,14 +714,14 @@ default {
         else if(msg == "❤ ❤ ❤" && userRank == 1) {  //Only caretakers should be able to make the diaper give them this message!
             llDialog(id, "For the mischievous brat in us all.",  g_careMenuDiaper, g_uniqueChan);        
         }
-		//for future use with potty training
+        //for future use with potty training
         else if(msg == "Hold❤It" && userRank == 0) {
             g_userResponded = TRUE;
         }
         else if(msg == "Go❤Potty" && userRank == 0) {
             g_userResponded = TRUE;
         }
-		//Carers stuff
+        //Carers stuff
         else if(msg == "Accept") {
             llOwnerSay(g_newCarer+" has agreed to be your caretaker!");
             addCarer(g_newCarer);
@@ -731,7 +740,7 @@ default {
             adjustWetMessPrims(); // Ensure prims are properly hidden/shown after a state change.
         }
         else if(msg == "Options" && userRank < 2) { //Outsiders should never be able to invoke this
-			sendSettings(); //make sure preferences knows the current settings
+            sendSettings(); //make sure preferences knows the current settings
             llMessageLinked(LINK_THIS, -1, msg, id); // Tell Preferences script to talk to id
         }
         else if(contains(g_ButtonizedAvatars,msg)) { //Start of Caretaker handling
@@ -759,7 +768,7 @@ default {
             g_addRemove = 0;   
         }//End of Caretaker handling
         else if(msg == "<--BACK") {
-			mainMenu(id);
+            mainMenu(id);
         }
         else if(msg == "On/Off" || msg == "On" && userRank < 2) {
             toggleOnOff();   
@@ -834,8 +843,8 @@ default {
         }
     }//End of listen(integer, string, key, string)
             
-	// This event is used to evaluate/reset the forecasts for wetting or messing, as well 
-	// as determining whether a user succeeds in holding it.
+    // This event is used to evaluate/reset the forecasts for wetting or messing, as well 
+    // as determining whether a user succeeds in holding it.
     timer() {
         if(g_isOn == TRUE) {
             //Timer of 0 (Off) prevent accidents.
@@ -880,11 +889,11 @@ default {
         }//End g_isOn if
     }//End of timer
     
-	// This event only plays with messages of num <= 5, ignoring -1 and -2 specifically
-	// -1      = Preferences Script
-	// -2      = Printouts Script
-	//  1 to 5 = Storage Prim Messages
-	//  6      = Setting Message
+    // This event only plays with messages of num <= 5, ignoring -1 and -2 specifically
+    // -1      = Preferences Script
+    // -2      = Printouts Script
+    //  1 to 5 = Storage Prim Messages
+    //  6      = Setting Message
     link_message(integer sender_num, integer num, string msg, key id) {
         string temp;
         
@@ -965,10 +974,10 @@ default {
                 llMessageLinked(LINK_THIS, -2, (string) g_gender + ":" + temp, NULL_KEY);
                 llMessageLinked(LINK_THIS, -4, (string) g_gender + ":" + temp, NULL_KEY);
              }
-			 else if(setting == "Cancel") {
-				mainMenu(msg);
-				return;
-			}
+             else if(setting == "Cancel") {
+                mainMenu(msg);
+                return;
+            }
             sendSettings();
             return;
         }
