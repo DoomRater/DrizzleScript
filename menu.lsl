@@ -64,6 +64,8 @@ string g_newCarer = "";
 
 integer g_isCrinkling = 0;  //just to tell the diaper if someone is still walking
 
+string g_exitText = "";  //text entered here will be spoken to the owner when the diaper is removed.
+
 /* Puppy Pawz Pampers Variables */
 integer g_wetPrim;
 integer g_messPrim;
