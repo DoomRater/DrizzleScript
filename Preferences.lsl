@@ -39,6 +39,9 @@ list g_InteractionsOptions = ["<--BACK","★", "★","Everyone","Carers❤&❤Me
 /* For Misc Diaper Models */
 integer g_mainPrim;
 string g_mainPrimName = ""; // By default, set to "".
+//various diapers have different texture settings
+//PiedPiper uses repeat 1.0, 1.0 and offset .03, -.5
+string g_diaperType = "Fluffems";
 
 //menu variables passed to preferences
 integer g_wetChance;
@@ -62,6 +65,16 @@ float g_MessVolume;
 //list g_ColorMenu = ["<--BACK", "★", "★", "Padding", "Ruffles", "Pins", "Cutesy", "Adult"];
 //list g_AppearanceMenu = ["<--BACK", "★", "★", "Tapes", "Ruffles", "Color", "Skins", "Panel"];
 //list g_ColorMenu = ["<--BACK", "★", "★"];
+
+init()
+{
+    llListenRemove(g_uniqueChan);
+    g_uniqueChan = generateChan(llGetOwner()) + 1; // Remove collision with Menu listen handler via +1
+    loadInventoryList();
+    findPrims();
+    scanForResizerScript();
+    llListen(g_uniqueChan, "", "", "");
+}
 
 /*
     This function is customized to work with Zyriik's Puppy Pawz Pampers model.
@@ -203,6 +216,7 @@ handleNext(key id) {
 
 loadAllTextures(list l) {
     integer i;
+    g_Skins = [];
     for(i = 0; i < g_PrintTextueLength; i++) {
         string temp = llList2String(l, i);  //seems less confusing to just use llList2String than typecasting a single List2list entry...
         string prefix = llGetSubString(temp, 0, llSubStringIndex(temp, ":"));
@@ -216,6 +230,7 @@ loadAllTextures(list l) {
 
 loadPrintouts(list l) {
     integer i;
+    g_Printouts = [];
     for(i = 0; i < g_PrintCardLength; i++) {
         string temp = llList2String(l, i);
         string prefix = llGetSubString(temp, 0, llSubStringIndex(temp, ":"));
@@ -319,8 +334,14 @@ applyTexture(string name, string prefix) {
     repeats.x = 1.0;
     repeats.y = 1.0;
     
-    offset.x = 0.0;
-    offset.y = 0.0;
+    if(g_diaperType=="Fluffems") {
+        offset.x = 0.0;
+        offset.y = 0.0;
+    }
+    else if(g_diaperType=="PiedPiper") {
+        offset.x = 0.03;
+        offset.y = -.5;
+    }
     
     radRotation = 0.0;
     
@@ -488,11 +509,7 @@ string m_messVolume() {
 default {
     
     state_entry() {
-        g_uniqueChan = generateChan(llGetOwner()) + 1; // Remove collision with Menu listen handler via +1
-        loadInventoryList();
-        findPrims();
-        scanForResizerScript();
-        llListen(g_uniqueChan, "", "", "");
+        init();
     }
     
     attach(key id) {
@@ -503,12 +520,8 @@ default {
     
     changed(integer change) {
         if(change & CHANGED_OWNER | CHANGED_INVENTORY) {
-            llResetScript();
+            init();
         }
-    }
-    
-    on_rez(integer start_param) {
-        llResetScript(); 
     }
     
     link_message(integer sender_num, integer num, string msg, key id) {
