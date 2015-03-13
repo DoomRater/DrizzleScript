@@ -85,6 +85,12 @@ findPrims() {
     }
 }
 
+//quick and dirty resizer check
+scanForResizerScript() {
+    if(llGetInventoryType("Controler") == INVENTORY_SCRIPT) {
+        g_SettingsMenu += ["Resize"];
+    }
+}
 
 //@l = list of dialog options
 //@readLocation = The index used to determine where to start reading the list
@@ -326,13 +332,13 @@ integer contains(list l, string test) {
         return TRUE;   
     }
     else {
-		return FALSE;
-	}
+        return FALSE;
+    }
 }
 
 parseSettings(string temp) {
     integer index; // Used to hold the location of a comma in the CSV
-	
+    
     //I opted to not use llCSV2List to avoid the overhead associated with storing and cutting up lists.
     //I'm simply finding commas in the string, and cutting out the values between them.
     
@@ -415,77 +421,78 @@ printDebugSettings() {
 
 //Function calls to ensure that preferences menu options update correctly.
 string m_topMenu() {
-	return "Adjust "+llKey2Name(llGetOwner())+"'s settings!";
+    return "Adjust "+llKey2Name(llGetOwner())+"'s settings!";
 }
 
 string m_wetTimer() {
-	return "Wet Frequency (How often you wet)\n\n==This is in Minutes==\nCurrent Value: "+(string)g_wetTimer;
+    return "Wet Frequency (How often you wet)\n\n==This is in Minutes==\nCurrent Value: "+(string)g_wetTimer;
 }
 
 string m_messTimer() {
-	return "Mess Frequency (How often you potty)\n\n==This is in Minutes==\nCurrent Value: "+(string)g_messTimer;
+    return "Mess Frequency (How often you potty)\n\n==This is in Minutes==\nCurrent Value: "+(string)g_messTimer;
 }
 
 string m_wetChance() {
-	return "Chance to hold it! (Wet)\nCurrent Chance: "+(string)g_wetChance+"%";
+    return "Chance to hold it! (Wet)\nCurrent Chance: "+(string)g_wetChance+"%";
 }
 
 string m_messChance() {
-	return "Chance to hold it! (Mess)\nCurrent Chance: "+(string)g_messChance+"%";
+    return "Chance to hold it! (Mess)\nCurrent Chance: "+(string)g_messChance+"%";
 }
 
 string m_tickleChance() {
-	return "Chance to resist tickles!\nCurrent Chance: "+(string)g_tickle+"%";
+    return "Chance to resist tickles!\nCurrent Chance: "+(string)g_tickle+"%";
 }
 
 string m_tummyRubChance() {
-	return "Chance to resist tummy rubs!\nCurrent Chance: "+(string)g_tummyRub+"%";
+    return "Chance to resist tummy rubs!\nCurrent Chance: "+(string)g_tummyRub+"%";
 }
 
 string m_interactions() {
-	string allowedInteractions;
-	if(g_interact==0) {
-		allowedInteractions = "only carers and the owner are";
-	}
-	else if(g_interact==1) {
-		allowedInteractions = "everyone is";
-	}
+    string allowedInteractions;
+    if(g_interact==0) {
+        allowedInteractions = "only carers and the owner are";
+    }
+    else if(g_interact==1) {
+        allowedInteractions = "everyone is";
+    }
     return "Who should be able to interact with this diaper?\n\nCurrently "+allowedInteractions+" allowed.";
 }
 
 string m_chatter() {
-	string chatSpam;
-	if(g_chatter==0) {
-		chatSpam = "private.  Only the owner and whoever interacts will see messages.";
-	}
-	else if(g_chatter==1) {
-		chatSpam = "whisper.  The public will hear messages up to 10m away.";
-	}
-	else if(g_chatter==2) {
-		chatSpam = "normal.  The public will hear messages up to 20m away!";
-	}
+    string chatSpam;
+    if(g_chatter==0) {
+        chatSpam = "private.  Only the owner and whoever interacts will see messages.";
+    }
+    else if(g_chatter==1) {
+        chatSpam = "whisper.  The public will hear messages up to 10m away.";
+    }
+    else if(g_chatter==2) {
+        chatSpam = "normal.  The public will hear messages up to 20m away!";
+    }
     return "How far should the diaper chatter go?\n\nThe current setting is "+chatSpam;
 }
 
 string m_crinkleVolume() {
-	return "How loud should the crinkling be?\nCurrent value: "+(string)llRound(g_CrinkleVolume*200.0)+"%";
+    return "How loud should the crinkling be?\nCurrent value: "+(string)llRound(g_CrinkleVolume*200.0)+"%";
 }
 
 string m_wetVolume() {
-	return "How loud should the wetting sound be?\nCurrent value: "+(string)llRound(g_WetVolume*300)+"%";
+    return "How loud should the wetting sound be?\nCurrent value: "+(string)llRound(g_WetVolume*300)+"%";
 }
 
 string m_messVolume() {
-	return "How loud should the messing sound be?\nCurrent value: "+(string)llRound(g_MessVolume*100)+"%";
+    return "How loud should the messing sound be?\nCurrent value: "+(string)llRound(g_MessVolume*100)+"%";
 }
 
 default {
     
     state_entry() {
         g_uniqueChan = generateChan(llGetOwner()) + 1; // Remove collision with Menu listen handler via +1
-        llListen(g_uniqueChan, "", "", "");
         loadInventoryList();
-        findPrims();   
+        findPrims();
+        scanForResizerScript();
+        llListen(g_uniqueChan, "", "", "");
     }
     
     attach(key id) {
@@ -505,14 +512,14 @@ default {
     }
     
     link_message(integer sender_num, integer num, string msg, key id) {
-		if(num == 6) {
-			parseSettings(msg);
-		}
+        if(num == 6) {
+            parseSettings(msg);
+        }
         else if(num == -1) {
-			if(msg == "Options") {
-				offerMenu(id, m_topMenu(), g_SettingsMenu);
-			}
-		}
+            if(msg == "Options") {
+                offerMenu(id, m_topMenu(), g_SettingsMenu);
+            }
+        }
     }
     
     listen(integer chan, string name, key id, string msg)
@@ -525,13 +532,13 @@ default {
             g_currMenu = "";
             offerMenu(id, m_topMenu(), g_SettingsMenu);
         }
-		else if(msg=="DEBUG") {
-			printDebugSettings();
-		}
+        else if(msg=="DEBUG") {
+            printDebugSettings();
+        }
         else if(contains(g_Skins, msg) && g_currMenu == "Skins") {
             applyTexture(msg, "SKIN:");
             offerMenu(id, g_currMenuMessage, g_currMenuButtons);
-			}
+            }
         else if(contains(g_Printouts, msg)  && g_currMenu == "Printouts") {// new printout notecard!
             llMessageLinked(LINK_THIS, -3, g_currMenu + ":" + msg, NULL_KEY); //whew!
             offerMenu(id, g_currMenuMessage, g_currMenuButtons);
@@ -545,59 +552,59 @@ default {
         else if(g_currMenu == "Crinkle❤Volume") {
             llMessageLinked(LINK_THIS, -3, g_currMenu + ":" + msg, NULL_KEY);
             msg = llGetSubString(msg, 0, -2);
-			g_CrinkleVolume = (float) msg * .005;
+            g_CrinkleVolume = (float) msg * .005;
             offerMenu(id, m_crinkleVolume(), g_currMenuButtons);
         }
         else if(g_currMenu == "Wet❤Volume") {
             llMessageLinked(LINK_THIS, -3, g_currMenu + ":" + msg, NULL_KEY);
             msg = llGetSubString(msg, 0, -2);
-			g_WetVolume = (float) msg * .00333;
+            g_WetVolume = (float) msg * .00333;
             offerMenu(id, m_wetVolume(), g_currMenuButtons);
         }
         else if(g_currMenu == "Mess❤Volume") {
             llMessageLinked(LINK_THIS, -3, g_currMenu + ":" + msg, NULL_KEY);
             msg = llGetSubString(msg, 0, -2);
-			g_MessVolume = (float) msg * .01;
+            g_MessVolume = (float) msg * .01;
             offerMenu(id, m_messVolume(), g_currMenuButtons);
         }            
         else if(g_currMenu == "Mess%") {
             //Mess%:10%
             llMessageLinked(LINK_THIS, -3, g_currMenu + ":" + msg, NULL_KEY);
             msg = llGetSubString(msg, 0, -2);
-			g_messChance = (integer) msg;
+            g_messChance = (integer) msg;
             offerMenu(id, m_messChance(), g_currMenuButtons);
         }
         else if(g_currMenu == "Wet%") {
             //Wet%:10%
             llMessageLinked(LINK_THIS, -3, g_currMenu + ":" + msg, NULL_KEY);
             msg = llGetSubString(msg, 0, -2);
-			g_wetChance = (integer) msg;
+            g_wetChance = (integer) msg;
             offerMenu(id, m_wetChance(), g_currMenuButtons);
         }
         else if(g_currMenu == "Mess❤Timer") {
             //Mess❤Timer:10
             llMessageLinked(LINK_THIS, -3, g_currMenu + ":" + msg, NULL_KEY);
-			g_messTimer = (integer) msg;
+            g_messTimer = (integer) msg;
             offerMenu(id, m_messTimer(), g_currMenuButtons);
         }
         else if(g_currMenu == "Wet❤Timer") {
             //Wet❤Timer:10
             llMessageLinked(LINK_THIS, -3, g_currMenu + ":" + msg, NULL_KEY);
-			g_wetTimer = (integer) msg;
+            g_wetTimer = (integer) msg;
             offerMenu(id, m_wetTimer(), g_currMenuButtons);
         }
         else if(g_currMenu == "❤Tickle❤") {
             //❤Tickle❤:??
             llMessageLinked(LINK_THIS, -3, g_currMenu + ":" + msg, NULL_KEY);
             msg = llGetSubString(msg, 0, -2);
-			g_tickle = (integer) msg;
+            g_tickle = (integer) msg;
             offerMenu(id, m_tickleChance(), g_currMenuButtons);
         }
         else if(g_currMenu == "Tummy❤Rub") {
             //Tummy❤Rub:??
             llMessageLinked(LINK_THIS, -3, g_currMenu + ":" + msg, NULL_KEY);
             msg = llGetSubString(msg, 0, -2);
-			g_tummyRub = (integer) msg;
+            g_tummyRub = (integer) msg;
             offerMenu(id, m_tummyRubChance(), g_currMenuButtons);
         }
         else if(msg == "Boy") { //Sent to main to update values and pass to Printouts
@@ -611,28 +618,28 @@ default {
         //Security settings
         else if(msg == "Everyone") {
             llMessageLinked(LINK_THIS, -3, "Others:1", NULL_KEY);
-			g_interact = 1;
+            g_interact = 1;
             offerMenu(id, m_interactions(), g_currMenuButtons);
         }
         else if(msg == "Carers❤&❤Me") {
             llMessageLinked(LINK_THIS, -3, "Others:0", NULL_KEY);
-			g_interact = 0;
+            g_interact = 0;
             offerMenu(id, m_interactions(), g_currMenuButtons);
         }
         //chat spam level
         else if(msg == "Normal") {
             llMessageLinked(LINK_THIS, -3, "Chatter:2", NULL_KEY);
-			g_chatter = 2;
+            g_chatter = 2;
             offerMenu(id, m_chatter(), g_currMenuButtons);
         }
         else if(msg == "Whisper") {
             llMessageLinked(LINK_THIS, -3, "Chatter:1", NULL_KEY);
-			g_chatter = 1;
+            g_chatter = 1;
             offerMenu(id, m_chatter(), g_currMenuButtons);
         }
         else if(msg == "Private") {
             llMessageLinked(LINK_THIS, -3, "Chatter:0", NULL_KEY);
-			g_chatter = 0;
+            g_chatter = 0;
             offerMenu(id, m_chatter(), g_currMenuButtons);
         }
         else if(msg == "Skins") {
@@ -730,8 +737,11 @@ default {
             g_currMenu = msg;
             offerMenu(id, m_messVolume(), g_chanceOptions);
         }
+        else if(msg == "Resize") {
+            llMessageLinked(LINK_THIS, 900, "MENU", NULL_KEY);
+        }
         else if(msg == "<--TOP") {
             llMessageLinked(LINK_THIS, -3, "Cancel:"+(string)id, NULL_KEY);
-	}
+        }
     }
 }
