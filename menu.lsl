@@ -59,7 +59,6 @@ integer g_mForecast = 0; // Determines how long until the next mess chance
 integer g_wForecast = 0; // Determines how long until the next wet chance
 integer timesHeldWet = 0;
 integer timesHeldMess = 0;
-string g_Settings = ""; // A variable used to hold data sent from SaveSettings.lsl 
 string g_newCarer = "";
 
 integer g_isCrinkling = 0;  //just to tell the diaper if someone is still walking
@@ -86,7 +85,7 @@ init()
         llSetTimerEvent(60.0);
     }
     llRequestPermissions(llGetOwner(),PERMISSION_TAKE_CONTROLS); //so we can see whether someone is moving and make them crinkle!
-    loadSettingsAndCarers(); // Make sure Prim 6 holds the default values on first boot!
+    loadCarers(); // Make sure Prim 6 holds the default values on first boot!
     findMessWetPrims(); // This locates the link number of the wet/mess prims for a model.
 }
 
@@ -508,7 +507,6 @@ printDebugSettings() {
     llOwnerSay("Gender: " + (string) g_gender);
     llOwnerSay("On/Off: " + (string) g_isOn);
     llOwnerSay("Other Interaction: " + (string) g_interact);
-    llOwnerSay("Settings: " + (string) g_Settings);
     llOwnerSay("Channel: " + (string) g_uniqueChan);
     llOwnerSay("Detected Avatars: " + (string) g_detectedAvatars);
     llOwnerSay("Wet Prim: " + (string) g_wetPrim);
@@ -539,10 +537,7 @@ printCarers() {
 }
 
 //Called at Startup to initialize variables from the memory core.
-loadSettingsAndCarers() {
-    g_ButtonCarers = [];
-    g_Carers = []; // Clear the list
-    g_Settings = ""; // Clear the settings
+loadCarers() {
     llMessageLinked(LINK_ALL_CHILDREN, 1, "SEND", NULL_KEY); // Tells the memory core to send us its data!
 }
 
@@ -554,7 +549,7 @@ addCarer(string name) {
     }
     else {
         llMessageLinked(LINK_ALL_CHILDREN, 1, name, NULL_KEY); //Null key sent flags "Add Carer" as the action for the memory core.
-        loadSettingsAndCarers();
+        loadCarers();
     }
 }
 
@@ -565,7 +560,7 @@ removeCarer(string name) {
     integer carerIndex =llListFindList(g_ButtonCarers, [name]);
     if(~carerIndex) {
         llMessageLinked(LINK_ALL_CHILDREN, 1, llList2String(g_Carers,carerIndex), llGetOwner()); //Valid key sent flags "Delete Carer" as the action for the memory core.
-        loadSettingsAndCarers();   
+        loadCarers();   
     }
     else {
         llOwnerSay("That person isn't on your list!");
@@ -985,7 +980,7 @@ default {
             if(msg != "I'm sorry! There is no more room for carers, please delete one.") { // Valid send
                 if(msg != "") {
                     list temp = llCSV2List(msg);
-                    g_Carers += temp;
+                    g_Carers = temp;
                     //construct g_ButtonCarers from g_Carers
                     integer index = llGetListLength(g_Carers) - 1;
                     g_ButtonCarers = []; //clear the button list
