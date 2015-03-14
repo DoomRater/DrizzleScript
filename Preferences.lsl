@@ -22,6 +22,7 @@ the software together, so everyone has access to something potentially excellent
 integer g_printTextueLength;
 integer g_printCardLength;
 integer g_uniqueChan;
+integer g_mainListen; //needed to keep track of the listens
 integer g_currCount;
 string g_currMenu;
 string g_currMenuMessage; //Potentially usable to determine which timer is being used?
@@ -68,12 +69,12 @@ float g_messVolume;
 
 init()
 {
-    llListenRemove(g_uniqueChan);
+    llListenRemove(g_mainListen);
     g_uniqueChan = generateChan(llGetOwner()) + 1; // Remove collision with Menu listen handler via +1
     loadInventoryList();
     findPrims();
     scanForResizerScript();
-    llListen(g_uniqueChan, "", "", "");
+    g_mainListen = llListen(g_uniqueChan, "", "", "");
 }
 
 /*
