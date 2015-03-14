@@ -20,7 +20,7 @@ the software together, so everyone has access to something potentially excellent
 * Main Script used for the Diaper, is the central hub of
 * communication between all other scripts 
 */
-list g_userMenu = ["DEBUG", "Caretakers", "On/Off", "Check", "Change", "Options", "Get❤Soggy", "Get❤Stinky", "Show/Hide", "❤Flood❤"];
+list g_userMenu = ["Caretakers", "On/Off", "Check", "Change", "Options", "Get❤Soggy", "Get❤Stinky", "Show/Hide", "❤Flood❤"];
 list g_careMenu = ["Check", "Change", "Tease", "Raspberry", "Poke", "Options","Show/Hide", "❤ ❤ ❤"];
 list g_careMenuDiaper = ["Force❤Wet", "Force❤Mess","❤Tickle❤", "Tummy❤Rub", "Wedgie", "Spank"];
 list g_userCareMenu = ["<--BACK", " ", " ", "Add", "Remove", "List"];
@@ -64,6 +64,8 @@ string g_newCarer = "";
 integer g_isCrinkling = 0;  //just to tell the diaper if someone is still walking
 
 string g_exitText = ""; //text entered here will be spoken to the owner when the diaper is removed.
+integer isDebug = FALSE;
+//set isDebug to 1 (TRUE) to enable all debug messages, and to 2 to disable info messages
 
 /* Puppy Pawz Pampers Variables */
 integer g_wetPrim;
@@ -76,7 +78,6 @@ init()
 {
     llListenRemove(g_uniqueChan);
     g_uniqueChan = generateChan(llGetOwner()); // Used to avoid diapers talking to one another via menus.
-    llListen(g_uniqueChan, "", "", "");        
     if(g_isOn == FALSE) {
         llSetTimerEvent(0.0); // Used to check for wet/mess occurances
     }
@@ -84,9 +85,13 @@ init()
         llSensorRepeat("", "", AGENT, 96.0, PI, 6.0); // Used to populate a few menus.
         llSetTimerEvent(60.0);
     }
+    if(isDebug==TRUE) {
+        g_userMenu = ["DEBUG"] + g_userMenu;
+    }
     llRequestPermissions(llGetOwner(),PERMISSION_TAKE_CONTROLS); //so we can see whether someone is moving and make them crinkle!
     loadCarers(); // Make sure Prim 6 holds the default values on first boot!
     findMessWetPrims(); // This locates the link number of the wet/mess prims for a model.
+    llListen(g_uniqueChan, "", "", "");
 }
 
 playWetAnimation() {
@@ -94,7 +99,9 @@ playWetAnimation() {
         llStartAnimation("DrizzleWetAnim");
     }
     else {
-        llOwnerSay("No Animation Found!\nPlease drop an animation named: DrizzleWetAnim into your model!");   
+        if(isDebug==TRUE) {
+            llOwnerSay("No Animation Found!\nPlease drop an animation named: DrizzleWetAnim into your model!");
+        }
     }
 }
 
@@ -104,7 +111,9 @@ startCrinkleSound(float volume) {
         llLoopSound("DrizzleCrinkleSound", volume); 
     }
     else {
-         llOwnerSay("No Sound Found!\nPlease drop a soundfile named: DrizzleCrinkleSound into your model!");
+        if(isDebug==TRUE) {
+            llOwnerSay("No Sound Found!\nPlease drop a soundfile named: DrizzleCrinkleSound into your model!");
+        }
     }
 }
 
@@ -117,7 +126,9 @@ playWetSound(float volume) {
         llPlaySound("DrizzleWetSound", volume); 
     }
     else {
-         llOwnerSay("No Sound Found!\nPlease drop a soundfile named: DrizzleWetSound into your model!");
+        if(isDebug==TRUE) {
+            llOwnerSay("No Sound Found!\nPlease drop a soundfile named: DrizzleWetSound into your model!");
+        }
     }
 }
 
@@ -126,7 +137,9 @@ playMessAnimation() {
         llStartAnimation("DrizzleMessAnim");
     }
     else {
-        llOwnerSay("No Animation Found!\nPlease drop an animation named: DrizzleMessAnim into your model!");   
+        if(isDebug==TRUE) {
+            llOwnerSay("No Animation Found!\nPlease drop an animation named: DrizzleMessAnim into your model!");
+        }
     }
 }
 
@@ -136,7 +149,9 @@ playMessSound(float volume) {
         llPlaySound("DrizzleMessSound", volume); 
     }
     else {
-         llOwnerSay("No Sound Found!\nPlease drop a soundfile named: DrizzleMessSound into your model!");
+        if(isDebug==TRUE) {
+            llOwnerSay("No Sound Found!\nPlease drop a soundfile named: DrizzleMessSound into your model!");
+        }
     }
 }
 
@@ -571,7 +586,7 @@ removeCarer(string name) {
     }
 }
 
-makeButtonsForCarers() {
+makeButtonsForCarers() { //construct g_ButtonCarers from g_Carers
     integer index = llGetListLength(g_Carers) - 1;
     g_ButtonCarers = []; //clear the button list
     while (~index) {
@@ -657,7 +672,9 @@ default {
         }
         else if(g_exitText)
         {
-            llOwnerSay(g_exitText); //bye bye :(
+            if(isDebug<2) {
+                llOwnerSay(g_exitText); //bye bye :(
+            }
         }
     }
     
@@ -995,7 +1012,6 @@ default {
                 if(msg != "") {
                     list temp = llCSV2List(msg);
                     g_Carers = temp;
-                    //construct g_ButtonCarers from g_Carers
                     makeButtonsForCarers();
                 }
             }
