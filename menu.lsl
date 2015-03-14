@@ -20,7 +20,7 @@ the software together, so everyone has access to something potentially excellent
 * Main Script used for the Diaper, is the central hub of
 * communication between all other scripts 
 */
-list g_userMenu = ["Caretakers", "On/Off", "Check", "Change", "Options", "Get❤Soggy", "Get❤Stinky", "Show/Hide", "❤Flood❤"];
+list g_userMenu = ["Show/Hide", "Options", "On/Off", "❤Flood❤", "Check", "Change", "Get❤Soggy", "Get❤Stinky", "Caretakers"];
 list g_careMenu = ["Check", "Change", "Tease", "Raspberry", "Poke", "Options","Show/Hide", "❤ ❤ ❤"];
 list g_careMenuDiaper = ["Force❤Wet", "Force❤Mess","❤Tickle❤", "Tummy❤Rub", "Wedgie", "Spank"];
 list g_userCareMenu = ["<--BACK", " ", " ", "Add", "Remove", "List"];
@@ -85,8 +85,12 @@ init()
         llSensorRepeat("", "", AGENT, 96.0, PI, 6.0); // Used to populate a few menus.
         llSetTimerEvent(60.0);
     }
-    if(isDebug==TRUE) {
-        g_userMenu = ["DEBUG"] + g_userMenu;
+    integer debugInMenu = llListFindList(g_userMenu,["DEBUG"]);
+    if(isDebug == TRUE) {
+        llOwnerSay("Debug mode active.  Error messages will be printed out!");
+        if(debugInMenu == -1) {
+            g_userMenu += ["DEBUG"];
+        }
     }
     llRequestPermissions(llGetOwner(),PERMISSION_TAKE_CONTROLS); //so we can see whether someone is moving and make them crinkle!
     loadCarers(); // Make sure Prim 6 holds the default values on first boot!
@@ -537,7 +541,7 @@ printDebugSettings() {
 
 /* Simple function that searches g_Carers for a given user name */
 integer isCarer(string name) {
-    if(~llListFindList(g_Carers, [name])) { // name found, they're a carer!
+    if(contains(g_Carers, name)) { // name found, they're a carer!
         return TRUE;
     }
     else {
@@ -559,7 +563,7 @@ loadCarers() {
 // If a given name is not already in the carer's list, we add them to the carer's list.
 // @name - The name to be tested for carer status
 addCarer(string name) {
-    if(~llListFindList(g_Carers, [name])) {
+    if(contains(g_Carers, name)) {
         llOwnerSay("You've already added that carer once silly!");   
     }
     else {
