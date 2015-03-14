@@ -19,8 +19,8 @@ the software together, so everyone has access to something potentially excellent
 
 /* Script used to offer and manage setting-changing menu options */
 
-integer g_PrintTextueLength;
-integer g_PrintCardLength;
+integer g_printTextueLength;
+integer g_printCardLength;
 integer g_uniqueChan;
 integer g_currCount;
 string g_currMenu;
@@ -28,20 +28,20 @@ string g_currMenuMessage; //Potentially usable to determine which timer is being
 list g_currMenuButtons;
 list g_Skins;
 list g_Printouts;
-list g_SettingsMenu = ["<--TOP","DEBUG","Gender", "Skins","Chatter","Printouts", "Potty", "Interactions", "Volume"];
-list g_GenderMenu = ["<--BACK", "★", "★", "Boy", "Girl"];
-list g_ChatterMenu = ["<--BACK", "★", "★", "Normal", "Whisper", "Private"];
-list g_VolumeMenu = ["<--BACK", "★", "★", "Crinkle❤Volume", "Wet❤Volume", "Mess❤Volume"];
-list g_PottyMenu = ["<--BACK", "★", "★", "Wet❤Timer", "Mess❤Timer", "★", "Wet%", "Mess%", "★", "❤Tickle❤", "Tummy❤Rub", "★"];
+list g_settingsMenu = ["<--TOP","DEBUG","Gender", "Skins","Chatter","Printouts", "Potty", "Interactions", "Volume"];
+list g_genderMenu = ["<--BACK", "★", "★", "Boy", "Girl"];
+list g_chatterMenu = ["<--BACK", "★", "★", "Normal", "Whisper", "Private"];
+list g_volumeMenu = ["<--BACK", "★", "★", "Crinkle❤Volume", "Wet❤Volume", "Mess❤Volume"];
+list g_pottyMenu = ["<--BACK", "★", "★", "Wet❤Timer", "Mess❤Timer", "★", "Wet%", "Mess%", "★", "❤Tickle❤", "Tummy❤Rub", "★"];
 list g_timerOptions = ["<--BACK", "★", "★", "40", "60", "120", "15", "20", "30", "0", "5", "10"]; // Backwards  (Ascending over 3) to make numbers have logical order.
 list g_chanceOptions = ["<--BACK", "90%", "100%", "60%", "70%", "80%", "30%", "40%", "50%", "0%", "10%", "20%"]; // Backwards (Ascending over 3) to make numbers have logical order.
-list g_InteractionsOptions = ["<--BACK","★", "★","Everyone","Carers❤&❤Me"];
+list g_interactionsOptions = ["<--BACK","★", "★","Everyone","Carers❤&❤Me"];
 /* For Misc Diaper Models */
 integer g_mainPrim;
 string g_mainPrimName = ""; // By default, set to "".
 //various diapers have different texture settings
 //PiedPiper uses repeat 1.0, 1.0 and offset .03, -.5
-string g_diaperType = "Fluffems";
+string g_diaperType = "PiedPiper";
 
 //menu variables passed to preferences
 integer g_wetChance;
@@ -53,9 +53,9 @@ integer g_tickle;
 integer g_gender;
 integer g_interact;
 integer g_chatter;
-float g_CrinkleVolume;
-float g_WetVolume;
-float g_MessVolume;
+float g_crinkleVolume;
+float g_wetVolume;
+float g_messVolume;
 
 //Old variables used in my prim-sculptie based system.
 //list g_Ruffles;
@@ -101,7 +101,7 @@ findPrims() {
 //quick and dirty resizer check
 scanForResizerScript() {
     if(llGetInventoryType("Controler") == INVENTORY_SCRIPT) {
-        g_SettingsMenu += ["Resize"];
+        g_settingsMenu += ["Resize"];
     }
 }
 
@@ -217,7 +217,7 @@ handleNext(key id) {
 loadAllTextures(list l) {
     integer i;
     g_Skins = [];
-    for(i = 0; i < g_PrintTextueLength; i++) {
+    for(i = 0; i < g_printTextueLength; i++) {
         string temp = llList2String(l, i);  //seems less confusing to just use llList2String than typecasting a single List2list entry...
         string prefix = llGetSubString(temp, 0, llSubStringIndex(temp, ":"));
         string name = llGetSubString(temp, llSubStringIndex(temp, ":") + 1, llStringLength(temp));
@@ -231,7 +231,7 @@ loadAllTextures(list l) {
 loadPrintouts(list l) {
     integer i;
     g_Printouts = [];
-    for(i = 0; i < g_PrintCardLength; i++) {
+    for(i = 0; i < g_printCardLength; i++) {
         string temp = llList2String(l, i);
         string prefix = llGetSubString(temp, 0, llSubStringIndex(temp, ":"));
         string name = llGetSubString(temp, llSubStringIndex(temp, ":") + 1, llStringLength(temp));
@@ -247,14 +247,14 @@ loadInventoryList() {
     while(n) {
         result = llGetInventoryName(INVENTORY_TEXTURE, --n) + result;
     }
-    g_PrintTextueLength = llGetListLength(result);
+    g_printTextueLength = llGetListLength(result);
     loadAllTextures(result);
     result = [];
     n = llGetInventoryNumber(INVENTORY_NOTECARD);
     while(n) {
         result = llGetInventoryName(INVENTORY_NOTECARD, --n) + result;
     }
-    g_PrintCardLength = llGetListLength(result);
+    g_printCardLength = llGetListLength(result);
     loadPrintouts(result);
 }
 integer generateChan(key id) {
@@ -412,15 +412,15 @@ parseSettings(string temp) {
     temp = llGetSubString(temp, index+1, -1);
 
     index = llSubStringIndex(temp, ",");
-    g_CrinkleVolume = (float) llGetSubString(temp, 0, index-1);
+    g_crinkleVolume = (float) llGetSubString(temp, 0, index-1);
     temp = llGetSubString(temp, index+1, -1);
 
     index = llSubStringIndex(temp, ",");
-    g_WetVolume = (float) llGetSubString(temp, 0, index-1);
+    g_wetVolume = (float) llGetSubString(temp, 0, index-1);
     temp = llGetSubString(temp, index+1, -1);
 
     //The last value is all that remains, just store it.
-    g_MessVolume = (float) temp;
+    g_messVolume = (float) temp;
 }
 
 printDebugSettings() {
@@ -433,9 +433,9 @@ printDebugSettings() {
     llOwnerSay("Gender: " + (string) g_gender);
     llOwnerSay("Other Interaction: " + (string) g_interact);
     llOwnerSay("Channel: " + (string) g_uniqueChan);
-    llOwnerSay("Crinkle Volume: "+(string) g_CrinkleVolume);
-    llOwnerSay("Wet Sound Volume: "+(string) g_WetVolume);
-    llOwnerSay("Mess Sound Volume: "+(string) g_MessVolume);
+    llOwnerSay("Crinkle Volume: "+(string) g_crinkleVolume);
+    llOwnerSay("Wet Sound Volume: "+(string) g_wetVolume);
+    llOwnerSay("Mess Sound Volume: "+(string) g_messVolume);
     llOwnerSay("Used Memory: " + (string) llGetUsedMemory());
     llOwnerSay("Free Memory: " + (string) llGetFreeMemory());
 }
@@ -443,6 +443,14 @@ printDebugSettings() {
 //Function calls to ensure that preferences menu options update correctly.
 string m_topMenu() {
     return "Adjust "+llKey2Name(llGetOwner())+"'s settings!";
+}
+
+string m_pottyMenu() {
+    return "Adjust "+llKey2Name(llGetOwner())+"'s potty settings!";
+}
+
+string m_volumeMenu() {
+    return "Adjust "+llKey2Name(llGetOwner())+"'s volume settings!";
 }
 
 string m_wetTimer() {
@@ -495,15 +503,15 @@ string m_chatter() {
 }
 
 string m_crinkleVolume() {
-    return "How loud should the crinkling be?\nCurrent value: "+(string)llRound(g_CrinkleVolume*200.0)+"%";
+    return "How loud should the crinkling be?\nCurrent value: "+(string)llRound(g_crinkleVolume*200.0)+"%";
 }
 
 string m_wetVolume() {
-    return "How loud should the wetting sound be?\nCurrent value: "+(string)llRound(g_WetVolume*300)+"%";
+    return "How loud should the wetting sound be?\nCurrent value: "+(string)llRound(g_wetVolume*300)+"%";
 }
 
 string m_messVolume() {
-    return "How loud should the messing sound be?\nCurrent value: "+(string)llRound(g_MessVolume*100)+"%";
+    return "How loud should the messing sound be?\nCurrent value: "+(string)llRound(g_messVolume*100)+"%";
 }
 
 default {
@@ -530,7 +538,7 @@ default {
         }
         else if(num == -1) {
             if(msg == "Options") {
-                offerMenu(id, m_topMenu(), g_SettingsMenu);
+                offerMenu(id, m_topMenu(), g_settingsMenu);
             }
         }
     }
@@ -542,8 +550,18 @@ default {
             offerMenu(id, g_currMenuMessage, g_currMenuButtons);
         }
         else if(msg == "<--BACK") {
-            g_currMenu = "";
-            offerMenu(id, m_topMenu(), g_SettingsMenu);
+            if(~llListFindList(g_pottyMenu,[g_currMenu])) {
+                g_currMenu = "";
+                offerMenu(id, m_pottyMenu(),g_pottyMenu);
+            }
+            else if(~llListFindList(g_volumeMenu,[g_currMenu])) {
+                g_currMenu = "";
+                offerMenu(id, m_volumeMenu(),g_volumeMenu);
+            }
+            else {
+                g_currMenu = "";
+                offerMenu(id, m_topMenu(), g_settingsMenu);
+            }
         }
         else if(msg=="DEBUG") {
             printDebugSettings();
@@ -565,19 +583,19 @@ default {
         else if(g_currMenu == "Crinkle❤Volume") {
             llMessageLinked(LINK_THIS, -3, g_currMenu + ":" + msg, NULL_KEY);
             msg = llGetSubString(msg, 0, -2);
-            g_CrinkleVolume = (float) msg * .005;
+            g_crinkleVolume = (float) msg * .005;
             offerMenu(id, m_crinkleVolume(), g_currMenuButtons);
         }
         else if(g_currMenu == "Wet❤Volume") {
             llMessageLinked(LINK_THIS, -3, g_currMenu + ":" + msg, NULL_KEY);
             msg = llGetSubString(msg, 0, -2);
-            g_WetVolume = (float) msg * .00333;
+            g_wetVolume = (float) msg * .00333;
             offerMenu(id, m_wetVolume(), g_currMenuButtons);
         }
         else if(g_currMenu == "Mess❤Volume") {
             llMessageLinked(LINK_THIS, -3, g_currMenu + ":" + msg, NULL_KEY);
             msg = llGetSubString(msg, 0, -2);
-            g_MessVolume = (float) msg * .01;
+            g_messVolume = (float) msg * .01;
             offerMenu(id, m_messVolume(), g_currMenuButtons);
         }            
         else if(g_currMenu == "Mess%") {
@@ -681,11 +699,11 @@ default {
         //todo: Merge changing of potty settings, volume settings, etc with main
         else if(msg == "Potty") {
             g_currMenu = msg;
-            offerMenu(id, "Adjust "+llKey2Name(llGetOwner())+"'s potty settings!", g_PottyMenu);  
+            offerMenu(id, m_pottyMenu(), g_pottyMenu);  
         }
         else if(msg == "Volume") {
             g_currMenu = msg;
-            offerMenu(id, "Adjust "+llKey2Name(llGetOwner())+"'s volume settings!", g_VolumeMenu);  
+            offerMenu(id, m_volumeMenu(), g_volumeMenu);  
         }
         else if(msg == "Mess❤Timer") {
             g_currMenu = msg;
@@ -728,15 +746,15 @@ default {
         }
         else if(msg == "Gender") {
             g_currMenu = msg;
-            offerMenu(id, "Are you a boy or a girl?", g_GenderMenu);   
+            offerMenu(id, "Are you a boy or a girl?", g_genderMenu);   
         }
         else if(msg == "Interactions") {
             g_currMenu = msg;
-            offerMenu(id, m_interactions(), g_InteractionsOptions);
+            offerMenu(id, m_interactions(), g_interactionsOptions);
         }
         else if(msg == "Chatter") {
             g_currMenu = msg;
-            offerMenu(id, m_chatter(), g_ChatterMenu);
+            offerMenu(id, m_chatter(), g_chatterMenu);
         }
         else if(msg == "Crinkle❤Volume") {
             g_currMenu = msg;
