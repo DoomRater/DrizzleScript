@@ -549,6 +549,8 @@ addCarer(string name) {
     }
     else {
         llMessageLinked(LINK_ALL_CHILDREN, 1, name, NULL_KEY); //Null key sent flags "Add Carer" as the action for the memory core.
+        g_Carers += [name];
+        makeButtonsForCarers();
         loadCarers();
     }
 }
@@ -560,10 +562,22 @@ removeCarer(string name) {
     integer carerIndex =llListFindList(g_ButtonCarers, [name]);
     if(~carerIndex) {
         llMessageLinked(LINK_ALL_CHILDREN, 1, llList2String(g_Carers,carerIndex), llGetOwner()); //Valid key sent flags "Delete Carer" as the action for the memory core.
+        g_Carers = llDeleteSubList(g_Carers,carerIndex,carerIndex);
+        makeButtonsForCarers();
         loadCarers();   
     }
     else {
         llOwnerSay("That person isn't on your list!");
+    }
+}
+
+makeButtonsForCarers() {
+    integer index = llGetListLength(g_Carers) - 1;
+    g_ButtonCarers = []; //clear the button list
+    while (~index) {
+    //Ew, this is long and convoluted.
+        g_ButtonCarers = [llBase64ToString(llGetSubString(llStringToBase64(llList2String(g_Carers,index)), 0, 31))] + g_ButtonCarers;
+        index--;
     }
 }
 
@@ -982,13 +996,7 @@ default {
                     list temp = llCSV2List(msg);
                     g_Carers = temp;
                     //construct g_ButtonCarers from g_Carers
-                    integer index = llGetListLength(g_Carers) - 1;
-                    g_ButtonCarers = []; //clear the button list
-                    while (~index) {
-                        //Ew, this is long and convoluted.
-                        g_ButtonCarers = [llBase64ToString(llGetSubString(llStringToBase64(llList2String(g_Carers,index)), 0, 31))] + g_ButtonCarers;
-                        index--;
-                    }
+                    makeButtonsForCarers();
                 }
             }
             else { // No more room for carers!
