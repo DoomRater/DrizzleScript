@@ -34,7 +34,8 @@ key g_nameQuery;
 
 integer g_addRemove = -1;
 integer g_uniqueChan = -1;
-integer g_listenHandle;
+integer g_mainListen;
+integer g_carerListen;
 integer g_userResponded = FALSE;
 
 //Saved Non-Carer Settings
@@ -76,7 +77,7 @@ integer g_messPrim;
 
 init()
 {
-    llListenRemove(g_uniqueChan);
+    llListenRemove(g_mainListen);
     g_uniqueChan = generateChan(llGetOwner()); // Used to avoid diapers talking to one another via menus.
     if(g_isOn == FALSE) {
         llSetTimerEvent(0.0); // Used to check for wet/mess occurances
@@ -95,7 +96,7 @@ init()
     llRequestPermissions(llGetOwner(),PERMISSION_TAKE_CONTROLS); //so we can see whether someone is moving and make them crinkle!
     loadCarers(); // Make sure Prim 6 holds the default values on first boot!
     findMessWetPrims(); // This locates the link number of the wet/mess prims for a model.
-    llListen(g_uniqueChan, "", "", "");
+    g_mainListen = llListen(g_uniqueChan, "", "", "");
 }
 
 playWetAnimation() {
@@ -756,11 +757,11 @@ default {
             llOwnerSay(g_newCarer+" has agreed to be your caretaker!");
             addCarer(g_newCarer);
             g_addRemove = -1;   
-            llListenRemove(g_listenHandle);
+            llListenRemove(g_carerListen);
         }
         else if(msg == "Decline") {
             llOwnerSay("Your offer was declined, sorry. )=");
-            llListenRemove(g_listenHandle);
+            llListenRemove(g_carerListen);
         }
         else if(msg == "List") {
             printCarers();    
@@ -777,7 +778,7 @@ default {
             if(g_addRemove == 1) { //Adding a carer
                 integer temp = llListFindList(g_ButtonizedAvatars,[msg]);
                 g_newCarer = llKey2Name(llList2Key(g_detectedKeys, temp));  //the key list should correspond to the buttonized avatar list, right?
-                g_listenHandle = llListen(g_uniqueChan-1, "", "", ""); // "Dangerous", but safer than opening
+                g_carerListen = llListen(g_uniqueChan-1, "", "", ""); // "Dangerous", but safer than opening
                 // my main listen up. Used to verify Carer requests
                 llDialog(llList2Key(g_detectedKeys, temp), llKey2Name(llGetOwner()) + " would like to add you as a carer.", ["Accept", "Decline"], g_uniqueChan-1);
             }
