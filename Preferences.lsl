@@ -42,7 +42,7 @@ integer g_mainPrim;
 string g_mainPrimName = ""; // By default, set to "".
 //various diapers have different texture settings
 //PiedPiper uses repeat 1.0, 1.0 and offset .03, -.5
-string g_diaperType = "PiedPiper";
+string g_diaperType = "Fluffems";
 
 //menu variables passed to preferences
 integer g_wetChance;
