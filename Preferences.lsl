@@ -29,7 +29,7 @@ string g_currMenuMessage; //Potentially usable to determine which timer is being
 list g_currMenuButtons;
 list g_Skins;
 list g_Printouts;
-list g_settingsMenu = ["<--TOP","DEBUG","Gender", "Skins","Chatter","Printouts", "Potty", "Interactions", "Volume"];
+list g_settingsMenu = ["<--TOP", "★", "Gender", "Skins", "Printouts", "Chatter", "Potty", "Interactions", "Volume"];
 list g_genderMenu = ["<--BACK", "★", "★", "Boy", "Girl"];
 list g_chatterMenu = ["<--BACK", "★", "★", "Normal", "Whisper", "Private"];
 list g_volumeMenu = ["<--BACK", "★", "★", "Crinkle❤Volume", "Wet❤Volume", "Mess❤Volume"];
@@ -43,6 +43,7 @@ string g_mainPrimName = ""; // By default, set to "".
 //various diapers have different texture settings
 //PiedPiper uses repeat 1.0, 1.0 and offset .03, -.5
 string g_diaperType = "Fluffems";
+integer isDebug = FALSE;
 
 //menu variables passed to preferences
 integer g_wetChance;
@@ -74,6 +75,11 @@ init()
     loadInventoryList();
     findPrims();
     scanForResizerScript();
+    if(isDebug==TRUE) {
+        if(llList2String(g_settingsMenu,1)=="*") {
+            g_settingsMenu = llListReplaceList(g_settingsMenu,["DEBUG"],1,1);
+        }
+    }
     g_mainListen = llListen(g_uniqueChan, "", "", "");
 }
 
@@ -102,7 +108,9 @@ findPrims() {
 //quick and dirty resizer check
 scanForResizerScript() {
     if(llGetInventoryType("Controler") == INVENTORY_SCRIPT) {
-        g_settingsMenu += ["Resize"];
+        if(llListFindList(g_settingsMenu,["Resize"])==-1) {
+            g_settingsMenu += ["Resize"];
+        }
     }
 }
 
@@ -547,7 +555,9 @@ default {
     listen(integer chan, string name, key id, string msg)
     {
         if(msg == "★") {// Someone misclicked in the menu!
-            llOwnerSay("The stars are just there to look pretty! =p");
+            if(isDebug < 2) {
+                llOwnerSay("The stars are just there to look pretty! =p");
+            }
             offerMenu(id, g_currMenuMessage, g_currMenuButtons);
         }
         else if(msg == "<--BACK") {
