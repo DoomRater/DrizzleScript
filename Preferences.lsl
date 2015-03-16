@@ -28,8 +28,13 @@ string g_currMenu;
 string g_currMenuMessage; //Potentially usable to determine which timer is being used?
 list g_currMenuButtons;
 list g_Skins;
+list g_Tapes;
+list g_BackFaces;
+list g_Panels;
+list g_Cuties;
 list g_Printouts;
 list g_settingsMenu = ["<--TOP", "★", "Gender", "Skins", "Printouts", "Chatter", "Potty", "Interactions", "Volume"];
+list g_skinsMenu = ["<--BACK","Help", "*","Diaper❤Print","Tapes","Back❤Face","Panel","Cutie*Mark"];
 list g_genderMenu = ["<--BACK", "★", "★", "Boy", "Girl"];
 list g_chatterMenu = ["<--BACK", "★", "★", "Normal", "Whisper", "Private"];
 list g_volumeMenu = ["<--BACK", "★", "★", "Crinkle❤Volume", "Wet❤Volume", "Mess❤Volume"];
@@ -142,25 +147,27 @@ integer prevPage(string MenuText, list l, integer readLocation, key id) {
 //This function determines which page needs to be generated
 handlePrev(key id) {
     if(g_currMenu == "Skins") {
-         g_currCount = prevPage("Choose a skin:",g_Skins, g_currCount, id);
+         g_currCount = prevPage(m_skinMenu(), g_Skins, g_currCount, id);
     }
     else if(g_currMenu == "Printouts") {
-        g_currCount = prevPage("Choose a Printout style:",g_Printouts, g_currCount, id);
+        g_currCount = prevPage(m_printMenu(),g_Printouts, g_currCount, id);
     }
-         
-    /* Old code from prim-sculptie based build
-    if(g_currMenu == "Tapes") {
-    //    g_currCount = prevPage(g_Tapes, g_currCount, id);
+    //handling for Kawaii Diapers
+    else if(g_currMenu == "Diaper❤Print") {
+        g_currCount = prevPage(m_skinMenu(), g_Skins, g_currCount, id);
     }
-    else if(g_currMenu == "Ruffles") {
-    //     g_currCount = prevPage(g_Ruffles, g_currCount, id);
+    else if(g_currMenu == "Tapes") {
+        g_currCount = prevPage(m_tapesMenu(),g_Tapes, g_currCount, id);
     }
-    else if(g_currMenu == "Color") {
-    //     g_currCount = prevPage(g_Colors, g_currCount, id);
+    else if(g_currMenu == "Back❤Face") {
+        g_currCount = prevPage(m_backFaceMenu(),g_BackFaces, g_currCount, id);
     }
     else if(g_currMenu == "Panel") {
-    //     g_currCount = prevPage(g_Panels, g_currCount, id);
-    }*/
+        g_currCount = prevPage(m_panelMenu(),g_Panels, g_currCount, id);
+    }
+    else if(g_currMenu == "Cutie*Mark") {
+        g_currCount = prevPage(m_cutieMenu(),g_Cuties, g_currCount, id);
+    }
 }
 
 //@l = list of dialog options
@@ -198,29 +205,26 @@ integer nextPage(string MenuText, list l, integer readLocation, key id) {
 //This function determines which page needs to be generated
 handleNext(key id) {
     if(g_currMenu == "Skins") {
-         g_currCount = nextPage("Choose a skin:",g_Skins, g_currCount, id);
+         g_currCount = nextPage(m_skinMenu() ,g_Skins, g_currCount, id);
     }
     else if(g_currMenu == "Printouts") {
-        g_currCount = nextPage("Choose a Printout style:",g_Printouts, g_currCount, id);
+        g_currCount = nextPage(m_printMenu(), g_Printouts, g_currCount, id);
     }
-         
-    /* Old code for a prim-based build.
-    if(g_currMenu == "Tapes") {
-        g_currCount = nextPage(g_Tapes, g_currCount, id);
+    else if(g_currMenu == "Diaper❤Print") {
+        g_currCount = nextPage(m_skinMenu(), g_Skins, g_currCount, id);
     }
-    else if(g_currMenu == "Skins") {
-         g_currCount = nextPage(g_Skins, g_currCount, id);
+    else if(g_currMenu == "Tapes") {
+        g_currCount = nextPage(m_tapesMenu(), g_Tapes, g_currCount, id);
     }
-    else if(g_currMenu == "Ruffles") {
-         g_currCount = nextPage(g_Ruffles, g_currCount, id);
-    }
-    else if(g_currMenu == "Colors") {
-         g_currCount = nextPage(g_Colors, g_currCount, id);
+    else if(g_currMenu == "Back❤Face") {
+        g_currCount = nextPage(m_backFaceMenu(),g_BackFaces, g_currCount, id);
     }
     else if(g_currMenu == "Panel") {
-         g_currCount = nextPage(g_Panels, g_currCount, id);
+        g_currCount = nextPage(m_panelMenu(),g_Panels, g_currCount, id);
     }
-    */
+    else if(g_currMenu == "Cutie*Mark") {
+        g_currCount = nextPage(m_cutieMenu(),g_Cuties, g_currCount, id);
+    }
 }
 
 loadAllTextures(list l) {
@@ -233,7 +237,18 @@ loadAllTextures(list l) {
         if(prefix == "SKIN:") {
             g_Skins += name;  
         }
-        //Add additional textures that need to be loaded for other diaper types here
+        else if(prefix == "TAPE:") {
+            g_Tapes += name;
+        }
+        else if(prefix == "BACKFACE:") {
+            g_BackFaces += name;
+        }
+        else if(prefix == "PANEL:") {
+            g_Panels += name;
+        }
+        else if(prefix == "CUTIE:") {
+            g_Cuties += name;
+        }
     }
 }
 
@@ -523,6 +538,30 @@ string m_messVolume() {
     return "How loud should the messing sound be?\nCurrent value: "+(string)llRound(g_messVolume*100)+"%";
 }
 
+string m_skinMenu() {
+    return "Choose a diaper print:";
+}
+
+string m_tapesMenu() {
+    return "Choose a tape texture:";
+}
+
+string m_panelMenu() {
+    return "Choose a panel print:";
+}
+
+string m_backFaceMenu() {
+    return "Choose a butt print:";
+}
+
+string m_cutieMenu() {
+    return "Yay cutie marks!\n\nChoose a cutie mark:";
+}
+
+string m_printMenu() {
+    return "Choose a Printout style:";
+}
+
 default {
     
     state_entry() {
@@ -686,28 +725,29 @@ default {
         }
         else if(msg == "Skins") {
             g_currMenu = msg;
-            g_currCount = -1;
-            list temp;
-            if(llGetListLength(g_Skins) <= 11) {
-                temp = ["<--BACK"] + llList2List(g_Skins, g_currCount+1, g_currCount+11);
-                g_currCount += 12; //g_currCount is now 11 (starts at -1)
+            if(g_diaperType == "Fluffems" || g_diaperType == "PiedPiper") {
+                //these two diapers only use one prim for skins
+                g_currCount = -1;
+                list temp;
+                if(llGetListLength(g_Skins) <= 11) {
+                    temp = ["<--BACK"] + llList2List(g_Skins, g_currCount+1, g_currCount+11);
+                    g_currCount += 12; //g_currCount is now 11 (starts at -1)
+                }
+                else {
+                    temp = ["<--BACK", "NEXT-->"] + llList2List(g_Skins, g_currCount+1, g_currCount+10); // This is a list of 10 skins
+                    g_currCount += 11; //g_currCount is now 10 (starts at -1)
+                }
+                offerMenu(id, "Choose a Skin:", temp);
             }
-            else {
-                temp = ["<--BACK", "NEXT-->"] + llList2List(g_Skins, g_currCount+1, g_currCount+10); // This is a list of 10 skins
-                g_currCount += 11; //g_currCount is now 10 (starts at -1)
+            else if(g_diaperType == "Kawaii") {
+                //this diaper can use tapes, panels, and the like, so show the skin menu instead
+                offerMenu(id, "Change the diaper's appearance!", g_skinsMenu);
             }
-            offerMenu(id, "Choose a Skin:", temp);
-        }   
+        }
         else if(msg == "Help") {
-            if (g_currMenu == "Skins") {
-                llOwnerSay("To add your own skins, simply prefix the name of a texture you want to add with:\n\nSKIN:\n\n. . . And drag it into your diaper!");
-            }
-            else if(g_currMenu == "Printouts") {
-                llOwnerSay("To add new printout cards, simply prefix the name of a preformatted notecard you want to add with:\n\nPRINT:\n\n. . . And drag it into your diaper!");
-            }
+            llOwnerSay("Adding your own skins and notecards is easy!  Just prefix your textures with the appropriate tag for where you want it to be and drag it into the diaper!  I'll take care of the rest.");
             offerMenu(id, g_currMenuMessage, g_currMenuButtons);
         }
-        //todo: Merge changing of potty settings, volume settings, etc with main
         else if(msg == "Potty") {
             g_currMenu = msg;
             offerMenu(id, m_pottyMenu(), g_pottyMenu);  
