@@ -586,7 +586,7 @@ default {
         }
         else if(num == -1) {
             if(msg == "Options") {
-                currMenu = "";+
+                currMenu = "";
                 offerMenu(id, m_topMenu(), g_settingsMenu);
             }
         }
