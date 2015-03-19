@@ -51,9 +51,9 @@ integer g_gender = 1;      // 0:Male || 1:Female, this diaper was being edited f
 integer g_isOn = 1;        // 1:On   || 0:Off
 integer g_interact = 1;    // 1:On   || 0:Off, will control whether non-carers can interact with the diaper
 integer g_chatter = 2;     // 0:self-chatter 1:Whisper chatter 2:say chatter
-float g_CrinkleVolume = .1;
-float g_WetVolume = .333;    //Maximum range is .333; we triple this volume on flooding
-float g_MessVolume = 1.0;
+integer g_CrinkleVolume = 10;
+integer g_WetVolume = 100;  //this value is thirded on normal wets
+integer g_MessVolume = 100;
 //End Saved Non-Carer Settings
 
 integer g_mForecast = 0; // Determines how long until the next mess chance
@@ -218,15 +218,15 @@ parseSettings(string temp) {
     temp = llGetSubString(temp, index+1, -1);
 
     index = llSubStringIndex(temp, ",");
-    g_CrinkleVolume = (float) llGetSubString(temp, 0, index-1);
+    g_CrinkleVolume = (integer) llGetSubString(temp, 0, index-1);
     temp = llGetSubString(temp, index+1, -1);
 
     index = llSubStringIndex(temp, ",");
-    g_WetVolume = (float) llGetSubString(temp, 0, index-1);
+    g_WetVolume = (integer) llGetSubString(temp, 0, index-1);
     temp = llGetSubString(temp, index+1, -1);
 
     //The last value is all that remains, just store it.
-    g_MessVolume = (float) temp;
+    g_MessVolume = (integer) temp;
 }//End parseSettings(string)
 
 // Returns a forecast duration number of seconds in the future.
@@ -375,7 +375,7 @@ handleWetting(string msg, key id) {
     else if(msg == "Force") {
         llMessageLinked(LINK_THIS, -4, (string) g_gender + ":" + (string) g_wetLevel + ":" + (string) g_messLevel + ":" + "Force Wet" + ":" + llKey2Name(id), id); 
     }
-    playWetSound(g_WetVolume);
+    playWetSound(g_WetVolume * .00333);
     adjustWetMessPrims();  //Correct Prim to be Visible/Change textures on mesh
     timesHeldWet = 0;
     sendSettings();
@@ -414,7 +414,7 @@ handleFlooding(string msg, key id) {
         //Example of what message looks like: 1:2:g_wetLevel:Self Flood:Key
         llMessageLinked(LINK_THIS, -4, (string) g_gender + ":" + (string) g_wetLevel + ":" + (string) g_messLevel + ":" + "Self Flood" + ":" + llKey2Name(llGetOwner()), llGetOwner());
     }
-    playWetSound(g_WetVolume*3);  //todo: add a special flooding sound
+    playWetSound(g_WetVolume * .01);  //todo: add a special flooding sound
     timesHeldWet = 0;
     adjustWetMessPrims();  //Set Correct Prim to be Visible/Change textures on mesh
     sendSettings();
@@ -665,7 +665,7 @@ default {
         }
         else {
             if(g_isCrinkling == FALSE) { //only start playing the sound if we weren't already looping it, so not to spam sound events.
-                startCrinkleSound(g_CrinkleVolume);
+                startCrinkleSound(g_CrinkleVolume * .005); //half as loud
             }
             g_isCrinkling = TRUE;
         }
@@ -976,17 +976,17 @@ default {
             else if(setting == "Crinkle❤Volume") {
                 index = llSubStringIndex(msg, "%");
                 msg = llGetSubString(msg, 0, index-1);
-                g_CrinkleVolume = (float) msg * .005; //one half as loud as reported
+                g_CrinkleVolume = (integer) msg;
             }
             else if(setting == "Wet❤Volume") {
                 index = llSubStringIndex(msg, "%");
                 msg = llGetSubString(msg, 0, index-1);
-                g_WetVolume = (float) msg * .00333; //one third as loud as reported
+                g_WetVolume = (integer) msg;
             }
             else if(setting == "Mess❤Volume") {
                 index = llSubStringIndex(msg, "%");
                 msg = llGetSubString(msg, 0, index-1);
-                g_MessVolume = (float) msg * .01;
+                g_MessVolume = (integer) msg;
             }
             else if(setting == "Others") {
                 g_interact = (integer) msg;
