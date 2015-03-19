@@ -376,8 +376,13 @@ applyTexture(string name, string prefix) {
     }
     
     radRotation = 0.0;
-    
-    llSetLinkPrimitiveParamsFast(g_mainPrim, [PRIM_TEXTURE, ALL_SIDES, texture, repeats, offset, radRotation]);
+    //todo: apply to the correct face and prim according to the prefix
+    if(g_diaperType=="Kawaii") {
+        llSetLinkPrimitiveParamsFast(g_mainPrim, [PRIM_TEXTURE, 1, texture, repeats, offset, radRotation]);
+    }
+    else {
+        llSetLinkPrimitiveParamsFast(g_mainPrim, [PRIM_TEXTURE, ALL_SIDES, texture, repeats, offset, radRotation]);
+    }
 }
 
 integer contains(list l, string test) {
@@ -624,12 +629,12 @@ default {
         else if(msg=="DEBUG") {
             printDebugSettings();
         }
-        else if(contains(g_Skins, msg) && g_currMenu == "Skins") {
+        else if(contains(g_Skins, msg) && (g_currMenu == "Skins" || g_currMenu == "Diaper❤Print")) {
             applyTexture(msg, "SKIN:");
             offerMenu(id, g_currMenuMessage, g_currMenuButtons);
             }
         else if(contains(g_Printouts, msg)  && g_currMenu == "Printouts") {// new printout notecard!
-            llMessageLinked(LINK_THIS, -3, g_currMenu + ":" + msg, NULL_KEY); //whew!
+            llMessageLinked(LINK_THIS, -3, g_currMenu + ":" + msg, NULL_KEY);
             offerMenu(id, g_currMenuMessage, g_currMenuButtons);
         }
         else if(msg == "NEXT-->") {
