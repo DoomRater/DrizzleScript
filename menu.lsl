@@ -64,7 +64,10 @@ string g_newCarer = "";
 
 integer g_isCrinkling = 0;  //just to tell the diaper if someone is still walking
 
+integer g_mainPrim;
+string g_mainPrimName = ""; // By default, set to "".
 string g_exitText = ""; //text entered here will be spoken to the owner when the diaper is removed.
+string g_diaperType = "Fluffems";
 integer isDebug = FALSE;
 //set isDebug to 1 (TRUE) to enable all debug messages, and to 2 to disable info messages
 
@@ -73,7 +76,10 @@ integer g_wetPrim;
 integer g_messPrim;
 /* End of PPP variables*/
 
-//list g_appearanceMenu = ["Tapes", "Ruffles", "Colors", "Panel"]; <-- Old menu option from a prim-sculptie based build.
+/* Nezzy's Brand Kawaii Diapers Variables */
+//Kawaii doesn't use multiple prims for its settings, instead it uses faces
+integer g_wetFace = 0;
+/*End of Kawaii variables*/
 
 init()
 {
@@ -95,7 +101,7 @@ init()
     }
     llRequestPermissions(llGetOwner(),PERMISSION_TAKE_CONTROLS); //so we can see whether someone is moving and make them crinkle!
     loadCarers(); // Make sure Prim 6 holds the default values on first boot!
-    findMessWetPrims(); // This locates the link number of the wet/mess prims for a model.
+    findPrims(); // This locates the link number of the wet/mess prims for a model.
     g_mainListen = llListen(g_uniqueChan, "", "", "");
 }
 
@@ -428,33 +434,58 @@ handleFlooding(string msg, key id) {
 adjustWetMessPrims() {
     if(!isHidden()) { // Only adjust the prims if the model isn't hidden!
         //todo: add compatiblity with other diapers
-        if(g_wetLevel == 0) {
-            llSetLinkPrimitiveParamsFast(g_wetPrim, [PRIM_COLOR, ALL_SIDES, <1,1,1>, 0.0]);
-        }
-        if(g_wetLevel == 1) {
-            llSetLinkPrimitiveParamsFast(g_wetPrim, [PRIM_COLOR, ALL_SIDES, <1,1,.666>, 0.20]);
-        }
-        else if(g_wetLevel == 2) {
-            llSetLinkPrimitiveParamsFast(g_wetPrim, [PRIM_COLOR, ALL_SIDES, <1,1,.5>, 0.35]);
-        }
-        else if(g_wetLevel == 3) {
-            llSetLinkPrimitiveParamsFast(g_wetPrim, [PRIM_COLOR, ALL_SIDES, <1,1,.333>, 0.45]);
-        }
-        else if(g_wetLevel == 4) {
-            llSetLinkPrimitiveParamsFast(g_wetPrim, [PRIM_COLOR, ALL_SIDES, <1,1,.25>, 0.55]);
-        }
-        else if(g_wetLevel == 5) {
-            llSetLinkPrimitiveParamsFast(g_wetPrim, [PRIM_COLOR, ALL_SIDES, <1,1,.1667>, 0.65]);
-        }
-        else if(g_wetLevel >= 6) {
-            llSetLinkPrimitiveParamsFast(g_wetPrim, [PRIM_COLOR, ALL_SIDES, <1,1,0>, 0.85]);
-        }
+        if(g_diaperType == "Fluffems") {
+            if(g_wetLevel == 0) {
+                llSetLinkPrimitiveParamsFast(g_wetPrim, [PRIM_COLOR, ALL_SIDES, <1,1,1>, 0.0]);
+            }
+            if(g_wetLevel == 1) {
+                llSetLinkPrimitiveParamsFast(g_wetPrim, [PRIM_COLOR, ALL_SIDES, <1,1,.666>, 0.20]);
+            }
+            else if(g_wetLevel == 2) {
+                llSetLinkPrimitiveParamsFast(g_wetPrim, [PRIM_COLOR, ALL_SIDES, <1,1,.5>, 0.35]);
+            }
+            else if(g_wetLevel == 3) {
+                llSetLinkPrimitiveParamsFast(g_wetPrim, [PRIM_COLOR, ALL_SIDES, <1,1,.333>, 0.45]);
+            }
+            else if(g_wetLevel == 4) {
+                llSetLinkPrimitiveParamsFast(g_wetPrim, [PRIM_COLOR, ALL_SIDES, <1,1,.25>, 0.55]);
+            }
+            else if(g_wetLevel == 5) {
+                llSetLinkPrimitiveParamsFast(g_wetPrim, [PRIM_COLOR, ALL_SIDES, <1,1,.1667>, 0.65]);
+            }
+            else if(g_wetLevel >= 6) {
+                llSetLinkPrimitiveParamsFast(g_wetPrim, [PRIM_COLOR, ALL_SIDES, <1,1,0>, 0.85]);
+            }
         
-        if(g_messLevel < 3) {
-            llSetLinkPrimitiveParamsFast(g_messPrim, [PRIM_COLOR, ALL_SIDES, <0.749, 0.588, 0.392>, 0.0]);
+            if(g_messLevel < 3) {
+                llSetLinkPrimitiveParamsFast(g_messPrim, [PRIM_COLOR, ALL_SIDES, <0.749, 0.588, 0.392>, 0.0]);
+            }
+            else {
+                llSetLinkPrimitiveParamsFast(g_messPrim, [PRIM_COLOR, ALL_SIDES, <0.749, 0.588, 0.392>, 0.65]);
+            }
         }
-        else {
-            llSetLinkPrimitiveParamsFast(g_messPrim, [PRIM_COLOR, ALL_SIDES, <0.749, 0.588, 0.392>, 0.65]);
+        else if(g_diaperType == "Kawaii") {
+            if(g_wetLevel == 0) {
+                llSetLinkPrimitiveParamsFast(g_mainPrim, [PRIM_COLOR, g_wetFace, <1,1,1>, 0.0]);
+            }
+            if(g_wetLevel == 1) {
+                llSetLinkPrimitiveParamsFast(g_mainPrim, [PRIM_COLOR, g_wetFace, <1,1,.666>, 0.20]);
+            }
+            else if(g_wetLevel == 2) {
+                llSetLinkPrimitiveParamsFast(g_mainPrim, [PRIM_COLOR, g_wetFace, <1,1,.5>, 0.35]);
+            }
+            else if(g_wetLevel == 3) {
+                llSetLinkPrimitiveParamsFast(g_mainPrim, [PRIM_COLOR, g_wetFace, <1,1,.333>, 0.45]);
+            }
+            else if(g_wetLevel == 4) {
+                llSetLinkPrimitiveParamsFast(g_mainPrim, [PRIM_COLOR, g_wetFace, <1,1,.25>, 0.55]);
+            }
+            else if(g_wetLevel == 5) {
+                llSetLinkPrimitiveParamsFast(g_mainPrim, [PRIM_COLOR, g_wetFace, <1,1,.1667>, 0.65]);
+            }
+            else if(g_wetLevel >= 6) {
+                llSetLinkPrimitiveParamsFast(g_mainPrim, [PRIM_COLOR, g_wetFace, <1,1,0>, 0.85]);
+            }
         }
     }//End if
     //todo: update particle calls according to wet/mess settings
@@ -619,7 +650,7 @@ integer getToucherRank(key id) {
 // This function is customized to work with Zyriik's Puppy Pawz Pampers model.
 // It assumes that the wet and mess prims are named "Pee" and "Poo" respectively
 // and searches through the link set until it discovers them.
-findMessWetPrims() {
+findPrims() {
     integer i; // Used to loop through the linked objects
     integer primCount = llGetNumberOfPrims(); //should be attached, not sat on
     for(i = 0; i <= primCount; i++) { 
@@ -630,6 +661,13 @@ findMessWetPrims() {
         if(primName == "Poo") {
             g_messPrim = i;
         }
+        if(primName == g_mainPrimName) {
+            g_mainPrim = i;
+        }
+    }
+    //just in case there is an unnamed prim in the linkset, do this here
+    if(g_mainPrimName == "") { // No specified prim. Look for root.
+        g_mainPrim = 1;
     }
 }
 
@@ -673,7 +711,7 @@ default {
         
     attach(key id) {
         if(id) { // Attached
-            findMessWetPrims();  // This locates the link number of the wet/mess prims for a model.
+            findPrims();  // This locates the link number of the wet/mess prims for a model.
         }
         else if(g_exitText)
         {
