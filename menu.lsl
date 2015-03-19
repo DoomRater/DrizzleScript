@@ -451,10 +451,10 @@ adjustWetMessPrims() {
         }
         
         if(g_messLevel < 3) {
-            llSetLinkPrimitiveParamsFast(g_messPrim, [PRIM_COLOR, ALL_SIDES, <1,1,1>, 0.0]); // For Zyriik's Model
+            llSetLinkPrimitiveParamsFast(g_messPrim, [PRIM_COLOR, ALL_SIDES, <0.749, 0.588, 0.392>, 0.0]);
         }
         else {
-            llSetLinkPrimitiveParamsFast(g_messPrim, [PRIM_COLOR, ALL_SIDES, <1,1,1>, 0.65]); // For Zyriik's Model
+            llSetLinkPrimitiveParamsFast(g_messPrim, [PRIM_COLOR, ALL_SIDES, <0.749, 0.588, 0.392>, 0.65]);
         }
     }//End if
     //todo: update particle calls according to wet/mess settings
@@ -622,7 +622,7 @@ integer getToucherRank(key id) {
 findMessWetPrims() {
     integer i; // Used to loop through the linked objects
     integer primCount = llGetNumberOfPrims(); //should be attached, not sat on
-    for(i = 0; i < primCount; i++) { 
+    for(i = 0; i <= primCount; i++) { 
         string primName = (string) llGetLinkPrimitiveParams(i, [PRIM_NAME]); // Get the name of linked object i
         if(primName == "Pee") {
             g_wetPrim = i;
