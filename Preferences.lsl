@@ -60,9 +60,9 @@ integer g_tickle;
 integer g_gender;
 integer g_interact;
 integer g_chatter;
-float g_crinkleVolume;
-float g_wetVolume;
-float g_messVolume;
+integer g_crinkleVolume;
+integer g_wetVolume;
+integer g_messVolume;
 
 //Old variables used in my prim-sculptie based system.
 //list g_Ruffles;
@@ -294,6 +294,14 @@ offerMenu(key id, string dialogMessage, list buttons) {
     llDialog(id, dialogMessage, buttons,g_uniqueChan);   
 }
 
+integer updateMainMenu(string msg) {
+    llMessageLinked(LINK_THIS, -3, g_currMenu + ":" + msg, NULL_KEY);
+    if(llGetSubString(msg, -1, -1) == "%") {
+        msg = llGetSubString(msg, 0, -2);
+    }
+    return (integer) msg;
+}
+
 handleMenuChoice(string msg, key id) {
 
     /* Old code from a prim-sculptie based build.
@@ -436,15 +444,15 @@ parseSettings(string temp) {
     temp = llGetSubString(temp, index+1, -1);
 
     index = llSubStringIndex(temp, ",");
-    g_crinkleVolume = (float) llGetSubString(temp, 0, index-1);
+    g_crinkleVolume = (integer) llGetSubString(temp, 0, index-1);
     temp = llGetSubString(temp, index+1, -1);
 
     index = llSubStringIndex(temp, ",");
-    g_wetVolume = (float) llGetSubString(temp, 0, index-1);
+    g_wetVolume = (integer) llGetSubString(temp, 0, index-1);
     temp = llGetSubString(temp, index+1, -1);
 
     //The last value is all that remains, just store it.
-    g_messVolume = (float) temp;
+    g_messVolume = (integer) temp;
 }
 
 printDebugSettings() {
@@ -527,15 +535,15 @@ string m_chatter() {
 }
 
 string m_crinkleVolume() {
-    return "How loud should the crinkling be?\nCurrent value: "+(string)llRound(g_crinkleVolume*200.0)+"%";
+    return "How loud should the crinkling be?\nCurrent value: "+(string)g_crinkleVolume+"%";
 }
 
 string m_wetVolume() {
-    return "How loud should the wetting sound be?\nCurrent value: "+(string)llRound(g_wetVolume*300)+"%";
+    return "How loud should the wetting sound be?\nCurrent value: "+(string)g_wetVolume+"%";
 }
 
 string m_messVolume() {
-    return "How loud should the messing sound be?\nCurrent value: "+(string)llRound(g_messVolume*100)+"%";
+    return "How loud should the messing sound be?\nCurrent value: "+(string)g_messVolume+"%";
 }
 
 string m_skinMenu() {
@@ -586,7 +594,6 @@ default {
         }
         else if(num == -1) {
             if(msg == "Options") {
-                currMenu = "";
                 offerMenu(id, m_topMenu(), g_settingsMenu);
             }
         }
@@ -634,19 +641,19 @@ default {
         else if(g_currMenu == "Crinkle❤Volume") {
             llMessageLinked(LINK_THIS, -3, g_currMenu + ":" + msg, NULL_KEY);
             msg = llGetSubString(msg, 0, -2);
-            g_crinkleVolume = (float) msg * .005;
+            g_crinkleVolume = (integer) msg;
             offerMenu(id, m_crinkleVolume(), g_currMenuButtons);
         }
         else if(g_currMenu == "Wet❤Volume") {
             llMessageLinked(LINK_THIS, -3, g_currMenu + ":" + msg, NULL_KEY);
             msg = llGetSubString(msg, 0, -2);
-            g_wetVolume = (float) msg * .00333;
+            g_wetVolume = (integer) msg;
             offerMenu(id, m_wetVolume(), g_currMenuButtons);
         }
         else if(g_currMenu == "Mess❤Volume") {
             llMessageLinked(LINK_THIS, -3, g_currMenu + ":" + msg, NULL_KEY);
             msg = llGetSubString(msg, 0, -2);
-            g_messVolume = (float) msg * .01;
+            g_messVolume = (integer) msg;
             offerMenu(id, m_messVolume(), g_currMenuButtons);
         }            
         else if(g_currMenu == "Mess%") {
