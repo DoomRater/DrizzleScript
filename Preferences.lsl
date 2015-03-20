@@ -65,13 +65,7 @@ integer g_wetVolume;
 integer g_messVolume;
 
 //Old variables used in my prim-sculptie based system.
-//list g_Ruffles;
-//list g_Panels;
 //list g_TrainingMenu = ["<--BACK", "★", "★", "Infant", "Toddler", "Adult"];
-//list g_Tapes;
-//list g_ColorMenu = ["<--BACK", "★", "★", "Padding", "Ruffles", "Pins", "Cutesy", "Adult"];
-//list g_AppearanceMenu = ["<--BACK", "★", "★", "Tapes", "Ruffles", "Color", "Skins", "Panel"];
-//list g_ColorMenu = ["<--BACK", "★", "★"];
 
 init()
 {
@@ -105,8 +99,8 @@ findPrims() {
             if(g_mainPrimName == primName) { // Is this the prim?
                 g_mainPrim = i;
             }    
+            //add additional prims to seek here
         }
-
     }
 }
 
@@ -366,22 +360,38 @@ applyTexture(string name, string prefix) {
     repeats.x = 1.0;
     repeats.y = 1.0;
     
-    if(g_diaperType=="Fluffems") {
+    if(g_diaperType == "Fluffems") {
         offset.x = 0.0;
         offset.y = 0.0;
     }
-    else if(g_diaperType=="PiedPiper") {
+    else if(g_diaperType == "PiedPiper") {
         offset.x = 0.03;
         offset.y = -.5;
     }
     
     radRotation = 0.0;
     //todo: apply to the correct face and prim according to the prefix
-    if(g_diaperType=="Kawaii") {
-        llSetLinkPrimitiveParamsFast(g_mainPrim, [PRIM_TEXTURE, 1, texture, repeats, offset, radRotation]);
+    if(g_diaperType == "Kawaii") {
+        if(prefix == "SKIN:") {
+            llSetLinkPrimitiveParamsFast(g_mainPrim, [PRIM_TEXTURE, 1, texture, repeats, offset, radRotation]);
+        }
+        else if(prefix == "TAPE:") {
+            llSetLinkPrimitiveParamsFast(g_mainPrim, [PRIM_TEXTURE, 4, texture, repeats, offset, radRotation]);
+        }
+        else if(prefix == "PANEL:") {
+            llSetLinkPrimitiveParamsFast(g_mainPrim, [PRIM_TEXTURE, 2, texture, repeats, offset, radRotation]);
+        }
+        else if(prefix == "CUTIE:") {
+            llSetLinkPrimitiveParamsFast(g_mainPrim, [PRIM_TEXTURE, 5, texture, repeats, offset, radRotation]);
+        }
+        else if(prefix == "BACKFACE:") { //not sure if going to stay a backface or become mess face
+            llSetLinkPrimitiveParamsFast(g_mainPrim, [PRIM_TEXTURE, 6, texture, repeats, offset, radRotation]);
+        }
     }
-    else {
-        llSetLinkPrimitiveParamsFast(g_mainPrim, [PRIM_TEXTURE, ALL_SIDES, texture, repeats, offset, radRotation]);
+    else if(g_diaperType == "Fluffems" || g_diaperType == "PiedPiper") {
+        if(prefix == "SKIN:") {
+            llSetLinkPrimitiveParamsFast(g_mainPrim, [PRIM_TEXTURE, ALL_SIDES, texture, repeats, offset, radRotation]);
+        }
     }
 }
 
@@ -633,7 +643,23 @@ default {
         else if(contains(g_Skins, msg) && (g_currMenu == "Skins" || g_currMenu == "Diaper❤Print")) {
             applyTexture(msg, "SKIN:");
             offerMenu(id, g_currMenuMessage, g_currMenuButtons);
-            }
+        }
+        else if(contains(g_Panels, msg) && g_currMenu == "Panels") {
+            applyTexture(msg, "PANEL:");
+            offerMenu(id, g_currMenuMessage, g_currMenuButtons);
+        }
+        else if(contains(g_Tapes, msg) && g_currMenu == "Tapes") {
+            applyTexture(msg, "TAPE:");
+            offerMenu(id, g_currMenuMessage, g_currMenuButtons);
+        }
+        else if(contains(g_BackFaces, msg) && g_currMenu == "Back❤Face") {
+            applyTexture(msg, "BACKFACE:");
+            offerMenu(id, g_currMenuMessage, g_currMenuButtons);
+        }
+        else if(contains(g_Cuties, msg) && g_currMenu == "Cutie*Mark") {
+            applyTexture(msg, "CUTIE:");
+            offerMenu(id, g_currMenuMessage, g_currMenuButtons);
+        }
         else if(contains(g_Printouts, msg)  && g_currMenu == "Printouts") {// new printout notecard!
             llMessageLinked(LINK_THIS, -3, g_currMenu + ":" + msg, NULL_KEY);
             offerMenu(id, g_currMenuMessage, g_currMenuButtons);
