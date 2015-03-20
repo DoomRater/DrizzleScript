@@ -20,7 +20,7 @@ the software together, so everyone has access to something potentially excellent
 * Main Script used for the Diaper, is the central hub of
 * communication between all other scripts 
 */
-list g_userMenu = ["Show/Hide", "Options", "On/Off", "❤Flood❤", "Check", "Change", "Get❤Soggy", "Get❤Stinky", "Caretakers"];
+list g_userMenu = ["Show/Hide", "Options", "On/Off", "❤Flood❤", "Check", "Change", "Get❤Soggy", "Get❤Stinky", "Caretakers","Update"];
 list g_careMenu = ["Check", "Change", "Tease", "Raspberry", "Poke", "Options","Show/Hide", "❤ ❤ ❤"];
 list g_careMenuDiaper = ["Force❤Wet", "Force❤Mess","❤Tickle❤", "Tummy❤Rub", "Wedgie", "Spank"];
 list g_userCareMenu = ["<--BACK", " ", " ", "Add", "Remove", "List"];
@@ -791,15 +791,18 @@ default {
             g_userResponded = TRUE;
         }
         //Carers stuff
-        else if(msg == "Accept") {
-            llOwnerSay(g_newCarer+" has agreed to be your caretaker!");
-            addCarer(g_newCarer);
-            g_addRemove = -1;   
-            llListenRemove(g_carerListen);
-        }
-        else if(msg == "Decline") {
-            llOwnerSay("Your offer was declined, sorry. )=");
-            llListenRemove(g_carerListen);
+        else if(llKey2Name(id) == g_newCarer) { //shaping up security
+            if(msg == "Accept") {
+                llOwnerSay(g_newCarer+" has agreed to be your caretaker!");
+                addCarer(g_newCarer);
+                g_addRemove = -1;   
+                llListenRemove(g_carerListen);
+            }
+            else if(msg == "Decline") {
+                llOwnerSay("Your offer was declined, sorry. )=");
+                llListenRemove(g_carerListen);
+            }
+            g_newCarer = "";
         }
         else if(msg == "List") {
             printCarers();    
@@ -812,7 +815,7 @@ default {
             sendSettings(); //make sure preferences knows the current settings
             llMessageLinked(LINK_THIS, -1, msg, id); // Tell Preferences script to talk to id
         }
-        else if(contains(g_ButtonizedAvatars,msg)) { //Start of Caretaker handling
+        else if(contains(g_ButtonizedAvatars,msg) && userRank == 0) { //Start of Caretaker handling
             if(g_addRemove == 1) { //Adding a carer
                 integer temp = llListFindList(g_ButtonizedAvatars,[msg]);
                 g_newCarer = llKey2Name(llList2Key(g_detectedKeys, temp));  //the key list should correspond to the buttonized avatar list, right?
