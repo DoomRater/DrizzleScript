@@ -68,6 +68,7 @@ integer g_mainPrim;
 string g_mainPrimName = ""; // By default, set to "".
 string g_exitText = ""; //text entered here will be spoken to the owner when the diaper is removed.
 string g_diaperType = "Fluffems";
+string g_updateScript = "ME Wireless DrizzleScript Updater";
 integer isDebug = FALSE;
 //set isDebug to 1 (TRUE) to enable all debug messages, and to 2 to disable info messages
 
@@ -92,6 +93,19 @@ init()
         llSensorRepeat("", "", AGENT, 96.0, PI, 6.0); // Used to populate a few menus.
         llSetTimerEvent(60.0);
     }
+    //find updater script and update the usermenu depending on results
+    integer updateInMenu = llListFindList(g_userMenu,["Update"]);
+    if(llGetInventoryType(g_updateScript) == INVENTORY_SCRIPT) {
+        if(updateInMenu == -1) {
+            g_userMenu += ["Update"];
+        }
+    }
+    else {
+        if(~updateInMenu) {
+            g_userMenu = llDeleteSubList(g_userMenu,updateInMenu,updateInMenu);
+        }
+    }
+    //If debug mode is active, add a Debug button to user menu
     integer debugInMenu = llListFindList(g_userMenu,["DEBUG"]);
     if(isDebug == TRUE) {
         llOwnerSay("Debug mode active.  Error messages will be printed out!");
@@ -103,6 +117,18 @@ init()
     loadCarers(); // Make sure Prim 6 holds the default values on first boot!
     findPrims(); // This locates the link number of the wet/mess prims for a model.
     g_mainListen = llListen(g_uniqueChan, "", "", "");
+}
+
+checkForUpdates() {
+    if(isDebug < 2) {
+        llOwnerSay("Checking for updates, please wait!");
+    }
+    if(llGetInventoryType(g_updateScript) == INVENTORY_SCRIPT) {
+        llResetOtherScript(g_updateScript);
+    }
+    else if(isDebug == TRUE) {
+        llOwnerSay("No update script found!");
+    }
 }
 
 playWetAnimation() {
@@ -890,15 +916,6 @@ default {
                  llMessageLinked(LINK_THIS, -4, (string) g_gender + ":" + (string) g_wetLevel + ":" + (string) g_messLevel + ":" + "Rub Fail" + ":" + llKey2Name(id), id);
             }
         }
-        else if(msg == "Poke") {
-            llMessageLinked(LINK_THIS, -2, (string) g_gender + ":" + (string) g_wetLevel + ":" + (string) g_messLevel + ":" + "Poke" + ":" + llKey2Name(id), id);            
-        }
-        else if(msg == "Spank") { // ouch!
-            llMessageLinked(LINK_THIS, -4, (string) g_gender + ":" + (string) g_wetLevel + ":" + (string) g_messLevel + ":" + "Spank" + ":" + llKey2Name(id), id);
-        }
-        else if(msg == "Tease") { // wah!
-            llMessageLinked(LINK_THIS, -2, (string) g_gender + ":" + (string) g_wetLevel + ":" + (string) g_messLevel + ":" + "Tease" + ":" + llKey2Name(id), id);
-        }
         else if(msg == "❤Tickle❤") {
             if(findPercentage("Tckl")) { // They wet!
                 handleWetting("Tckl", id);
@@ -910,8 +927,20 @@ default {
         else if(msg == "Raspberry") {
              llMessageLinked(LINK_THIS, -2, (string) g_gender + ":" + (string) g_wetLevel + ":" + (string) g_messLevel + ":" + "Raspberry" + ":" + llKey2Name(id), id);
         }
+        else if(msg == "Poke") {
+            llMessageLinked(LINK_THIS, -2, (string) g_gender + ":" + (string) g_wetLevel + ":" + (string) g_messLevel + ":" + "Poke" + ":" + llKey2Name(id), id);            
+        }
+        else if(msg == "Spank") { // ouch!
+            llMessageLinked(LINK_THIS, -4, (string) g_gender + ":" + (string) g_wetLevel + ":" + (string) g_messLevel + ":" + "Spank" + ":" + llKey2Name(id), id);
+        }
+        else if(msg == "Tease") { // wah!
+            llMessageLinked(LINK_THIS, -2, (string) g_gender + ":" + (string) g_wetLevel + ":" + (string) g_messLevel + ":" + "Tease" + ":" + llKey2Name(id), id);
+        }
         else if(msg == "Wedgie") {
              llMessageLinked(LINK_THIS, -4, (string) g_gender + ":" + (string) g_wetLevel + ":" + (string) g_messLevel + ":" + "Wedgie" + ":" + llKey2Name(id), id);
+        }
+        else if(msg == "Update" && userRank == 0) {
+            checkForUpdates();
         }
     }//End of listen(integer, string, key, string)
             
