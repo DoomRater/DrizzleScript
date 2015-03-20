@@ -113,6 +113,9 @@ init()
             g_userMenu += ["DEBUG"];
         }
     }
+    else if(isDebug == 2) {
+        llOwnerSay("Silent mode.  No info messages will be printed byond this point.");
+    }
     llRequestPermissions(llGetOwner(),PERMISSION_TAKE_CONTROLS); //so we can see whether someone is moving and make them crinkle!
     loadCarers(); // Make sure Prim 6 holds the default values on first boot!
     findPrims(); // This locates the link number of the wet/mess prims for a model.
@@ -121,7 +124,7 @@ init()
 
 checkForUpdates() {
     if(isDebug < 2) {
-        llOwnerSay("Checking for updates, please wait!");
+        llOwnerSay("Checking for updates!");
     }
     if(llGetInventoryType(g_updateScript) == INVENTORY_SCRIPT) {
         llResetOtherScript(g_updateScript);
