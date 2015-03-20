@@ -117,7 +117,7 @@ init()
         llOwnerSay("Silent mode.  No info messages will be printed byond this point.");
     }
     llRequestPermissions(llGetOwner(),PERMISSION_TAKE_CONTROLS); //so we can see whether someone is moving and make them crinkle!
-    loadCarers(); // Make sure Prim 6 holds the default values on first boot!
+    loadCarers();
     findPrims(); // This locates the link number of the wet/mess prims for a model.
     g_mainListen = llListen(g_uniqueChan, "", "", "");
 }
@@ -429,10 +429,10 @@ handleMessing(string msg, key id) {
         llMessageLinked(LINK_THIS, -2, (string) g_gender + ":" + (string) g_wetLevel + ":" + (string) g_messLevel + ":" + "g_messLevel" + ":" + llKey2Name(llGetOwner()), llGetOwner());
     }
     else if(msg == "Rub") {
-        llMessageLinked(LINK_THIS, -4, (string) g_gender + ":" + (string) g_wetLevel + ":" + (string) g_messLevel + ":" + "Rub Success" + ":" + llKey2Name(id), id);   
+        llMessageLinked(LINK_THIS, -4, (string) g_gender + ":" + (string) g_wetLevel + ":" + (string) g_messLevel + ":" + "Rub Success" + ":" + llKey2Name(id), id);
     }
     else if(msg == "Force") {
-        llMessageLinked(LINK_THIS, -4, (string) g_gender + ":" + (string) g_wetLevel + ":" + (string) g_messLevel + ":" + "Force Mess" + ":" + llKey2Name(id), id);         
+        llMessageLinked(LINK_THIS, -4, (string) g_gender + ":" + (string) g_wetLevel + ":" + (string) g_messLevel + ":" + "Force Mess" + ":" + llKey2Name(id), id);
     }
     adjustWetMessPrims();  //Set Correct Prim to be Visible/Change textures on mesh
     timesHeldMess = 0; //Shouldn't this be here instead?
@@ -497,7 +497,7 @@ adjustWetMessPrims() {
             if(g_wetLevel == 0) {
                 llSetLinkPrimitiveParamsFast(g_mainPrim, [PRIM_COLOR, g_wetFace, <1,1,1>, 0.0]);
             }
-            if(g_wetLevel == 1) {
+            else if(g_wetLevel == 1) {
                 llSetLinkPrimitiveParamsFast(g_mainPrim, [PRIM_COLOR, g_wetFace, <1,1,.666>, 0.20]);
             }
             else if(g_wetLevel == 2) {
@@ -537,7 +537,7 @@ toggleHide() {
 *   FALSE otherwise
 */
 integer isHidden() {
-    if(llGetAlpha(0) == 0.0) {           // Hidden.
+    if(llGetAlpha(ALL_SIDES) == 0.0) {   // Hidden.
        return TRUE;
     }
     else {                               // Shown
@@ -696,7 +696,12 @@ findPrims() {
     }
     //just in case there is an unnamed prim in the linkset, do this here
     if(g_mainPrimName == "") { // No specified prim. Look for root.
-        g_mainPrim = 1;
+        if(primCount == 1) { //not a linked set, so the first prim is 0
+            g_mainPrim = 0;
+        }
+        else {
+            g_mainPrim = 1;
+        }
     }
 }
 
