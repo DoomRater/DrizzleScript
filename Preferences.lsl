@@ -561,6 +561,10 @@ string m_messVolume() {
     return "How loud should the messing sound be?\nCurrent value: "+(string)g_messVolume+"%";
 }
 
+string m_appearanceMenu() {
+    return "Change the diaper's appearance!";
+}
+
 string m_skinMenu() {
     return "Choose a diaper print:";
 }
@@ -632,6 +636,10 @@ default {
                 g_currMenu = "";
                 offerMenu(id, m_volumeMenu(),g_volumeMenu);
             }
+            else if(~llListFindList(g_skinsMenu,[g_currMenu])) {
+                g_currMenu = "";
+                offerMenu(id, m_appearanceMenu(),g_skinsMenu);
+            }
             else {
                 g_currMenu = "";
                 offerMenu(id, m_topMenu(), g_settingsMenu);
@@ -644,7 +652,7 @@ default {
             applyTexture(msg, "SKIN:");
             offerMenu(id, g_currMenuMessage, g_currMenuButtons);
         }
-        else if(contains(g_Panels, msg) && g_currMenu == "Panels") {
+        else if(contains(g_Panels, msg) && g_currMenu == "Panel") {
             applyTexture(msg, "PANEL:");
             offerMenu(id, g_currMenuMessage, g_currMenuButtons);
         }
@@ -763,10 +771,10 @@ default {
             g_chatter = 0;
             offerMenu(id, m_chatter(), g_currMenuButtons);
         }
-        else if(msg == "Skins") {
+        else if(msg == "Skins" || msg == "Diaper❤Print") {
             g_currMenu = msg;
-            if(g_diaperType == "Fluffems" || g_diaperType == "PiedPiper") {
-                //these two diapers only use one prim for skins
+            if(g_diaperType == "Fluffems" || g_diaperType == "PiedPiper" || msg == "Diaper❤Print") {
+                //these two diapers only use one prim for skins; Kawaii uses Diaper❤Print for this menu
                 g_currCount = -1;
                 list temp;
                 if(llGetListLength(g_Skins) <= 11) {
@@ -777,12 +785,68 @@ default {
                     temp = ["<--BACK", "NEXT-->"] + llList2List(g_Skins, g_currCount+1, g_currCount+10); // This is a list of 10 skins
                     g_currCount += 11; //g_currCount is now 10 (starts at -1)
                 }
-                offerMenu(id, "Choose a Skin:", temp);
+                offerMenu(id, m_skinMenu(), temp);
             }
             else if(g_diaperType == "Kawaii") {
                 //this diaper can use tapes, panels, and the like, so show the skin menu instead
-                offerMenu(id, "Change the diaper's appearance!", g_skinsMenu);
+                offerMenu(id, m_appearanceMenu(), g_skinsMenu);
             }
+        }
+        else if(msg == "Tapes") {
+            g_currMenu = msg;
+            g_currCount = -1;
+            list temp;
+            if(llGetListLength(g_Tapes) <= 11) {
+                temp = ["<--BACK"] + llList2List(g_Tapes, g_currCount+1, g_currCount+11);
+                g_currCount += 12; //g_currCount is now 11 (starts at -1)
+            }
+            else {
+                temp = ["<--BACK", "NEXT-->"] + llList2List(g_Tapes, g_currCount+1, g_currCount+10); // This is a list of 10 skins
+                g_currCount += 11; //g_currCount is now 10 (starts at -1)
+            }
+            offerMenu(id, m_tapesMenu(), temp);
+        }
+        else if(msg == "Panel") {
+            g_currMenu = msg;
+            g_currCount = -1;
+            list temp;
+            if(llGetListLength(g_Panels) <= 11) {
+                temp = ["<--BACK"] + llList2List(g_Panels, g_currCount+1, g_currCount+11);
+                g_currCount += 12; //g_currCount is now 11 (starts at -1)
+            }
+            else {
+                temp = ["<--BACK", "NEXT-->"] + llList2List(g_Panels, g_currCount+1, g_currCount+10); // This is a list of 10 skins
+                g_currCount += 11; //g_currCount is now 10 (starts at -1)
+            }
+            offerMenu(id, m_panelMenu(), temp);
+        }
+        else if(msg == "Back❤Face") {
+            g_currMenu = msg;
+            g_currCount = -1;
+            list temp;
+            if(llGetListLength(g_BackFaces) <= 11) {
+                temp = ["<--BACK"] + llList2List(g_BackFaces, g_currCount+1, g_currCount+11);
+                g_currCount += 12; //g_currCount is now 11 (starts at -1)
+            }
+            else {
+                temp = ["<--BACK", "NEXT-->"] + llList2List(g_BackFaces, g_currCount+1, g_currCount+10); // This is a list of 10 skins
+                g_currCount += 11; //g_currCount is now 10 (starts at -1)
+            }
+            offerMenu(id, m_backFaceMenu(), temp);
+        }
+        else if(msg == "Cutie*Mark") {
+            g_currMenu = msg;
+            g_currCount = -1;
+            list temp;
+            if(llGetListLength(g_Cuties) <= 11) {
+                temp = ["<--BACK"] + llList2List(g_Cuties, g_currCount+1, g_currCount+11);
+                g_currCount += 12; //g_currCount is now 11 (starts at -1)
+            }
+            else {
+                temp = ["<--BACK", "NEXT-->"] + llList2List(g_Cuties, g_currCount+1, g_currCount+10); // This is a list of 10 skins
+                g_currCount += 11; //g_currCount is now 10 (starts at -1)
+            }
+            offerMenu(id, m_cutieMenu(), temp);
         }
         else if(msg == "Help") {
             llOwnerSay("Adding your own skins and notecards is easy!  Just prefix your textures with the appropriate tag for where you want it to be and drag it into the diaper!  I'll take care of the rest.");
