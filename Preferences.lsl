@@ -224,6 +224,10 @@ handleNext(key id) {
 loadAllTextures(list l) {
     integer i;
     g_Skins = [];
+    g_Tapes = [];
+    g_BackFaces = [];
+    g_Panels = [];
+    g_Cuties = [];
     for(i = 0; i < g_printTextueLength; i++) {
         string temp = llList2String(l, i);  //seems less confusing to just use llList2String than typecasting a single List2list entry...
         string prefix = llGetSubString(temp, 0, llSubStringIndex(temp, ":"));
