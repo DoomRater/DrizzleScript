@@ -644,6 +644,9 @@ removeCarer(string name) {
         llMessageLinked(LINK_ALL_CHILDREN, 1, llList2String(g_Carers,carerIndex), llGetOwner()); //Valid key sent flags "Delete Carer" as the action for the memory core.
         g_Carers = llDeleteSubList(g_Carers,carerIndex,carerIndex);
         makeButtonsForCarers();
+        if(isDebug == TRUE) {
+            printCarers();
+        }
         loadCarers();   
     }
     else {
@@ -838,9 +841,6 @@ default {
             }
             g_newCarer = "";
         }
-        else if(msg == "List") {
-            printCarers();    
-        }
         else if(msg == "Show/Hide" && userRank < 2) {
             toggleHide(); // Needs to keep in mind what Should and SHOULD NOT be visible
             adjustWetMessPrims(); // Ensure prims are properly hidden/shown after a state change.
@@ -852,12 +852,14 @@ default {
         else if(contains(g_ButtonizedAvatars,msg) && userRank == 0) { //Start of Caretaker handling
             if(g_addRemove == 1) { //Adding a carer
                 integer temp = llListFindList(g_ButtonizedAvatars,[msg]);
-                g_newCarer = llKey2Name(llList2Key(g_detectedKeys, temp));  //the key list should correspond to the buttonized avatar list, right?
+                g_newCarer = llList2String(g_detectedAvatars,temp);
                 g_carerListen = llListen(g_uniqueChan-1, "", "", ""); // "Dangerous", but safer than opening
                 // my main listen up. Used to verify Carer requests
                 llDialog(llList2Key(g_detectedKeys, temp), llKey2Name(llGetOwner()) + " would like to add you as a carer.", ["Accept", "Decline"], g_uniqueChan-1);
             }
-            else if(g_addRemove == 0) {// Deleting a carer
+        }
+        else if(contains(g_ButtonCarers,msg) && userRank == 0) {
+            if(g_addRemove == 0) {// Deleting a carer
                 removeCarer(msg);
                 g_addRemove = -1;
             }
@@ -872,6 +874,9 @@ default {
         else if(msg == "Remove" && userRank == 0) {
             llDialog(id, "Who would you like to remove?", g_ButtonCarers, g_uniqueChan);
             g_addRemove = 0;   
+        }
+        else if(msg == "List" && userRank == 0) {
+            printCarers();    
         }//End of Caretaker handling
         else if(msg == "<--BACK") {
             mainMenu(id);
