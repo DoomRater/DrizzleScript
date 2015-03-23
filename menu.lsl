@@ -54,6 +54,7 @@ integer g_chatter = 2;     // 0:self-chatter 1:Whisper chatter 2:say chatter
 integer g_CrinkleVolume = 10;
 integer g_WetVolume = 100;  //this value is thirded on normal wets
 integer g_MessVolume = 100;
+integer g_PlasticPants;
 //End Saved Non-Carer Settings
 
 integer g_mForecast = 0; // Determines how long until the next mess chance
@@ -66,6 +67,9 @@ integer g_isCrinkling = 0;  //just to tell the diaper if someone is still walkin
 
 integer g_mainPrim;
 string g_mainPrimName = ""; // By default, set to "".
+integer g_plasticPantsPrim;
+string g_plasticPantsName = "Plastic Pants";
+vector g_plasticPantsSize;
 string g_exitText = ""; //text entered here will be spoken to the owner when the diaper is removed.
 string g_diaperType = "Fluffems";
 string g_updateScript = "ME Wireless DrizzleScript Updater";
@@ -282,6 +286,7 @@ Sends a message to the SaveSettings script containing a CSV of all values stored
 This can be arbitrarily expanded as long as the values fit within the description of a single prim. 
 This function only uses global variables, so if those are changed within the script, this needs to be called again.
 */
+//todo: update with g_plasticPants in all scripts
 sendSettings() {
     string csv = (string) g_wetLevel + "," +
     (string) g_messLevel + "," +
@@ -462,7 +467,6 @@ handleFlooding(string msg, key id) {
 */
 adjustWetMessPrims() {
     if(!isHidden()) { // Only adjust the prims if the model isn't hidden!
-        //todo: add compatiblity with other diapers
         if(g_diaperType == "Fluffems") {
             if(g_wetLevel == 0) {
                 llSetLinkPrimitiveParamsFast(g_wetPrim, [PRIM_COLOR, ALL_SIDES, <1,1,1>, 0.0]);
@@ -516,9 +520,26 @@ adjustWetMessPrims() {
                 llSetLinkPrimitiveParamsFast(g_mainPrim, [PRIM_COLOR, g_wetFace, <1,1,0>, 0.85]);
             }
         }
-    }//End if
+    }
     //todo: update particle calls according to wet/mess settings
 }//End WetMessPrims()
+
+adjustPlasticPants() {
+    if(!isHidden() && g_PlasticPants == TRUE) {
+        if(g_diaperType == "Fluffems") {
+            llSetLinkPrimitiveParamsFast(g_plasticPantsPrim, [PRIM_SIZE, g_plasticPantsSize]);
+        }
+    }
+    else {
+        if(g_diaperType == "Fluffems") {
+            llSetLinkPrimitiveParamsFast(g_plasticPantsPrim, [PRIM_SIZE, <.01,.01,.01>]);
+        }
+    }
+}
+
+fitPlasticPants() { //causes a .2 second llSleep, so be judicial about when it's done
+    g_plasticPantsSize = llList2Vector(llGetLinkPrimitiveParams(g_plasticPantsPrim, [PRIM_SIZE]), 0) * 1.05;
+}
 
 // Shows or hides the full model of the diaper.
 // Note: If multiple overlapping models are used to display wet/mess
@@ -682,6 +703,7 @@ integer getToucherRank(key id) {
 // This function is customized to work with Zyriik's Puppy Pawz Pampers model.
 // It assumes that the wet and mess prims are named "Pee" and "Poo" respectively
 // and searches through the link set until it discovers them.
+// the function now also finds the main prim and the platic pants prim
 findPrims() {
     integer i; // Used to loop through the linked objects
     integer primCount = llGetNumberOfPrims(); //should be attached, not sat on
@@ -695,6 +717,9 @@ findPrims() {
         }
         if(primName == g_mainPrimName) {
             g_mainPrim = i;
+        }
+        if(primName == g_plasticPantsName) {
+            g_plasticPantsPrim = i;
         }
     }
     //just in case there is an unnamed prim in the linkset, do this here
@@ -725,6 +750,7 @@ mainMenu(key id) {
 default {
     state_entry() {
         init();
+        fitPlasticPants();
     }
     
     run_time_permissions(integer perm) {  //The proper way to handle permissions
@@ -761,7 +787,10 @@ default {
     changed(integer change) {
         if(change & CHANGED_OWNER) {
             init();
-        } 
+        }
+        else if(change & CHANGED_SCALE) {
+            fitPlasticPants();
+        }
     }
     //Searches the area, stashing the names of those nearby in one list, and their keys in another
     sensor(integer num_detected) {
