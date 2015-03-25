@@ -2,6 +2,7 @@
 DrizzleScript
 Created By: Ryhn Teardrop
 Original Date: Dec 3rd, 2011
+GitHub Repository: https://github.com/DoomRater/DrizzleScript
 
 Programming Contributors: Ryhn Teardrop, Brache Spyker
 Resource Contributors: Murreki Fasching, Brache Spyker
