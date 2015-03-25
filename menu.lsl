@@ -264,8 +264,12 @@ parseSettings(string temp) {
     g_WetVolume = (integer) llGetSubString(temp, 0, index-1);
     temp = llGetSubString(temp, index+1, -1);
 
-    //The last value is all that remains, just store it.
-    g_MessVolume = (integer) temp;
+    index = llSubStringIndex(temp, ",");
+    g_MessVolume = (integer) llGetSubString(temp, 0, index-1);
+    temp = llGetSubString(temp, index+1, -1);
+    
+    g_PlasticPants = (integer) temp;
+    
 }//End parseSettings(string)
 
 // Returns a forecast duration number of seconds in the future.
@@ -302,7 +306,8 @@ sendSettings() {
     (string) g_chatter + "," +
     (string) g_CrinkleVolume + "," +
     (string) g_WetVolume + "," +
-    (string) g_MessVolume;
+    (string) g_MessVolume + "," +
+    (string) g_PlasticPants;
     //For lite consider shifting to LINK_THIS
     llMessageLinked(LINK_SET, 6, csv, NULL_KEY);
     return;
