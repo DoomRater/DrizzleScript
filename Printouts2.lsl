@@ -2,6 +2,7 @@
 DrizzleScript
 Created By: Ryhn Teardrop
 Original Date: Dec 3rd, 2011
+GitHub Repository: https://github.com/DoomRater/DrizzleScript
 
 License: RPL v1.5 (Outlined at http://www.opensource.org/licenses/RPL-1.5)
 
@@ -162,9 +163,9 @@ clearCustomPrints() {
 }
 
 loadCustomPrints() {
-	if(isDebug < 2) {
-		llOwnerSay("Printouts2: Loading "+g_PrintoutCard+" notecard, this may take a minute or two!");
-	}
+    if(isDebug < 2) {
+        llOwnerSay("Printouts2: Loading "+g_PrintoutCard+" notecard, this may take a minute or two!");
+    }
     g_lineNum = 0;
     
     if(llGetInventoryType("PRINT:" + g_PrintoutCard) != -1) {
@@ -499,14 +500,14 @@ string processPrint(string printout) {
         temp = llInsertString(temp, index, fName);
         index = llSubStringIndex(temp, "*first");
     }
-	
+    
     index = llSubStringIndex(temp, "*fullName"); //Search for *fullName in the printout
     while(~index) { //This section is more easily adapted to RP names
         temp = llDeleteSubString(temp, index, index+8);
         temp = llInsertString(temp, index, llKey2Name(llGetOwner()));
         index = llSubStringIndex(temp, "*fullName");
     }
-	
+    
     index = llSubStringIndex(temp, "*oFirstName"); // Search for *oFirstName" in the printout
     while(~index) {
         temp = llDeleteSubString(temp, index, index+10);
@@ -516,70 +517,70 @@ string processPrint(string printout) {
         temp = llInsertString(temp, index, fName);
         index = llSubStringIndex(temp, "*oFirstName");   
     }
-	
+    
     index = llSubStringIndex(temp, "*oFullName");
     while(~index) {
         temp = llDeleteSubString(temp, index, index+9);
         temp = llInsertString(temp, index, g_toucherName);
         index = llSubStringIndex(temp, "*oFullName");  
     }
-	
+    
     index = llSubStringIndex(temp, "*Sub");
     while(~index) { //Capital subject replacement
         temp = llDeleteSubString(temp, index, index+3);
         temp = llInsertString(temp, index, llList2String(["He","She"],g_gender));
         index = llSubStringIndex(temp, "*Sub");  
     }
-	
+    
     index = llSubStringIndex(temp, "*sub");
     while(~index) { //lowercase subject replacement
         temp = llDeleteSubString(temp, index, index+3);
         temp = llInsertString(temp, index, llList2String(["he","she"],g_gender));
         index = llSubStringIndex(temp, "*sub");  
     }
-	
+    
     index = llSubStringIndex(temp, "*Obj");
     while(~index) { //Capital object replacement
         temp = llDeleteSubString(temp, index, index+3);
         temp = llInsertString(temp, index, llList2String(["Him","Her"],g_gender));
         index = llSubStringIndex(temp, "*Obj");  
     }
-	
+    
     index = llSubStringIndex(temp, "*obj");
     while(~index) { //lowercase object replacement
         temp = llDeleteSubString(temp, index, index+3);
         temp = llInsertString(temp, index, llList2String(["him","her"],g_gender));
         index = llSubStringIndex(temp, "*obj");  
     }
-	
+    
     index = llSubStringIndex(temp, "*Con");
     while(~index) { //Capital contraction replacement
         temp = llDeleteSubString(temp, index, index+3);
         temp = llInsertString(temp, index, llList2String(["He's","She's"],g_gender));
         index = llSubStringIndex(temp, "*Con");  
     }
-	
+    
     index = llSubStringIndex(temp, "*con");
     while(~index) { //lowercase contraction replacement
         temp = llDeleteSubString(temp, index, index+3);
         temp = llInsertString(temp, index, llList2String(["he's","she's"],g_gender));
         index = llSubStringIndex(temp, "*con");  
     }
-	
+    
     index = llSubStringIndex(temp, "*Ref");
     while(~index) { //Capital reflexive replacement
         temp = llDeleteSubString(temp, index, index+3);
         temp = llInsertString(temp, index, llList2String(["Himself","Herself"],g_gender));
         index = llSubStringIndex(temp, "*Ref");  
     }
-	
+    
     index = llSubStringIndex(temp, "*ref");
     while(~index) { //lowercase reflexive replacement
         temp = llDeleteSubString(temp, index, index+3);
         temp = llInsertString(temp, index, llList2String(["himself","herself"],g_gender));
         index = llSubStringIndex(temp, "*ref");  
     }
-	
+    
     index = llSubStringIndex(temp, "*Pos1");
     while(~index) { //Capital possessive determinitive replacement
         temp = llDeleteSubString(temp, index, index+4);
@@ -606,7 +607,7 @@ string processPrint(string printout) {
         temp = llInsertString(temp, index, llList2String(["his","hers"],g_gender));
         index = llSubStringIndex(temp, "*pos2");  
     }
-	//todo: add species specific replacements for gender instead of or in addition to current system
+    //todo: add species specific replacements for gender instead of or in addition to current system
     index = llSubStringIndex(temp, "*Per");
     while(~index) { //Capital replacement for reference to gender
         temp = llDeleteSubString(temp, index, index+3);
@@ -632,13 +633,13 @@ displayPrintout() {
     string temp; // Used to prevent the original printouts from being altered.
     string name;
     integer index;
-	
+    
     name = llGetObjectName(); // Preserve the name of the Diaper
     if(g_useType == "Carer Check") { // Carer change printouts
         if(g_wetLevel == 0 && g_messLevel == 0) {
             temp = processPrint(carer_checkClean);
         }
-		//wet
+        //wet
         else if(g_wetLevel == 1 && g_messLevel == 0) {
             temp = processPrint(carer_checkWet1);
         }
@@ -657,7 +658,7 @@ displayPrintout() {
         else if(g_wetLevel >= 6 && g_messLevel == 0) {// Catch all for very soggy diapers.
             temp = processPrint(carer_checkWet6);
         }
-		//messy
+        //messy
         else if(g_wetLevel == 0 && g_messLevel == 1) {
             temp = processPrint(carer_checkMess1);
         }
@@ -667,7 +668,7 @@ displayPrintout() {
         else if(g_wetLevel == 0 && g_messLevel >= 3) {// Catch all for very stinky diapers.
             temp = processPrint(carer_checkMess3);
         }
-		//Wet and messy
+        //Wet and messy
         else if((g_wetLevel == 1 || g_wetLevel == 2) && g_messLevel == 1) {
             temp = processPrint(carer_CheckWet1to2Mess1);
         }
@@ -683,9 +684,9 @@ displayPrintout() {
         else if((g_wetLevel == 3 || g_wetLevel == 4) && g_messLevel == 2) {
             temp = processPrint(carer_CheckWet3to4Mess2);
         }
-		else if(g_wetLevel >= 5 && g_messLevel == 2) {//catch all for very wet diapers.
-			temp = processPrint(carer_checkWet5to6Mess2);
-		}
+        else if(g_wetLevel >= 5 && g_messLevel == 2) {//catch all for very wet diapers.
+            temp = processPrint(carer_checkWet5to6Mess2);
+        }
         else if((g_wetLevel == 1 || g_wetLevel == 2) && g_messLevel >= 3) {
             temp = processPrint(carer_checkWet1to2Mess3);
         }
@@ -791,7 +792,7 @@ displayPrintout() {
         }
         else
         {
-			//wetWedgie1to2 is a clean wedgie
+            //wetWedgie1to2 is a clean wedgie
             if(g_wetLevel >= 0 && g_wetLevel <= 2) {
                 temp = processPrint(wetWedgie1to2); 
             }
@@ -807,7 +808,7 @@ displayPrintout() {
         index = llSubStringIndex(temp, " ");
         llSetObjectName(llGetSubString(temp, 0, index - 1));
         temp = llDeleteSubString(temp, 0, index);
-		//determine chatter reach
+        //determine chatter reach
         if(g_chatter > 1) {
             llSay(0, "/me " + temp);
         }
@@ -872,13 +873,13 @@ default
             }
             else
             {
-				if(isDebug < 2) {
-					llOwnerSay("Printout2: Done reading your notecard! :3");
-				}
+                if(isDebug < 2) {
+                    llOwnerSay("Printout2: Done reading your notecard! :3");
+                }
                 if(isDebug == TRUE) {
-					llOwnerSay("Printout2 Script Memory Used: " + (string) llGetUsedMemory() + " Bytes");
-					llOwnerSay("Printout2 Script Memory Remaining: " + (string) llGetFreeMemory() + " Bytes");
-				}
+                    llOwnerSay("Printout2 Script Memory Used: " + (string) llGetUsedMemory() + " Bytes");
+                    llOwnerSay("Printout2 Script Memory Remaining: " + (string) llGetFreeMemory() + " Bytes");
+                }
             }
         }
     }
@@ -889,7 +890,7 @@ default
     link_message(integer sender_num, integer num, string msg, key id) {
         if(num != -4) {//the message isn't intended for us.
             return;
-		}
+        }
         else {
             integer index = llSubStringIndex(msg, ":"); //Pull out the gender *Always first in list
             g_gender = (integer) llGetSubString(msg, 0, index-1);
@@ -901,7 +902,7 @@ default
             }
             else if (msg == "Gender") {//We actually don't need to do anything!
                 return;
-			}
+            }
             else if(msg == "Change") {// Diaper was changed by the carer.
                 g_forcedMess = FALSE;
                 g_forcedWet = FALSE;    
