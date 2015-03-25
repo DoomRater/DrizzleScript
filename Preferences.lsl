@@ -51,6 +51,8 @@ string g_diaperType = "Fluffems";
 integer isDebug = FALSE;
 
 //menu variables passed to preferences
+integer g_wetLevel;
+integer g_messLevel;
 integer g_wetChance;
 integer g_messChance;
 integer g_wetTimer;
@@ -58,13 +60,15 @@ integer g_messTimer;
 integer g_tummyRub;
 integer g_tickle;
 integer g_gender;
+integer g_isOn;
 integer g_interact;
 integer g_chatter;
 integer g_crinkleVolume;
 integer g_wetVolume;
 integer g_messVolume;
+integer g_PlasticPants;
 
-//Old variables used in my prim-sculptie based system.
+//Old variables used in an prim-sculptie based system.
 //list g_TrainingMenu = ["<--BACK", "★", "★", "Infant", "Toddler", "Adult"];
 
 init()
@@ -423,15 +427,12 @@ integer contains(list l, string test) {
 parseSettings(string temp) {
     integer index; // Used to hold the location of a comma in the CSV
     
-    //I opted to not use llCSV2List to avoid the overhead associated with storing and cutting up lists.
-    //I'm simply finding commas in the string, and cutting out the values between them.
-    
     index = llSubStringIndex(temp, ",");
-//  g_wetLevel = (integer) llGetSubString(temp, 0, index-1);
+    g_wetLevel = (integer) llGetSubString(temp, 0, index-1);
     temp = llGetSubString(temp, index+1, -1); // Remove the used data.
     
     index = llSubStringIndex(temp, ",");
-//  g_messLevel = (integer) llGetSubString(temp, 0, index-1);
+    g_messLevel = (integer) llGetSubString(temp, 0, index-1);
     temp = llGetSubString(temp, index+1, -1);
     
     index = llSubStringIndex(temp, ",");
@@ -463,7 +464,7 @@ parseSettings(string temp) {
     temp = llGetSubString(temp, index+1, -1);
 
     index = llSubStringIndex(temp, ",");
-//  g_isOn = (integer) llGetSubString(temp, 0, index-1);
+    g_isOn = (integer) llGetSubString(temp, 0, index-1);
     temp = llGetSubString(temp, index+1, -1);
 
     index = llSubStringIndex(temp, ",");
@@ -482,8 +483,12 @@ parseSettings(string temp) {
     g_wetVolume = (integer) llGetSubString(temp, 0, index-1);
     temp = llGetSubString(temp, index+1, -1);
 
-    //The last value is all that remains, just store it.
-    g_messVolume = (integer) temp;
+    index = llSubStringIndex(temp, ",");
+    g_messVolume = (integer) llGetSubString(temp, 0, index-1);
+    temp = llGetSubString(temp, index+1, -1);
+    
+    g_PlasticPants = (integer) temp;
+    
 }
 
 printDebugSettings() {
