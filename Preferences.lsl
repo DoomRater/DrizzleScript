@@ -425,6 +425,26 @@ integer contains(list l, string test) {
     }
 }
 
+sendSettings() {
+    string csv = (string) g_wetLevel + "," +
+    (string) g_messLevel + "," +
+    (string) g_wetChance + "," +
+    (string) g_messChance + "," +
+    (string) g_wetTimer + "," +
+    (string) g_messTimer + "," +
+    (string) g_tummyRub + "," +
+    (string) g_tickle + "," +
+    (string) g_gender + "," +
+    (string) g_isOn + "," +
+    (string) g_interact + "," +
+    (string) g_chatter + "," +
+    (string) g_crinkleVolume + "," +
+    (string) g_wetVolume + "," +
+    (string) g_messVolume + "," +
+    (string) g_PlasticPants;
+    llMessageLinked(LINK_SET, -3, csv, NULL_KEY);
+}
+
 parseSettings(string temp) {
     integer index; // Used to hold the location of a comma in the CSV
     
@@ -630,7 +650,7 @@ default {
     }
     
     link_message(integer sender_num, integer num, string msg, key id) {
-        if(num == 6) {
+        if(num == -6) {
             parseSettings(msg);
         }
         else if(num == -1) {
