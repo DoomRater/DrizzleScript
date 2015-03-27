@@ -310,8 +310,8 @@ sendSettings() {
     (string) g_MessVolume + "," +
     (string) g_PlasticPants;
     //For lite consider shifting to LINK_THIS
-    llMessageLinked(LINK_SET, 6, csv, NULL_KEY);
-    return;
+    llMessageLinked(LINK_ALL_OTHERS, 6, csv, NULL_KEY);
+    llMessageLinked(LINK_THIS, -6, csv, NULL_KEY);
 }
 
 integer generateChan(key id) {
