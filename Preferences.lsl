@@ -443,6 +443,7 @@ sendSettings() {
     (string) g_messVolume + "," +
     (string) g_PlasticPants;
     llMessageLinked(LINK_SET, -3, csv, NULL_KEY);
+    llMessageLinked(LINK_ALL_OTHERS, 6, csv, NULL_KEY);
 }
 
 parseSettings(string temp) {
