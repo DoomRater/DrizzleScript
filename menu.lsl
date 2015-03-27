@@ -310,8 +310,8 @@ sendSettings() {
     (string) g_MessVolume + "," +
     (string) g_PlasticPants;
     //For lite consider shifting to LINK_THIS
-    llMessageLinked(LINK_SET, 6, csv, NULL_KEY);
-    return;
+    llMessageLinked(LINK_ALL_OTHERS, 6, csv, NULL_KEY);
+    llMessageLinked(LINK_THIS, -6, csv, NULL_KEY);
 }
 
 integer generateChan(key id) {
@@ -1052,62 +1052,16 @@ default {
         else if(num == -7) return; // Particles is being used
         else if(num == -3) { //Update from Preferences
             integer index = llSubStringIndex(msg, ":");
+            if(index == -1) { //received settings from Preferences
+                parseSettings(msg);
+                return;
+            }
             string setting = llGetSubString(msg, 0, index-1);
             msg = llGetSubString(msg, index+1, -1);
-            if(setting == "Gender") {
-                g_gender = (integer) msg;
-                //Inform the printout scripts of the new gender.
-                llMessageLinked(LINK_THIS, -2, (string) g_gender + ":" + "Gender", NULL_KEY);
-                llMessageLinked(LINK_THIS, -4, (string) g_gender + ":" + "Gender", NULL_KEY);
-            }
-            else if(setting == "Printouts") { //send the new notecard to load to printouts so they update.
+            if(setting == "Printouts") { //send the new notecard to load to printouts so they update.
                 llMessageLinked(LINK_THIS, -2, (string) g_gender + ":" + "Update:"+msg, NULL_KEY);
                 llMessageLinked(LINK_THIS, -4, (string) g_gender + ":" + "Update:"+msg, NULL_KEY);
-            }
-                
-            else if(setting == "Wet%") {
-                index = llSubStringIndex(msg, "%");
-                msg = llGetSubString(msg, 0, index-1);
-                g_wetChance = (integer) msg;
-            }
-            else if(setting == "Mess%") {
-                index = llSubStringIndex(msg, "%");
-                msg = llGetSubString(msg, 0, index-1);
-                g_messChance = (integer) msg;
-            }
-            else if(setting == "Wet❤Timer") {
-                g_wetTimer = (integer) msg;
-            }
-            else if(setting == "Mess❤Timer") {
-                g_messTimer = (integer) msg;
-            }
-            else if(setting == "❤Tickle❤") {
-                index = llSubStringIndex(msg, "%");
-                msg = llGetSubString(msg, 0, index-1);
-                g_tickle = (integer) msg;        
-            }
-            else if(setting == "Tummy❤Rub") {
-                index = llSubStringIndex(msg, "%");
-                msg = llGetSubString(msg, 0, index-1);
-                g_tummyRub = (integer) msg;        
-            }
-            else if(setting == "Crinkle❤Volume") {
-                index = llSubStringIndex(msg, "%");
-                msg = llGetSubString(msg, 0, index-1);
-                g_CrinkleVolume = (integer) msg;
-            }
-            else if(setting == "Wet❤Volume") {
-                index = llSubStringIndex(msg, "%");
-                msg = llGetSubString(msg, 0, index-1);
-                g_WetVolume = (integer) msg;
-            }
-            else if(setting == "Mess❤Volume") {
-                index = llSubStringIndex(msg, "%");
-                msg = llGetSubString(msg, 0, index-1);
-                g_MessVolume = (integer) msg;
-            }
-            else if(setting == "Others") {
-                g_interact = (integer) msg;
+                return;
             }
             else if(setting == "Chatter") {
                 g_chatter = (integer) msg;
