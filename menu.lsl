@@ -55,7 +55,10 @@ integer g_chatter = 2;     // 0:self-chatter 1:Whisper chatter 2:say chatter
 integer g_CrinkleVolume = 10;
 integer g_WetVolume = 100;  //this value is thirded on normal wets
 integer g_MessVolume = 100;
-integer g_PlasticPants;
+integer g_PlasticPants = FALSE;
+integer g_timesHeldWetStrength = 3; //how many times you can hold it before you flood
+integer g_timesHeldWetMultiplier = 10; //how much harder it gets each time you successfully hold it, in percent
+integer g_timesHeldMessMultiplier = 10;
 //End Saved Non-Carer Settings
 
 integer g_mForecast = 0; // Determines how long until the next mess chance
@@ -354,9 +357,7 @@ integer findPercentage(string type) {
     else if(type == "W") {
         toCheck = (integer) llFrand(100); // Random number between 0 and 99
         ++toCheck;                       // ++i used to achieve 1 - 100 range.
-        
-        //todo: change the timesheldwet multiplier to be based on how well potty trained you are
-        if(toCheck + (timesHeldWet * 10) <= g_wetChance) { //timesHeldWet is a modifier that makes you less likely to hold it.
+        if(toCheck + (timesHeldWet * g_timesHeldWetMultiplier) <= g_wetChance) { //timesHeldWet is a modifier that makes you less likely to hold it.
             timesHeldWet++; // The more times you hold it, the more likely you are to potty next time.
             return FALSE;
         }
@@ -367,8 +368,7 @@ integer findPercentage(string type) {
     else if(type == "M") {// Use Mess Chance
         toCheck = (integer) llFrand(100); // Random number between 0 and 99
         ++toCheck;                       // ++i used to achieve 1 - 100 range.
-        
-        if(toCheck + (timesHeldMess * 10) <= g_messChance) {//timesHeldMess is a modifier that makes you less likely to hold it.
+        if(toCheck + (timesHeldMess * g_timesHeldMessMultiplier) <= g_messChance) {//timesHeldMess is a modifier that makes you less likely to hold it.
             timesHeldMess++; // The more times you hold it, the more likely you are to potty next time.
             return FALSE;
         }
@@ -1016,7 +1016,7 @@ default {
            
             if(g_wForecast <= currentTime) { // The forecasted time is in the past
                 if(findPercentage("W") == TRUE) {
-                    if(timesHeldWet >= 3) { // If the user has held it a lot. This time they flood.
+                    if(timesHeldWet >= g_timesHeldWetStrength) { // If the user has held it a lot. This time they flood.
                         handleFlooding("Self", llGetOwner());
                     }
                     else {
@@ -1033,22 +1033,25 @@ default {
                 if(findPercentage("M") == TRUE) {
                     handleMessing("Timer", llGetOwner()); 
                 }
-                g_mForecast = myTimer(g_messTimer * 60); // New Forecast regardless. (Temp commented out)
+                g_mForecast = myTimer(g_messTimer * 60);
             }
         }//End g_isOn if
     }//End of timer
     
-    // This event only plays with messages of num <= 5, ignoring -1 and -2 specifically
-    // -1      = Preferences Script
-    // -2      = Printouts Script
-    //  1 to 5 = Storage Prim Messages
-    //  6      = Setting Message
+    //This is the main communications relay from other scripts.
+    //todo: move these comments to documentation
+    // -1       = Preferences Script
+    // -2 or -4 = Printouts Script
+    // -7       = reserved for Particles
+    //  1 to 5  = Storage Prim Messages
+    //  6       = Setting Message from Memory Core
+    // -6       = Setting Message to Preferences
     link_message(integer sender_num, integer num, string msg, key id) {
         string temp;
         
         if(msg == "") return;
         else if(num == -1) return; // Preferences is being used
-        else if(num == -2) return; // Printouts is being used
+        else if(num == -2 || num == -4) return; // Printouts is being used
         else if(num == -7) return; // Particles is being used
         else if(num == -3) { //Update from Preferences
             integer index = llSubStringIndex(msg, ":");
@@ -1059,8 +1062,8 @@ default {
             string setting = llGetSubString(msg, 0, index-1);
             msg = llGetSubString(msg, index+1, -1);
             if(setting == "Printouts") { //send the new notecard to load to printouts so they update.
-                llMessageLinked(LINK_THIS, -2, (string) g_gender + ":" + "Update:"+msg, NULL_KEY);
-                llMessageLinked(LINK_THIS, -4, (string) g_gender + ":" + "Update:"+msg, NULL_KEY);
+                llMessageLinked(LINK_THIS, -2, (string) g_gender + ":Update:"+msg, NULL_KEY);
+                llMessageLinked(LINK_THIS, -4, (string) g_gender + ":Update:"+msg, NULL_KEY);
                 return;
             }
             else if(setting == "Chatter") {
@@ -1098,7 +1101,6 @@ default {
             }
         }
         else if(num == 6) { // Settings!
-            //@msg = A CSV of the settings from the memory core(SaveSettings.lsl).
             parseSettings(msg); // Pulls apart msg to set appropriate values for this script.
             return;
         }
