@@ -88,6 +88,7 @@ integer g_messPrim;
 /* Nezzy's Brand Kawaii Diapers Variables */
 //Kawaii doesn't use multiple prims for its settings, instead it uses faces
 integer g_wetFace = 0;
+integer g_errorCount = 0;
 /*End of Kawaii variables*/
 
 init()
@@ -736,7 +737,31 @@ mainMenu(key id) {
     else if(userRank == 2 && g_interact == 1) {
         llDialog(id, "General Menu for " + llKey2Name(llGetOwner()) + "'s diaper.", g_inboundMenu, g_uniqueChan);
     }
+    else if(g_diaperType == "Kawaii") {
+        nedryError(id);
+    }
 }
+
+//function for Kawaii Diapers
+//emulates Nedry's "ah ah ah!" speech if someone tries to do things they shouldn't
+nedryError(key id) {
+    g_errorCount++;
+    if(g_errorCount < 3) {
+        llInstantMessage(id,"Access Denied!");
+    }
+    else {
+        llInstantMessage(id,"Access Denied! And....");
+        llSleep(.2);
+        integer spamCount = 10;
+        while(spamCount) {
+            llInstantMessage(id,"YOU DIDN'T SAY THE MAGIC WORD!");
+            spamCount--;
+        }
+        //Send message to Kawaii plugin to trigger the error
+        g_errorCount = 0;
+    }
+}
+
 
 default {
     state_entry() {
@@ -828,6 +853,9 @@ default {
             else if(userRank == 1) {
                 llDialog(id, "Good news! You're a carer. This means you can turn this diaper back on if you wish!", ["On", "Nevermind"], g_uniqueChan);
             }
+            else if(g_diaperType == "Kawaii") {
+                nedryError(id);
+            }
         } 
     }//End touch_start(integer)
     
@@ -901,8 +929,13 @@ default {
         else if(msg == "<--BACK") {
             mainMenu(id);
         }
-        else if(msg == "On/Off" || msg == "On" && userRank < 2) {
-            toggleOnOff();   
+        else if(msg == "On/Off" || msg == "On"){
+            if(userRank < 2) {
+                toggleOnOff();
+            }
+            else if(g_diaperType == "Kawaii") {
+                nedryError(id);
+            }
         }
         else if(msg == "Get❤Soggy" && userRank == 0) {
             handleWetting("Self", id);
@@ -929,6 +962,11 @@ default {
             else if(userRank == 2 && g_interact == 1) { // Outsider, with permission of course
                  llMessageLinked(LINK_THIS, -2, (string) g_gender + ":" + (string) g_wetLevel + ":" + (string) g_messLevel + ":" + "Other Check" + ":" + llKey2Name(id), id);
             }
+            else if(userRank == 2) {
+                if(g_diaperType == "Kawaii") {
+                    nedryError(id);
+                }
+            }
         }
         else if(msg == "Change") {
             if(userRank == 0) {
@@ -940,7 +978,13 @@ default {
             else if(userRank == 2 && g_interact == 1) {
                 handleChange("Other", id);
             }
+            else if(userRank == 2) {
+                if(g_diaperType == "Kawaii") {
+                    nedryError(id);
+                }
+            }
         }
+        //The rest of this should be checked to see if users have permission before checking their action
         else if(msg == "Tummy❤Rub") {
             if(findPercentage("Rub")) { // They messied!
                 handleMessing("Rub", id);
@@ -1021,6 +1065,8 @@ default {
                 g_mForecast = myTimer(g_messTimer * 60);
             }
         }//End g_isOn if
+        //reset the Kawaii error count each minute
+        g_errorCount = 0;
     }//End of timer
     
     //This is the main communications relay from other scripts.
