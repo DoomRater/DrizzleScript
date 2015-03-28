@@ -34,8 +34,9 @@ list g_BackFaces;
 list g_Panels;
 list g_Cuties;
 list g_Printouts;
-list g_settingsMenu = ["<--TOP", "★", "Gender", "Skins", "Printouts", "Chatter", "Potty", "Interactions", "Volume"];
-list g_appearanceMenu = ["<--BACK","Help", "*","Diaper❤Print","Tapes","Back❤Face","Panel","Cutie*Mark"];
+list g_settingsMenu = ["<--TOP", "Plastic❤Pants", "Gender", "Skins", "Printouts", "Chatter", "Potty", "Interactions", "Volume"];
+list g_plasticPantsMenu = ["<--BACK","Put❤On","Take❤Off"];
+list g_appearanceMenu = ["<--BACK","Help", "*","Diaper❤Print","Tapes"];
 list g_genderMenu = ["<--BACK", "★", "★", "Boy", "Girl"];
 list g_chatterMenu = ["<--BACK", "★", "★", "Normal", "Whisper", "Private"];
 list g_volumeMenu = ["<--BACK", "★", "★", "Crinkle❤Volume", "Wet❤Volume", "Mess❤Volume"];
@@ -79,10 +80,11 @@ init()
     loadInventoryList();
     findPrims();
     scanForResizerScript();
-    if(isDebug==TRUE) {
-        if(llList2String(g_settingsMenu,1)=="*") {
-            g_settingsMenu = llListReplaceList(g_settingsMenu,["DEBUG"],1,1);
-        }
+    if(isDebug==TRUE && ~contains(g_settingsMenu,"DEBUG")) {
+        g_settingsMenu += ["DEBUG"];
+    }
+    if(g_diaperType == "Kawaii") {
+        g_appearanceMenu = ["<--BACK","Help", "*","Diaper❤Print","Tapes","Back❤Face","Panel","Cutie*Mark"];
     }
     g_mainListen = llListen(g_uniqueChan, "", "", "");
 }
@@ -608,6 +610,10 @@ string m_appearanceMenu() {
     return "Change the diaper's appearance!";
 }
 
+string m_plasticPantsMenu() {
+    return "What would you like do to with "+llKey2Name(llGetOwner())+"'s plastic pants?";
+}
+
 string m_skinMenu() {
     return "Choose a diaper print:";
 }
@@ -773,6 +779,16 @@ default {
             sendSettings();
             offerMenu(id, m_tummyRubChance(), g_currMenuButtons);
         }
+        else if(g_currMenu == "Plastic❤Pants") {
+            if(msg == "Put❤On") {
+                g_PlasticPants = TRUE;
+            }
+            else if(msg == "Take❤Off") {
+                g_PlasticPants = TRUE;
+            }
+            llMessageLinked(LINK_THIS, -3, g_currMenu + ":" + msg, NULL_KEY);
+            offerMenu(id, g_currMenuMessage, g_currMenuButtons);
+        }
         else if(msg == "Boy") {
             g_gender = 0;
             sendSettings();
@@ -887,6 +903,10 @@ default {
                 g_currCount += 11; //g_currCount is now 10 (starts at -1)
             }
             offerMenu(id, "Choose a Printout style:", temp);
+        }
+        else if(msg == "Plastic❤Pants") {
+            g_currMenu = msg;
+            offerMenu(id, m_plasticPantsMenu(), g_plasticPantsMenu);
         }
         else if(msg == "Gender") {
             g_currMenu = msg;
