@@ -543,7 +543,7 @@ adjustPlasticPants() {
 }
 
 fitPlasticPants() { //causes a .2 second llSleep, so be judicial about when it's done
-    g_plasticPantsSize = llList2Vector(llGetLinkPrimitiveParams(g_mainPrim, [PRIM_SIZE]), 0) * 1.05;
+    g_plasticPantsSize = llList2Vector(llGetLinkPrimitiveParams(g_mainPrim, [PRIM_SIZE]), 0) * 1.08;
 }
 
 // Shows or hides the full model of the diaper.
@@ -587,20 +587,6 @@ toggleOnOff() {
     sendSettings(); // Update the stored settings to reflect the on-off state.
 }
 
-/* Simple utility function to determine whether a list contained a specified element.
- * @l - A list to test against
- * @test - An element to search for inside l
- * Returns TRUE if l contains test, FALSE otherwise.
-*/
-integer contains(list l, string test) {
-    if(~llListFindList(l, [test])) { // test found, it's in the list!
-        return TRUE;   
-    }
-    else {
-        return FALSE;
-    }
-}
-
 printDebugSettings() {
     llOwnerSay("Wetness: " + (string) g_wetLevel);
     llOwnerSay("Messiness: " + (string) g_messLevel);
@@ -628,7 +614,7 @@ printDebugSettings() {
 
 /* Simple function that searches g_Carers for a given user name */
 integer isCarer(string name) {
-    if(contains(g_Carers, name)) { // name found, they're a carer!
+    if(~llListFindList(g_Carers, [name])) { // name found, they're a carer!
         return TRUE;
     }
     else {
@@ -650,7 +636,7 @@ loadCarers() {
 // If a given name is not already in the carer's list, we add them to the carer's list.
 // @name - The name to be tested for carer status
 addCarer(string name) {
-    if(contains(g_Carers, name)) {
+    if(~llListFindList(g_Carers, [name])) {
         llOwnerSay("You've already added that carer once silly!");   
     }
     else {
@@ -883,7 +869,7 @@ default {
             sendSettings(); //make sure preferences knows the current settings
             llMessageLinked(LINK_THIS, -1, msg, id); // Tell Preferences script to talk to id
         }
-        else if(contains(g_ButtonizedAvatars,msg) && userRank == 0) { //Start of Caretaker handling
+        else if(~llListFindList(g_ButtonizedAvatars,[msg]) && userRank == 0) { //Start of Caretaker handling
             if(g_addRemove == 1) { //Adding a carer
                 integer temp = llListFindList(g_ButtonizedAvatars,[msg]);
                 g_newCarer = llList2String(g_detectedAvatars,temp);
@@ -892,7 +878,7 @@ default {
                 llDialog(llList2Key(g_detectedKeys, temp), llKey2Name(llGetOwner()) + " would like to add you as a carer.", ["Accept", "Decline"], g_uniqueChan-1);
             }
         }
-        else if(contains(g_ButtonCarers,msg) && userRank == 0) {
+        else if(~llListFindList(g_ButtonCarers,[msg]) && userRank == 0) {
             if(g_addRemove == 0) {// Deleting a carer
                 removeCarer(msg);
                 g_addRemove = -1;
