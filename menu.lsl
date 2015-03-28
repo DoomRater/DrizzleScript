@@ -294,7 +294,6 @@ Sends a message to the SaveSettings script containing a CSV of all values stored
 This can be arbitrarily expanded as long as the values fit within the description of a single prim. 
 This function only uses global variables, so if those are changed within the script, this needs to be called again.
 */
-//todo: update with g_plasticPants in all scripts
 sendSettings() {
     string csv = (string) g_wetLevel + "," +
     (string) g_messLevel + "," +
@@ -1079,8 +1078,17 @@ default {
                 }
                 llMessageLinked(LINK_THIS, -2, (string) g_gender + ":" + temp, NULL_KEY);
                 llMessageLinked(LINK_THIS, -4, (string) g_gender + ":" + temp, NULL_KEY);
-             }
-             else if(setting == "Cancel") {
+            }
+            else if(setting == "Plastic❤Pants") {
+                if(msg == "Put❤On") {
+                    g_PlasticPants = TRUE;
+                }
+                else if(msg == "Take❤Off") {
+                    g_PlasticPants = FALSE;
+                }
+                adjustPlasticPants();
+            }
+            else if(setting == "Cancel") {
                 mainMenu(msg);
                 return;
             }
