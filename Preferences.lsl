@@ -80,7 +80,7 @@ init()
     loadInventoryList();
     findPrims();
     scanForResizerScript();
-    if(isDebug==TRUE && ~contains(g_settingsMenu,"DEBUG")) {
+    if(isDebug==TRUE && llListFindList(g_settingsMenu, ["DEBUG"]) == -1) {
         g_settingsMenu += ["DEBUG"];
     }
     if(g_diaperType == "Kawaii") {
@@ -89,10 +89,6 @@ init()
     g_mainListen = llListen(g_uniqueChan, "", "", "");
 }
 
-/*
-    This function is customized to work with Zyriik's Puppy Pawz Pampers model.
-    It assumes that the main model is named "Main Shape" and searches through the link set until it discovers it.
-*/  
 findPrims() {
     
     if(g_mainPrimName == "") { // No specified prim. Look for root.
@@ -111,7 +107,7 @@ findPrims() {
     }
 }
 
-//quick and dirty resizer check
+//quick and dirty resizer check for Pied Piper Diaper
 scanForResizerScript() {
     if(llGetInventoryType("Controler") == INVENTORY_SCRIPT) {
         if(llListFindList(g_settingsMenu,["Resize"])==-1) {
@@ -418,15 +414,6 @@ applyTexture(string name, string prefix) {
     }
 }
 
-integer contains(list l, string test) {
-    if(~llListFindList(l, [test])) {// test found, it's in the list!
-        return TRUE;   
-    }
-    else {
-        return FALSE;
-    }
-}
-
 sendSettings() {
     string csv = (string) g_wetLevel + "," +
     (string) g_messLevel + "," +
@@ -697,27 +684,27 @@ default {
         else if(msg=="DEBUG") {
             printDebugSettings();
         }
-        else if(contains(g_Skins, msg) && (g_currMenu == "Skins" || g_currMenu == "Diaper❤Print")) {
+        else if(~llListFindList(g_Skins, [msg]) && (g_currMenu == "Skins" || g_currMenu == "Diaper❤Print")) {
             applyTexture(msg, "SKIN:");
             offerMenu(id, g_currMenuMessage, g_currMenuButtons);
         }
-        else if(contains(g_Panels, msg) && g_currMenu == "Panel") {
+        else if(~llListFindList(g_Panels, [msg]) && g_currMenu == "Panel") {
             applyTexture(msg, "PANEL:");
             offerMenu(id, g_currMenuMessage, g_currMenuButtons);
         }
-        else if(contains(g_Tapes, msg) && g_currMenu == "Tapes") {
+        else if(~llListFindList(g_Tapes, [msg]) && g_currMenu == "Tapes") {
             applyTexture(msg, "TAPE:");
             offerMenu(id, g_currMenuMessage, g_currMenuButtons);
         }
-        else if(contains(g_BackFaces, msg) && g_currMenu == "Back❤Face") {
+        else if(~llListFindList(g_BackFaces, [msg]) && g_currMenu == "Back❤Face") {
             applyTexture(msg, "BACKFACE:");
             offerMenu(id, g_currMenuMessage, g_currMenuButtons);
         }
-        else if(contains(g_Cuties, msg) && g_currMenu == "Cutie*Mark") {
+        else if(~llListFindList(g_Cuties, [msg]) && g_currMenu == "Cutie*Mark") {
             applyTexture(msg, "CUTIE:");
             offerMenu(id, g_currMenuMessage, g_currMenuButtons);
         }
-        else if(contains(g_Printouts, msg)  && g_currMenu == "Printouts") {// new printout notecard!
+        else if(~llListFindList(g_Printouts, [msg])  && g_currMenu == "Printouts") {// new printout notecard!
             llMessageLinked(LINK_THIS, -3, g_currMenu + ":" + msg, NULL_KEY);
             offerMenu(id, g_currMenuMessage, g_currMenuButtons);
         }
