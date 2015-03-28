@@ -17,10 +17,8 @@ the software together, so everyone has access to something potentially excellent
 *Leave this header here, but if you contribute, add your name to the list!*
 ============================================================*/
 
-/*
-* Main Script used for the Diaper, is the central hub of
-* communication between all other scripts 
-*/
+// Main Script used for the Diaper, is the central hub of
+// communication between all other scripts 
 list g_userMenu = ["Show/Hide", "Options", "On/Off", "❤Flood❤", "Check", "Change", "Get❤Soggy", "Get❤Stinky", "Caretakers","Update"];
 list g_careMenu = ["Check", "Change", "Tease", "Raspberry", "Poke", "Options","Show/Hide", "❤ ❤ ❤"];
 list g_careMenuDiaper = ["Force❤Wet", "Force❤Mess","❤Tickle❤", "Tummy❤Rub", "Wedgie", "Spank"];
@@ -128,6 +126,9 @@ init()
     llRequestPermissions(llGetOwner(),PERMISSION_TAKE_CONTROLS); //so we can see whether someone is moving and make them crinkle!
     loadCarers();
     findPrims(); // This locates the link number of the wet/mess prims for a model.
+    if(g_diaperType == "") {
+        detectDiaperType();
+    }
     g_mainListen = llListen(g_uniqueChan, "", "", "");
 }
 
@@ -140,6 +141,22 @@ checkForUpdates() {
     }
     else if(isDebug == TRUE) {
         llOwnerSay("No update script found!");
+    }
+}
+
+detectDiaperType() {
+    key mainPrimCreator = llGetCreator();
+    //JDroo Resident, creator of Kawaii Diapers
+    if(mainPrimCreator == "b9878483-a1fc-411f-8d9c-be53795eca6e") {
+        g_diaperType = "Kawaii";
+    }
+    //JewelMermaid Resident, creator of Pied Piper Diapers
+    else if(mainPrimCreator == "171bfe0b-ba9f-4e01-81cb-32c3caacec4e") {
+        g_diaperType = "PiedPiper";
+    }
+    //our fallback is to use Fluffems
+    else {
+        g_diaperType = "Fluffems";
     }
 }
 

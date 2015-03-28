@@ -79,6 +79,9 @@ init()
     g_uniqueChan = generateChan(llGetOwner()) + 1; // Remove collision with Menu listen handler via +1
     loadInventoryList();
     findPrims();
+    if(g_diaperType == "") {
+        detectDiaperType();
+    }
     scanForResizerScript();
     if(isDebug==TRUE && llListFindList(g_settingsMenu, ["DEBUG"]) == -1) {
         g_settingsMenu += ["DEBUG"];
@@ -104,6 +107,22 @@ findPrims() {
             }    
             //add additional prims to seek here
         }
+    }
+}
+
+detectDiaperType() {
+    key mainPrimCreator = llGetCreator();
+    //JDroo Resident, creator of Kawaii Diapers
+    if(mainPrimCreator == "b9878483-a1fc-411f-8d9c-be53795eca6e") {
+        g_diaperType = "Kawaii";
+    }
+    //JewelMermaid Resident, creator of Pied Piper Diapers
+    else if(mainPrimCreator == "171bfe0b-ba9f-4e01-81cb-32c3caacec4e") {
+        g_diaperType = "PiedPiper";
+    }
+    //our fallback is to use Fluffems
+    else {
+        g_diaperType = "Fluffems";
     }
 }
 
