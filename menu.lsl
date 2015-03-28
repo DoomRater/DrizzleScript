@@ -543,7 +543,7 @@ adjustPlasticPants() {
 }
 
 fitPlasticPants() { //causes a .2 second llSleep, so be judicial about when it's done
-    g_plasticPantsSize = llList2Vector(llGetLinkPrimitiveParams(g_plasticPantsPrim, [PRIM_SIZE]), 0) * 1.05;
+    g_plasticPantsSize = llList2Vector(llGetLinkPrimitiveParams(g_mainPrim, [PRIM_SIZE]), 0) * 1.05;
 }
 
 // Shows or hides the full model of the diaper.
