@@ -221,6 +221,12 @@ Each sentence line can only be 240 characters (letters,  numbers, symbols, space
 
 @oCheckWet3-4Mess2: *oFirstName checks the front and back of *first's diaper; It is very wet and is very messy in the back. *Sub should be changed very soon.
 
+@oCheckWet5-6Mess2: *oFirstName checks the front and back of *first's diaper; It is leaking and is very messy in the back. *Sub should get changed immediately!
+
+@oCheckWet1-2Mess3: *oFirstName checks the front and back of *first's diaper; It is slightly wet but filled to the brim in the back. Someone change *sub right away!
+
+@oCheckWet3-4Mess3: *oFirstName checks the front and back of *first's diaper; It is very wet and filled to the brim in the back. Someone change *sub right away!
+
 @oCheckWet5-6Mess3: *oFirstName checks the front and back of *first's diaper; It is leaking and is very messy in the back. *Pos1 diaper is totally full and cannot take any more. *Sub should get changed immediately!!
 
 @oPoke: *oFirstName curiously pokes at *first's diaper. *Sub squirms as *pos1 diaper makes a cute crinkling noise!
