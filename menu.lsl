@@ -764,14 +764,14 @@ mainMenu(key id) {
 nedryError(key id) {
     g_errorCount++;
     if(g_errorCount < 3) {
-        llInstantMessage(id,"Access Denied!");
+        llRegionSayTo(id, 0, "Access Denied!");
     }
     else {
-        llInstantMessage(id,"Access Denied! And....");
-        llSleep(.2);
+        llRegionSayTo(id, 0, "Access Denied! And....");
+        llSleep(2.0);
         integer spamCount = 10;
         while(spamCount) {
-            llInstantMessage(id,"YOU DIDN'T SAY THE MAGIC WORD!");
+            llRegionSayTo(id, 0, "YOU DIDN'T SAY THE MAGIC WORD!");
             spamCount--;
         }
         //Send message to Kawaii plugin to trigger the error
