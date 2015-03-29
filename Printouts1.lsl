@@ -971,7 +971,7 @@ displayPrintout() {
         else {
             llOwnerSay("/me "+temp);
             if(g_toucherKey != llGetOwner()) {
-                llInstantMessage(g_toucherKey,"/me "+temp);
+                llRegionSayTo(g_toucherKey, 0, "/me "+temp);
             }
         }
     }
