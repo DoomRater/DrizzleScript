@@ -48,7 +48,7 @@ list g_interactionsOptions = ["<--BACK","★", "★","Everyone","Carers❤&❤Me
 integer g_mainPrim;
 string g_mainPrimName = ""; // By default, set to "".
 //various diapers have different texture settings
-//PiedPiper uses repeat 1.0, 1.0 and offset .03, -.5
+//ABAR Sculpted diaper bases uses repeat 1.0, 1.0 and offset .03, -.5
 string g_diaperType = "Fluffems";
 integer isDebug = FALSE;
 
@@ -115,10 +115,6 @@ detectDiaperType() {
     //JDroo Resident, creator of Kawaii Diapers
     if(mainPrimCreator == "b9878483-a1fc-411f-8d9c-be53795eca6e") {
         g_diaperType = "Kawaii";
-    }
-    //JewelMermaid Resident, creator of Pied Piper Diapers
-    else if(mainPrimCreator == "171bfe0b-ba9f-4e01-81cb-32c3caacec4e") {
-        g_diaperType = "PiedPiper";
     }
     //our fallback is to use Fluffems
     else {
@@ -402,7 +398,7 @@ applyTexture(string name, string prefix) {
         offset.x = 0.0;
         offset.y = 0.0;
     }
-    else if(g_diaperType == "PiedPiper") {
+    else if(g_diaperType == "ABARSculpt") {
         offset.x = 0.03;
         offset.y = -.5;
     }
@@ -426,7 +422,7 @@ applyTexture(string name, string prefix) {
             llSetLinkPrimitiveParamsFast(g_mainPrim, [PRIM_TEXTURE, 6, texture, repeats, offset, radRotation]);
         }
     }
-    else if(g_diaperType == "Fluffems" || g_diaperType == "PiedPiper") {
+    else if(g_diaperType == "Fluffems" || g_diaperType == "ABARSculpt") {
         if(prefix == "SKIN:") {
             llSetLinkPrimitiveParamsFast(g_mainPrim, [PRIM_TEXTURE, ALL_SIDES, texture, repeats, offset, radRotation]);
         }
@@ -834,7 +830,7 @@ default {
         }
         else if(msg == "Skins" || msg == "Diaper❤Print") {
             g_currMenu = msg;
-            if(g_diaperType == "Fluffems" || g_diaperType == "PiedPiper" || msg == "Diaper❤Print") {
+            if(g_diaperType == "Fluffems" || g_diaperType == "ABARSculpt" || msg == "Diaper❤Print") {
                 //these two diapers only use one prim for skins; Kawaii uses Diaper❤Print for this menu
                 g_currCount = firstPage(m_skinMenu(), g_Skins, id);
             }
