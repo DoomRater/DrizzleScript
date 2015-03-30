@@ -150,10 +150,6 @@ detectDiaperType() {
     if(mainPrimCreator == "b9878483-a1fc-411f-8d9c-be53795eca6e") {
         g_diaperType = "Kawaii";
     }
-    //JewelMermaid Resident, creator of Pied Piper Diapers
-    else if(mainPrimCreator == "171bfe0b-ba9f-4e01-81cb-32c3caacec4e") {
-        g_diaperType = "PiedPiper";
-    }
     //our fallback is to use Fluffems
     else {
         g_diaperType = "Fluffems";
