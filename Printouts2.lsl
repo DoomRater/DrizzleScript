@@ -483,6 +483,11 @@ constructPrint(string data, integer append, string printoutType) {
     }
 }
 
+//Function by Haravikk Mistral for Combined Library
+string strReplace(string str, string search, string replace) {
+    return llDumpList2String(llParseStringKeepNulls((str = "") + str, [search], []), replace);
+}
+
 //This function is passed a (potentially) tokenized (*first, *oFullName, etc) string,
 //it's job is to remove the tokens if they exist, and replace them with the proper information (First name, Full name, etc.)
 //@printout = A potentially tokenized string in need of processing.
@@ -490,139 +495,51 @@ string processPrint(string printout) {
     string temp = printout; // Preserves the original data
     string fName; // First name of the User/Carer/Outsider, re-used.
     integer spaceLocation; // Holds the location of the space in a user name. I use this to cut out the first name.
-    
-    integer index = llSubStringIndex(temp, "*first"); //Search for *first in the printout
-    while(~index) { //this code may not work well once RP names are implemented
-        temp = llDeleteSubString(temp, index, index+5);
-        fName = llKey2Name(llGetOwner());
-        spaceLocation = llSubStringIndex(fName, " ");
-        fName = llDeleteSubString(fName, spaceLocation, -1);
-        temp = llInsertString(temp, index, fName);
-        index = llSubStringIndex(temp, "*first");
-    }
-    
-    index = llSubStringIndex(temp, "*fullName"); //Search for *fullName in the printout
-    while(~index) { //This section is more easily adapted to RP names
-        temp = llDeleteSubString(temp, index, index+8);
-        temp = llInsertString(temp, index, llKey2Name(llGetOwner()));
-        index = llSubStringIndex(temp, "*fullName");
-    }
-    
-    index = llSubStringIndex(temp, "*oFirstName"); // Search for *oFirstName" in the printout
-    while(~index) {
-        temp = llDeleteSubString(temp, index, index+10);
-        fName = g_toucherName;
-        spaceLocation = llSubStringIndex(fName, " ");
-        fName = llDeleteSubString(fName, spaceLocation, -1);
-        temp = llInsertString(temp, index, fName);
-        index = llSubStringIndex(temp, "*oFirstName");   
-    }
-    
-    index = llSubStringIndex(temp, "*oFullName");
-    while(~index) {
-        temp = llDeleteSubString(temp, index, index+9);
-        temp = llInsertString(temp, index, g_toucherName);
-        index = llSubStringIndex(temp, "*oFullName");  
-    }
-    
-    index = llSubStringIndex(temp, "*Sub");
-    while(~index) { //Capital subject replacement
-        temp = llDeleteSubString(temp, index, index+3);
-        temp = llInsertString(temp, index, llList2String(["He","She"],g_gender));
-        index = llSubStringIndex(temp, "*Sub");  
-    }
-    
-    index = llSubStringIndex(temp, "*sub");
-    while(~index) { //lowercase subject replacement
-        temp = llDeleteSubString(temp, index, index+3);
-        temp = llInsertString(temp, index, llList2String(["he","she"],g_gender));
-        index = llSubStringIndex(temp, "*sub");  
-    }
-    
-    index = llSubStringIndex(temp, "*Obj");
-    while(~index) { //Capital object replacement
-        temp = llDeleteSubString(temp, index, index+3);
-        temp = llInsertString(temp, index, llList2String(["Him","Her"],g_gender));
-        index = llSubStringIndex(temp, "*Obj");  
-    }
-    
-    index = llSubStringIndex(temp, "*obj");
-    while(~index) { //lowercase object replacement
-        temp = llDeleteSubString(temp, index, index+3);
-        temp = llInsertString(temp, index, llList2String(["him","her"],g_gender));
-        index = llSubStringIndex(temp, "*obj");  
-    }
-    
-    index = llSubStringIndex(temp, "*Con");
-    while(~index) { //Capital contraction replacement
-        temp = llDeleteSubString(temp, index, index+3);
-        temp = llInsertString(temp, index, llList2String(["He's","She's"],g_gender));
-        index = llSubStringIndex(temp, "*Con");  
-    }
-    
-    index = llSubStringIndex(temp, "*con");
-    while(~index) { //lowercase contraction replacement
-        temp = llDeleteSubString(temp, index, index+3);
-        temp = llInsertString(temp, index, llList2String(["he's","she's"],g_gender));
-        index = llSubStringIndex(temp, "*con");  
-    }
-    
-    index = llSubStringIndex(temp, "*Ref");
-    while(~index) { //Capital reflexive replacement
-        temp = llDeleteSubString(temp, index, index+3);
-        temp = llInsertString(temp, index, llList2String(["Himself","Herself"],g_gender));
-        index = llSubStringIndex(temp, "*Ref");  
-    }
-    
-    index = llSubStringIndex(temp, "*ref");
-    while(~index) { //lowercase reflexive replacement
-        temp = llDeleteSubString(temp, index, index+3);
-        temp = llInsertString(temp, index, llList2String(["himself","herself"],g_gender));
-        index = llSubStringIndex(temp, "*ref");  
-    }
-    
-    index = llSubStringIndex(temp, "*Pos1");
-    while(~index) { //Capital possessive determinitive replacement
-        temp = llDeleteSubString(temp, index, index+4);
-        temp = llInsertString(temp, index, llList2String(["His","Her"],g_gender));
-        index = llSubStringIndex(temp, "*Pos1");  
-    }
-    index = llSubStringIndex(temp, "*pos1");
-    while(~index) { //lowercase possessive determinitive replacement
-        temp = llDeleteSubString(temp, index, index+4);
-        temp = llInsertString(temp, index, llList2String(["his","her"],g_gender));
-        index = llSubStringIndex(temp, "*pos1");  
-    }
 
-    index = llSubStringIndex(temp, "*Pos2");
-    while(~index) { //Capital possessive pronoun replacement
-        temp = llDeleteSubString(temp, index, index+4);
-        temp = llInsertString(temp, index, llList2String(["His","Hers"],g_gender));
-        index = llSubStringIndex(temp, "*Pos2");  
-    }
-    
-    index = llSubStringIndex(temp, "*pos2");
-    while(~index) { //lowercase possessive pronoun replacement
-        temp = llDeleteSubString(temp, index, index+4);
-        temp = llInsertString(temp, index, llList2String(["his","hers"],g_gender));
-        index = llSubStringIndex(temp, "*pos2");  
-    }
+    fName = llKey2Name(llGetOwner());
+    spaceLocation = llSubStringIndex(fName, " ");
+    fName = llDeleteSubString(fName, spaceLocation, -1);
+    temp = strReplace(temp, "*first", fName);
+
+    temp = strReplace(temp, "*fullName", llKey2Name(llGetOwner()));
+
+    fName = g_toucherName;
+    spaceLocation = llSubStringIndex(fName, " ");
+    fName = llDeleteSubString(fName, spaceLocation, -1);
+    temp = strReplace(temp, "*oFirstName", fName);
+
+    temp = strReplace(temp, "*oFullName", g_toucherName);
+
+    temp = strReplace(temp, "*Sub", llList2String(["He","She"], g_gender));
+
+    temp = strReplace(temp, "*sub", llList2String(["he","she"], g_gender));
+
+    temp = strReplace(temp, "*Obj", llList2String(["Him","Her"], g_gender));
+
+    temp = strReplace(temp, "*obj", llList2String(["him","her"], g_gender));
+
+    temp = strReplace(temp, "*Con", llList2String(["He's","She's"], g_gender));
+
+    temp = strReplace(temp, "*con", llList2String(["he's","she's"], g_gender));
+
+    temp = strReplace(temp, "*Ref", llList2String(["Himself","Herself"], g_gender));
+
+    temp = strReplace(temp, "*ref", llList2String(["himself","herself"], g_gender));
+
+    temp = strReplace(temp, "*Pos1", llList2String(["His","Her"], g_gender));
+
+    temp = strReplace(temp, "*pos1", llList2String(["his","her"], g_gender));
+
+    temp = strReplace(temp, "*Pos2", llList2String(["His","Hers"], g_gender));
+
+    temp = strReplace(temp, "*pos2", llList2String(["his","hers"], g_gender));
+
     //todo: add species specific replacements for gender instead of or in addition to current system
-    index = llSubStringIndex(temp, "*Per");
-    while(~index) { //Capital replacement for reference to gender
-        temp = llDeleteSubString(temp, index, index+3);
-        temp = llInsertString(temp, index, llList2String(["Boy","Girl"],g_gender));
-        index = llSubStringIndex(temp, "*Per");  
-    }
-    
-    index = llSubStringIndex(temp, "*per");
-    while(~index) { //lowercase replacement for reference to gender
-        temp = llDeleteSubString(temp, index, index+3);
-        temp = llInsertString(temp, index, llList2String(["boy","girl"],g_gender));
-        index = llSubStringIndex(temp, "*per");  
-    }
+    temp = strReplace(temp, "*Per", llList2String(["Boy","Girl"], g_gender));
 
-    temp = llStringTrim(temp, STRING_TRIM); // Remove any spaces that could potentially be hanging at the start or end of my string.
+    temp = strReplace(temp, "*per", llList2String(["boy","girl"], g_gender));
+
+    temp = llStringTrim(temp, STRING_TRIM); // Remove any spaces that could potentially be hanging at the start or end of the string.
     return temp; // Send back the fully modified string
 }
 
