@@ -22,8 +22,9 @@ the software together, so everyone has access to something potentially excellent
 list g_userMenu = ["Show/Hide", "Options", "On/Off", "❤Flood❤", "Check", "Change", "Get❤Soggy", "Get❤Stinky", "Caretakers","Update"];
 list g_careMenu = ["Check", "Change", "Tease", "Raspberry", "Poke", "Options","Show/Hide", "❤ ❤ ❤"];
 list g_careMenuDiaper = ["Force❤Wet", "Force❤Mess","❤Tickle❤", "Tummy❤Rub", "Wedgie", "Spank"];
-list g_userCareMenu = ["<--BACK", " ", " ", "Add", "Remove", "List"];
+list g_userCareMenu = ["<--BACK", "*", "*", "Add", "Remove", "List"];
 list g_inboundMenu = ["❤Tickle❤", "Tummy❤Rub", "Tease", "Check", "Change", "Raspberry", "Spank", "Wedgie", "Poke"];
+list g_offMenu = ["On", "Options", "Show/Hide"];
 list g_Carers;
 list g_ButtonCarers;  //to address really long carer names
 list g_detectedAvatars;
@@ -540,7 +541,6 @@ adjustWetMessPrims() {
             }
         }
     }
-    //todo: update particle calls according to wet/mess settings
 }//End WetMessPrims()
 
 adjustPlasticPants() {
@@ -598,7 +598,7 @@ toggleOnOff() {
         llSetTimerEvent(60.0);  //Check to see if a user wet/messed themselves once a minute.
         llSensorRepeat("", "", AGENT, 96.0, PI, 6.0);
     }
-    sendSettings(); // Update the stored settings to reflect the on-off state.
+    sendSettings();
 }
 
 printDebugSettings() {
@@ -740,19 +740,32 @@ findPrims() {
 
 mainMenu(key id) {
     integer userRank = getToucherRank(id);
-    if(userRank == 0) {
-        llDialog(id, "User Menu for " + llKey2Name(llGetOwner()) + "'s diaper.", g_userMenu, g_uniqueChan);
+    if(g_isOn) { // Diaper's On
+        if(userRank == 0) {
+            llDialog(id, "User Menu for " + llKey2Name(llGetOwner()) + "'s diaper.", g_userMenu, g_uniqueChan);
+        }
+        else if(userRank == 1) {
+            llDialog(id, "Carer Menu for " + llKey2Name(llGetOwner()) + "'s diaper.", g_careMenu, g_uniqueChan);
+        }
+        //todo: Allow restriction to this menu!
+        else if(userRank == 2 && g_interact == 1) {
+            llDialog(id, "General Menu for " + llKey2Name(llGetOwner()) + "'s diaper.", g_inboundMenu, g_uniqueChan);
+        }
+        else if(g_diaperType == "Kawaii") {
+            nedryError(id);
+        }
     }
-    else if(userRank == 1) {
-        llDialog(id, "Carer Menu for " + llKey2Name(llGetOwner()) + "'s diaper.", g_careMenu, g_uniqueChan);
-    }
-    //todo: Allow restriction to this menu!
-    else if(userRank == 2 && g_interact == 1) {
-        llDialog(id, "General Menu for " + llKey2Name(llGetOwner()) + "'s diaper.", g_inboundMenu, g_uniqueChan);
-    }
-    else if(g_diaperType == "Kawaii") {
-        nedryError(id);
-    }
+        else { // Diaper's Off
+        if(userRank == 0) {
+            llDialog(id, "Your diaper is off.  No pottying or carer scanning will be done, but you can still change settings!", g_offMenu, g_uniqueChan);
+        }
+        else if(userRank == 1) {
+            llDialog(id, "Good news! You're a carer. This means you can turn this diaper back on if you wish!", g_offMenu, g_uniqueChan);
+        }
+        else if(g_diaperType == "Kawaii") {
+            nedryError(id);
+        }
+    } 
 }
 
 //function for Kawaii Diapers
@@ -856,20 +869,7 @@ default {
     touch_start(integer total_number) {
         key id = llDetectedOwner(0);
         integer userRank = getToucherRank(id); // 0 = Owner, 1 = Carer, 2 = Outsider
-        if(g_isOn) { // Diaper's On
-            mainMenu(id);
-        }
-        else { // Diaper's Off
-            if(userRank == 0) {
-                llDialog(id, "Would you like to turn your diaper back on?", ["On", "Nevermind"], g_uniqueChan);
-            }
-            else if(userRank == 1) {
-                llDialog(id, "Good news! You're a carer. This means you can turn this diaper back on if you wish!", ["On", "Nevermind"], g_uniqueChan);
-            }
-            else if(g_diaperType == "Kawaii") {
-                nedryError(id);
-            }
-        } 
+        mainMenu(id);
     }//End touch_start(integer)
     
     listen(integer chan, string name, key id, string msg) {
