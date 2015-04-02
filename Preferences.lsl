@@ -24,6 +24,8 @@ integer g_printTextueLength;
 integer g_printCardLength;
 integer g_uniqueChan;
 integer g_mainListen; //needed to keep track of the listens
+key g_queueid = NULL_KEY; //keep track of people who are waiting in line to use the item
+key g_currentid = NULL_KEY;
 integer g_currCount;
 string g_currMenu;
 string g_currMenuMessage; //Potentially usable to determine which timer is being used?
@@ -52,6 +54,7 @@ string g_plasticPantsName = "Plastic Pants";
 //various diapers have different texture settings
 //ABAR Sculpted diaper bases uses repeat 1.0, 1.0 and offset .03, -.5
 string g_diaperType = "Fluffems";
+string g_resizerScriptName = ""; //change this to a resizer script name, if provided
 integer isDebug = FALSE;
 
 //menu variables passed to preferences
@@ -94,7 +97,6 @@ init()
     if(g_diaperType == "Kawaii") {
         g_appearanceMenu = ["<--BACK","Help", "*","Diaper❤Print","Tapes","Back❤Face","Panel","Cutie*Mark"];
     }
-    g_mainListen = llListen(g_uniqueChan, "", "", "");
 }
 
 findPrims() {
@@ -127,9 +129,9 @@ detectDiaperType() {
     }
 }
 
-//quick and dirty resizer check for Pied Piper Diaper
+//quick and dirty resizer check
 scanForResizerScript() {
-    if(llGetInventoryType("Controler") == INVENTORY_SCRIPT) {
+    if(llGetInventoryType(g_resizerScriptName) == INVENTORY_SCRIPT) {
         if(llListFindList(g_settingsMenu,["Resize"])==-1) {
             g_settingsMenu += ["Resize"];
         }
@@ -319,73 +321,28 @@ integer generateChan(key id) {
     return (integer) channel;
 }
 
-//Identical to llDialog except channel isn't passed, and
-//this function tucks in a few lines of code to track the last menu accessed
+//This function serves a new menu directly to the user, and 
+//informs the person waiting in line that they'll need to try again
+//This doesn't give the user ultimate control- carers and users are considered
+//equal in this function.
 offerMenu(key id, string dialogMessage, list buttons) {
+    llListenRemove(g_mainListen);
     g_currMenuButtons = buttons;
     g_currMenuMessage = dialogMessage;
-    llDialog(id, dialogMessage, buttons,g_uniqueChan);   
+    g_mainListen = llListen(g_uniqueChan, "", id, "");
+    if(g_queueid) {
+        llRegionSayTo(g_queueid, 0, "I'm sorry, someone else is still using the menu! You'll need to try again after they're done.");
+        g_queueid = NULL_KEY;
+    }
+    llSetTimerEvent(30.0);
+    llDialog(id, dialogMessage, buttons,g_uniqueChan);
 }
 
-integer updateMainMenu(string msg) {
-    llMessageLinked(LINK_THIS, -3, g_currMenu + ":" + msg, NULL_KEY);
+integer msgToNumber(string msg) {
     if(llGetSubString(msg, -1, -1) == "%") {
         msg = llGetSubString(msg, 0, -2);
     }
     return (integer) msg;
-}
-
-handleMenuChoice(string msg, key id) {
-
-    /* Old code from a prim-sculptie based build.
-    
-    if(msg == "Tapes") {
-        g_currMenu = msg;
-        g_currCount = -1;
-        list temp = llList2List(g_Tapes, g_currCount+1, g_currCount+10) + ["NEXT-->", "HELP"];
-        llSay(0, "Temp is: " + (string) temp);
-        offerMenu(id, "Choose a the tape texture you'd like: ", temp);
-        g_currCount += 11;
-    }
-    else if(msg == "Panel") {
-        g_currMenu = msg;
-        g_currCount = -1;
-        list temp = llList2List(g_Panels, g_currCount+1, g_currCount+10) + ["NEXT-->", "HELP"];
-        llSay(0, "Temp is: " + (string) temp);
-        offerMenu(id, "Choose a the panel texture you'd like: ", temp);
-        g_currCount += 11;   
-    }
-    else if(msg == "Ruffles") {
-        g_currMenu = msg;
-        g_currCount = -1;
-        list temp = llList2List(g_Ruffles, g_currCount+1, g_currCount+10) + ["NEXT-->", "HELP"];
-        llSay(0, "Temp is: " + (string) temp);
-        offerMenu(id, "Choose a panel texture you'd like: ", temp);
-        //llDialog(id, "Choose a the panel texture you'd like: ", temp, g_uniqueChan);
-        g_currCount += 11;   
-    }
-    else if(msg == "WetTex") {
-        g_currMenu = msg;
-        //Incomplete
-    }
-    else if(msg == "MessTex") {
-        g_currMenu = msg;
-        //Incomplete
-    }
-    else if(msg == "Colors") {
-        g_currMenu = msg;
-        g_currCount = -1;
-        list temp = llList2List(g_ColorMenu, g_currCount+1, g_currCount+10) + ["NEXT-->", "HELP"];
-        llSay(0, "Temp is: " + (string) temp);
-        offerMenu(id, "Adjust your colors!", temp);
-        g_currCount += 11;  
-    }
-    else if(msg == "Training") {
-        g_currMenu = msg;
-        g_currCount = -1;
-        offerMenu(id, "How potty trained are you?", g_TrainingMenu);   
-    }
-    */
 }
 
 //@name = Texture name
@@ -663,14 +620,34 @@ default {
         }
     }
     
+    timer() {
+        llSetTimerEvent(0.0);
+        llListenRemove(g_mainListen);
+        if(g_queueid) {
+            g_currentid = g_queueid;
+            g_queueid = NULL_KEY;
+            g_currMenu = "";
+            offerMenu(g_queueid, m_topMenu(), g_settingsMenu);
+        }
+        else {
+            g_currentid = NULL_KEY;
+        }
+    }
+
     link_message(integer sender_num, integer num, string msg, key id) {
         if(num == -6) {
             parseSettings(msg);
         }
         else if(num == -1) {
-            if(msg == "Options") {
+            if(msg == "Options" && g_currentid == NULL_KEY) {
+                g_currentid = id;
                 g_currMenu = "";
                 offerMenu(id, m_topMenu(), g_settingsMenu);
+            }
+            else if(msg == "Options" && g_queueid == NULL_KEY) {
+                g_queueid = id;
+                llRegionSayTo(id, 0, "Please wait a few seconds...");
+                llSetTimerEvent(5.0); //five seconds should be enough time to wait in line
             }
         }
     }
@@ -735,54 +712,47 @@ default {
             handlePrev(id);
         }
         else if(g_currMenu == "Crinkle❤Volume") {
-            msg = llGetSubString(msg, 0, -2);
-            g_crinkleVolume = (integer) msg;
+            g_crinkleVolume = msgToNumber(msg);
             sendSettings();
             offerMenu(id, m_crinkleVolume(), g_currMenuButtons);
         }
         else if(g_currMenu == "Wet❤Volume") {
-            msg = llGetSubString(msg, 0, -2);
-            g_wetVolume = (integer) msg;
+            g_wetVolume = msgToNumber(msg);
             sendSettings();
             offerMenu(id, m_wetVolume(), g_currMenuButtons);
         }
         else if(g_currMenu == "Mess❤Volume") {
-            msg = llGetSubString(msg, 0, -2);
-            g_messVolume = (integer) msg;
+            g_messVolume = msgToNumber(msg);
             sendSettings();
             offerMenu(id, m_messVolume(), g_currMenuButtons);
         }            
         else if(g_currMenu == "Mess%") {
-            msg = llGetSubString(msg, 0, -2);
-            g_messChance = (integer) msg;
+            g_messChance = msgToNumber(msg);
             sendSettings();
             offerMenu(id, m_messChance(), g_currMenuButtons);
         }
         else if(g_currMenu == "Wet%") {
-            msg = llGetSubString(msg, 0, -2);
-            g_wetChance = (integer) msg;
+            g_wetChance = msgToNumber(msg);
             sendSettings();
             offerMenu(id, m_wetChance(), g_currMenuButtons);
         }
         else if(g_currMenu == "Mess❤Timer") {
-            g_messTimer = (integer) msg;
+            g_messTimer = msgToNumber(msg);
             sendSettings();
             offerMenu(id, m_messTimer(), g_currMenuButtons);
         }
         else if(g_currMenu == "Wet❤Timer") {
-            g_wetTimer = (integer) msg;
+            g_wetTimer = msgToNumber(msg);
             sendSettings();
             offerMenu(id, m_wetTimer(), g_currMenuButtons);
         }
         else if(g_currMenu == "❤Tickle❤") {
-            msg = llGetSubString(msg, 0, -2);
-            g_tickle = (integer) msg;
+            g_tickle = msgToNumber(msg);
             sendSettings();
             offerMenu(id, m_tickleChance(), g_currMenuButtons);
         }
         else if(g_currMenu == "Tummy❤Rub") {
-            msg = llGetSubString(msg, 0, -2);
-            g_tummyRub = (integer) msg;
+            g_tummyRub = msgToNumber(msg);
             sendSettings();
             offerMenu(id, m_tummyRubChance(), g_currMenuButtons);
         }
@@ -940,9 +910,11 @@ default {
             offerMenu(id, m_messVolume(), g_chanceOptions);
         }
         else if(msg == "Resize") {
+            llSetTimerEvent(.1); //queue up the next person in line
             llMessageLinked(LINK_THIS, 900, "MENU", NULL_KEY);
         }
         else if(msg == "<--TOP") {
+            llSetTimerEvent(.1); //queue up the next person in line
             llMessageLinked(LINK_THIS, -3, "Cancel:"+(string)id, NULL_KEY);
         }
     }
