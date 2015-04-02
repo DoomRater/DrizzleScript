@@ -878,30 +878,6 @@ default {
             printCarers();
             printDebugSettings();
         }
-        else if(msg == "❤ ❤ ❤" && userRank == 1) {  //Only caretakers should be able to make the diaper give them this message!
-            llDialog(id, "For the mischievous brat in us all.",  g_careMenuDiaper, g_uniqueChan);        
-        }
-        //for future use with potty training
-        else if(msg == "Hold❤It" && userRank == 0) {
-            g_userResponded = TRUE;
-        }
-        else if(msg == "Go❤Potty" && userRank == 0) {
-            g_userResponded = TRUE;
-        }
-        //Carers stuff
-        else if(llKey2Name(id) == g_newCarer) { //shaping up security
-            if(msg == "Accept") {
-                llOwnerSay(g_newCarer+" has agreed to be your caretaker!");
-                addCarer(g_newCarer);
-                g_addRemove = -1;   
-                llListenRemove(g_carerListen);
-            }
-            else if(msg == "Decline") {
-                llOwnerSay("Your offer was declined, sorry. )=");
-                llListenRemove(g_carerListen);
-            }
-            g_newCarer = "";
-        }
         else if(msg == "Show/Hide" && userRank < 2) {
             toggleHide(); // Needs to keep in mind what Should and SHOULD NOT be visible
             adjustWetMessPrims(); // Ensure prims are properly hidden/shown after a state change.
@@ -910,37 +886,8 @@ default {
             sendSettings(); //make sure preferences knows the current settings
             llMessageLinked(LINK_THIS, -1, msg, id); // Tell Preferences script to talk to id
         }
-        else if(~llListFindList(g_ButtonizedAvatars,[msg]) && userRank == 0) { //Start of Caretaker handling
-            if(g_addRemove == 1) { //Adding a carer
-                integer temp = llListFindList(g_ButtonizedAvatars,[msg]);
-                g_newCarer = llList2String(g_detectedAvatars,temp);
-                g_carerListen = llListen(g_uniqueChan-1, "", "", ""); // "Dangerous", but safer than opening
-                // my main listen up. Used to verify Carer requests
-                llDialog(llList2Key(g_detectedKeys, temp), llKey2Name(llGetOwner()) + " would like to add you as a carer.", ["Accept", "Decline"], g_uniqueChan-1);
-            }
-        }
-        else if(~llListFindList(g_ButtonCarers,[msg]) && userRank == 0) {
-            if(g_addRemove == 0) {// Deleting a carer
-                removeCarer(msg);
-                g_addRemove = -1;
-            }
-        }
-        else if(msg == "Caretakers" && userRank == 0) {
-            llDialog(id, "Customize your carers!", g_userCareMenu, g_uniqueChan);   
-        }
-        else if(msg == "Add" && userRank == 0) {
-            llDialog(id, "Who would you like to care for you?", g_ButtonizedAvatars, g_uniqueChan);
-            g_addRemove = 1;
-        }
-        else if(msg == "Remove" && userRank == 0) {
-            llDialog(id, "Who would you like to remove?", g_ButtonCarers, g_uniqueChan);
-            g_addRemove = 0;   
-        }
-        else if(msg == "List" && userRank == 0) {
-            printCarers();    
-        }//End of Caretaker handling
-        else if(msg == "<--BACK") {
-            mainMenu(id);
+        else if(msg == "❤ ❤ ❤" && userRank == 1) {  //Only caretakers should be able to make the diaper give them this message!
+            llDialog(id, "For the mischievous brat in us all.",  g_careMenuDiaper, g_uniqueChan);        
         }
         else if(msg == "On/Off" || msg == "On"){
             if(userRank < 2) {
@@ -950,87 +897,141 @@ default {
                 nedryError(id);
             }
         }
-        else if(msg == "Get❤Soggy" && userRank == 0) {
-            handleWetting("Self", id);
-        }
-        else if(msg == "Get❤Stinky" && userRank == 0) {
-            handleMessing("Self", id);    
-        }
-        else if(msg == "❤Flood❤" && userRank == 0) {
-            handleFlooding("Self", id);
-        }
-        else if(msg == "Force❤Mess" && userRank == 1) {
-            handleMessing("Force", id);
-        }
-        else if(msg == "Force❤Wet"  && userRank == 1) {
-            handleWetting("Force", id);
-        }
-        else if(msg == "Check") {
-            if(userRank == 0) { // User checked self
-                llMessageLinked(LINK_THIS, -2, (string) g_gender + ":" + (string) g_wetLevel + ":" + (string) g_messLevel + ":" + "Self Check" + ":" + llKey2Name(llGetOwner()), llGetOwner());
+        else if(g_isOn) {
+            //for future use with potty training
+            if(msg == "Hold❤It" && userRank == 0) {
+                g_userResponded = TRUE;
             }
-            else if(userRank == 1) { // Carer
-                llMessageLinked(LINK_THIS, -4, (string) g_gender + ":" + (string) g_wetLevel + ":" + (string) g_messLevel + ":" + "Carer Check" + ":" + llKey2Name(id), id);
+            else if(msg == "Go❤Potty" && userRank == 0) {
+                g_userResponded = TRUE;
             }
-            else if(userRank == 2 && g_interact == 1) { // Outsider, with permission of course
-                 llMessageLinked(LINK_THIS, -2, (string) g_gender + ":" + (string) g_wetLevel + ":" + (string) g_messLevel + ":" + "Other Check" + ":" + llKey2Name(id), id);
+            //Carers stuff
+            else if(llKey2Name(id) == g_newCarer) { //shaping up security
+                if(msg == "Accept") {
+                    llOwnerSay(g_newCarer+" has agreed to be your caretaker!");
+                    addCarer(g_newCarer);
+                    g_addRemove = -1;   
+                    llListenRemove(g_carerListen);
+                }
+                else if(msg == "Decline") {
+                    llOwnerSay("Your offer was declined, sorry. )=");
+                    llListenRemove(g_carerListen);
+                }
+                g_newCarer = "";
             }
-            else if(userRank == 2) {
-                if(g_diaperType == "Kawaii") {
-                    nedryError(id);
+            else if(~llListFindList(g_ButtonizedAvatars,[msg]) && userRank == 0) { //Start of Caretaker handling
+                if(g_addRemove == 1) { //Adding a carer
+                    integer temp = llListFindList(g_ButtonizedAvatars,[msg]);
+                    g_newCarer = llList2String(g_detectedAvatars,temp);
+                    g_carerListen = llListen(g_uniqueChan-1, "", "", ""); //determine if this is necessary anymore
+                    llDialog(llList2Key(g_detectedKeys, temp), llKey2Name(llGetOwner()) + " would like to add you as a carer.", ["Accept", "Decline"], g_uniqueChan-1);
                 }
             }
-        }
-        else if(msg == "Change") {
-            if(userRank == 0) {
-                handleChange("Self", id);
-            }
-            else if(userRank == 1) {
-                handleChange("Carer", id);   
-            }
-            else if(userRank == 2 && g_interact == 1) {
-                handleChange("Other", id);
-            }
-            else if(userRank == 2) {
-                if(g_diaperType == "Kawaii") {
-                    nedryError(id);
+            else if(~llListFindList(g_ButtonCarers,[msg]) && userRank == 0) {
+                if(g_addRemove == 0) {// Deleting a carer
+                    removeCarer(msg);
+                    g_addRemove = -1;
                 }
             }
-        }
-        //The rest of this should be checked to see if users have permission before checking their action
-        else if(msg == "Tummy❤Rub") {
-            if(findPercentage("Rub")) { // They messied!
-                handleMessing("Rub", id);
+            else if(msg == "Caretakers" && userRank == 0) {
+                llDialog(id, "Customize your carers!", g_userCareMenu, g_uniqueChan);   
             }
-            else { // No mess this time!
-                 llMessageLinked(LINK_THIS, -4, (string) g_gender + ":" + (string) g_wetLevel + ":" + (string) g_messLevel + ":" + "Rub Fail" + ":" + llKey2Name(id), id);
+            else if(msg == "Add" && userRank == 0) {
+                llDialog(id, "Who would you like to care for you?", g_ButtonizedAvatars, g_uniqueChan);
+                g_addRemove = 1;
             }
-        }
-        else if(msg == "❤Tickle❤") {
-            if(findPercentage("Tckl")) { // They wet!
-                handleWetting("Tckl", id);
+            else if(msg == "Remove" && userRank == 0) {
+                llDialog(id, "Who would you like to remove?", g_ButtonCarers, g_uniqueChan);
+                g_addRemove = 0;   
             }
-            else {
-                llMessageLinked(LINK_THIS, -4, (string) g_gender + ":" + (string) g_wetLevel + ":" + (string) g_messLevel + ":" + "Tickle Fail" + ":" + llKey2Name(id), id);
+            else if(msg == "List" && userRank == 0) {
+                printCarers();    
+            }//End of Caretaker handling
+            else if(msg == "<--BACK") {
+                mainMenu(id);
             }
-        }
-        else if(msg == "Raspberry") {
-             llMessageLinked(LINK_THIS, -2, (string) g_gender + ":" + (string) g_wetLevel + ":" + (string) g_messLevel + ":" + "Raspberry" + ":" + llKey2Name(id), id);
-        }
-        else if(msg == "Poke") {
-            llMessageLinked(LINK_THIS, -2, (string) g_gender + ":" + (string) g_wetLevel + ":" + (string) g_messLevel + ":" + "Poke" + ":" + llKey2Name(id), id);            
-        }
-        else if(msg == "Spank") { // ouch!
-            llMessageLinked(LINK_THIS, -4, (string) g_gender + ":" + (string) g_wetLevel + ":" + (string) g_messLevel + ":" + "Spank" + ":" + llKey2Name(id), id);
-        }
-        else if(msg == "Tease") { // wah!
-            llMessageLinked(LINK_THIS, -2, (string) g_gender + ":" + (string) g_wetLevel + ":" + (string) g_messLevel + ":" + "Tease" + ":" + llKey2Name(id), id);
-        }
-        else if(msg == "Wedgie") {
-             llMessageLinked(LINK_THIS, -4, (string) g_gender + ":" + (string) g_wetLevel + ":" + (string) g_messLevel + ":" + "Wedgie" + ":" + llKey2Name(id), id);
-        }
-        else if(msg == "Update" && userRank == 0) {
-            checkForUpdates();
+            else if(msg == "Get❤Soggy" && userRank == 0) {
+                handleWetting("Self", id);
+            }
+            else if(msg == "Get❤Stinky" && userRank == 0) {
+                handleMessing("Self", id);    
+            }
+            else if(msg == "❤Flood❤" && userRank == 0) {
+                handleFlooding("Self", id);
+            }
+            else if(msg == "Force❤Mess" && userRank == 1) {
+                handleMessing("Force", id);
+            }
+            else if(msg == "Force❤Wet"  && userRank == 1) {
+                handleWetting("Force", id);
+            }
+            else if(msg == "Check") {
+                if(userRank == 0) { // User checked self
+                    llMessageLinked(LINK_THIS, -2, (string) g_gender + ":" + (string) g_wetLevel + ":" + (string) g_messLevel + ":" + "Self Check" + ":" + llKey2Name(llGetOwner()), llGetOwner());
+                }
+                else if(userRank == 1) { // Carer
+                    llMessageLinked(LINK_THIS, -4, (string) g_gender + ":" + (string) g_wetLevel + ":" + (string) g_messLevel + ":" + "Carer Check" + ":" + llKey2Name(id), id);
+                }
+                else if(userRank == 2 && g_interact == 1) { // Outsider, with permission of course
+                     llMessageLinked(LINK_THIS, -2, (string) g_gender + ":" + (string) g_wetLevel + ":" + (string) g_messLevel + ":" + "Other Check" + ":" + llKey2Name(id), id);
+                }
+                else if(userRank == 2) {
+                    if(g_diaperType == "Kawaii") {
+                        nedryError(id);
+                    }
+                }
+            }
+            else if(msg == "Change") {
+                if(userRank == 0) {
+                    handleChange("Self", id);
+                }
+                else if(userRank == 1) {
+                    handleChange("Carer", id);   
+                }
+                else if(userRank == 2 && g_interact == 1) {
+                    handleChange("Other", id);
+                }
+                else if(userRank == 2) {
+                    if(g_diaperType == "Kawaii") {
+                        nedryError(id);
+                    }
+                }
+            }
+            //The rest of this should be checked to see if users have permission before checking their action
+            else if(msg == "Tummy❤Rub") {
+                if(findPercentage("Rub")) { // They messied!
+                    handleMessing("Rub", id);
+                }
+                else { // No mess this time!
+                     llMessageLinked(LINK_THIS, -4, (string) g_gender + ":" + (string) g_wetLevel + ":" + (string) g_messLevel + ":" + "Rub Fail" + ":" + llKey2Name(id), id);
+                }
+            }
+            else if(msg == "❤Tickle❤") {
+                if(findPercentage("Tckl")) { // They wet!
+                    handleWetting("Tckl", id);
+                }
+                else {
+                    llMessageLinked(LINK_THIS, -4, (string) g_gender + ":" + (string) g_wetLevel + ":" + (string) g_messLevel + ":" + "Tickle Fail" + ":" + llKey2Name(id), id);
+                }
+            }
+            else if(msg == "Raspberry") {
+                 llMessageLinked(LINK_THIS, -2, (string) g_gender + ":" + (string) g_wetLevel + ":" + (string) g_messLevel + ":" + "Raspberry" + ":" + llKey2Name(id), id);
+            }
+            else if(msg == "Poke") {
+                llMessageLinked(LINK_THIS, -2, (string) g_gender + ":" + (string) g_wetLevel + ":" + (string) g_messLevel + ":" + "Poke" + ":" + llKey2Name(id), id);            
+            }
+            else if(msg == "Spank") { // ouch!
+                llMessageLinked(LINK_THIS, -4, (string) g_gender + ":" + (string) g_wetLevel + ":" + (string) g_messLevel + ":" + "Spank" + ":" + llKey2Name(id), id);
+            }
+            else if(msg == "Tease") { // wah!
+                llMessageLinked(LINK_THIS, -2, (string) g_gender + ":" + (string) g_wetLevel + ":" + (string) g_messLevel + ":" + "Tease" + ":" + llKey2Name(id), id);
+            }
+            else if(msg == "Wedgie") {
+                 llMessageLinked(LINK_THIS, -4, (string) g_gender + ":" + (string) g_wetLevel + ":" + (string) g_messLevel + ":" + "Wedgie" + ":" + llKey2Name(id), id);
+            }
+            else if(msg == "Update" && userRank == 0) {
+                checkForUpdates();
+            }
         }
     }//End of listen(integer, string, key, string)
             
