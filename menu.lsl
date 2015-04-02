@@ -48,8 +48,8 @@ integer g_messTimer = 30;  //Minutes
 integer g_tummyRub = 50;   //Percent
 integer g_tickle = 50;     //Percent
 integer g_gender = 1;      // 0:Male || 1:Female, this diaper was being edited for a girl
-integer g_isOn = 1;        // 1:On   || 0:Off
-integer g_interact = 1;    // 1:On   || 0:Off, will control whether non-carers can interact with the diaper
+integer g_isOn = TRUE;
+integer g_interact = TRUE;    //will control whether non-carers can interact with the diaper
 integer g_chatter = 2;     // 0:self-chatter 1:Whisper chatter 2:say chatter
 integer g_CrinkleVolume = 10;
 integer g_WetVolume = 100;  //this value is thirded on normal wets
@@ -66,7 +66,7 @@ integer timesHeldWet = 0;
 integer timesHeldMess = 0;
 string g_newCarer = "";
 
-integer g_isCrinkling = 0;  //just to tell the diaper if someone is still walking
+integer g_isCrinkling = FALSE;  //just to tell the diaper if someone is still walking
 
 integer g_mainPrim;
 string g_mainPrimName = ""; // By default, set to "".
@@ -997,40 +997,42 @@ default {
                     }
                 }
             }
-            //The rest of this should be checked to see if users have permission before checking their action
-            else if(msg == "Tummy❤Rub") {
-                if(findPercentage("Rub")) { // They messied!
-                    handleMessing("Rub", id);
+            //check for carer userrank or if outsiders are allowed to trigger events
+            else if(userRank == 1 || g_interact == TRUE) {
+                if(msg == "Tummy❤Rub") {
+                    if(findPercentage("Rub")) { // They messied!
+                        handleMessing("Rub", id);
+                    }
+                    else { // No mess this time!
+                         llMessageLinked(LINK_THIS, -4, (string) g_gender + ":" + (string) g_wetLevel + ":" + (string) g_messLevel + ":" + "Rub Fail" + ":" + llKey2Name(id), id);
+                    }
                 }
-                else { // No mess this time!
-                     llMessageLinked(LINK_THIS, -4, (string) g_gender + ":" + (string) g_wetLevel + ":" + (string) g_messLevel + ":" + "Rub Fail" + ":" + llKey2Name(id), id);
+                else if(msg == "❤Tickle❤") {
+                    if(findPercentage("Tckl")) { // They wet!
+                        handleWetting("Tckl", id);
+                    }
+                    else {
+                        llMessageLinked(LINK_THIS, -4, (string) g_gender + ":" + (string) g_wetLevel + ":" + (string) g_messLevel + ":" + "Tickle Fail" + ":" + llKey2Name(id), id);
+                    }
                 }
-            }
-            else if(msg == "❤Tickle❤") {
-                if(findPercentage("Tckl")) { // They wet!
-                    handleWetting("Tckl", id);
+                else if(msg == "Raspberry") {
+                     llMessageLinked(LINK_THIS, -2, (string) g_gender + ":" + (string) g_wetLevel + ":" + (string) g_messLevel + ":" + "Raspberry" + ":" + llKey2Name(id), id);
                 }
-                else {
-                    llMessageLinked(LINK_THIS, -4, (string) g_gender + ":" + (string) g_wetLevel + ":" + (string) g_messLevel + ":" + "Tickle Fail" + ":" + llKey2Name(id), id);
+                else if(msg == "Poke") {
+                    llMessageLinked(LINK_THIS, -2, (string) g_gender + ":" + (string) g_wetLevel + ":" + (string) g_messLevel + ":" + "Poke" + ":" + llKey2Name(id), id);            
                 }
-            }
-            else if(msg == "Raspberry") {
-                 llMessageLinked(LINK_THIS, -2, (string) g_gender + ":" + (string) g_wetLevel + ":" + (string) g_messLevel + ":" + "Raspberry" + ":" + llKey2Name(id), id);
-            }
-            else if(msg == "Poke") {
-                llMessageLinked(LINK_THIS, -2, (string) g_gender + ":" + (string) g_wetLevel + ":" + (string) g_messLevel + ":" + "Poke" + ":" + llKey2Name(id), id);            
-            }
-            else if(msg == "Spank") { // ouch!
-                llMessageLinked(LINK_THIS, -4, (string) g_gender + ":" + (string) g_wetLevel + ":" + (string) g_messLevel + ":" + "Spank" + ":" + llKey2Name(id), id);
-            }
-            else if(msg == "Tease") { // wah!
-                llMessageLinked(LINK_THIS, -2, (string) g_gender + ":" + (string) g_wetLevel + ":" + (string) g_messLevel + ":" + "Tease" + ":" + llKey2Name(id), id);
-            }
-            else if(msg == "Wedgie") {
-                 llMessageLinked(LINK_THIS, -4, (string) g_gender + ":" + (string) g_wetLevel + ":" + (string) g_messLevel + ":" + "Wedgie" + ":" + llKey2Name(id), id);
-            }
-            else if(msg == "Update" && userRank == 0) {
-                checkForUpdates();
+                else if(msg == "Spank") { // ouch!
+                    llMessageLinked(LINK_THIS, -4, (string) g_gender + ":" + (string) g_wetLevel + ":" + (string) g_messLevel + ":" + "Spank" + ":" + llKey2Name(id), id);
+                }
+                else if(msg == "Tease") { // wah!
+                    llMessageLinked(LINK_THIS, -2, (string) g_gender + ":" + (string) g_wetLevel + ":" + (string) g_messLevel + ":" + "Tease" + ":" + llKey2Name(id), id);
+                }
+                else if(msg == "Wedgie") {
+                    llMessageLinked(LINK_THIS, -4, (string) g_gender + ":" + (string) g_wetLevel + ":" + (string) g_messLevel + ":" + "Wedgie" + ":" + llKey2Name(id), id);
+                }
+                else if(msg == "Update" && userRank == 0) {
+                    checkForUpdates();
+                }
             }
         }
     }//End of listen(integer, string, key, string)
