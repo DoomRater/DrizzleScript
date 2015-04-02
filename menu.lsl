@@ -926,6 +926,11 @@ default {
                     g_carerListen = llListen(g_uniqueChan-1, "", "", ""); //determine if this is necessary anymore
                     llDialog(llList2Key(g_detectedKeys, temp), llKey2Name(llGetOwner()) + " would like to add you as a carer.", ["Accept", "Decline"], g_uniqueChan-1);
                 }
+                else if(g_addRemove == 0) {// Deleting a carer
+                    removeCarer(msg);
+                    g_addRemove = -1;
+                }
+
             }
             else if(~llListFindList(g_ButtonCarers,[msg]) && userRank == 0) {
                 if(g_addRemove == 0) {// Deleting a carer
