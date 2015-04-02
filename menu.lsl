@@ -471,7 +471,9 @@ handleFlooding(string msg, key id) {
     g_wetLevel = g_wetLevel + 4;
     
     if(msg == "Self") {
-        //Example of what message looks like: 1:2:g_wetLevel:Self Flood:Key
+        llMessageLinked(LINK_THIS, -4, (string) g_gender + ":" + (string) g_wetLevel + ":" + (string) g_messLevel + ":" + "Self Flood" + ":" + llKey2Name(llGetOwner()), llGetOwner());
+    }
+    else if(msg == "Timer") { //added to allow separation of timer floods and forced floods
         llMessageLinked(LINK_THIS, -4, (string) g_gender + ":" + (string) g_wetLevel + ":" + (string) g_messLevel + ":" + "Self Flood" + ":" + llKey2Name(llGetOwner()), llGetOwner());
     }
     playWetSound(g_WetVolume * .01);  //todo: add a special flooding sound
@@ -1067,7 +1069,7 @@ default {
             if(g_wForecast <= currentTime) { // The forecasted time is in the past
                 if(findPercentage("W") == TRUE) {
                     if(timesHeldWet >= g_timesHeldWetStrength) { // If the user has held it a lot. This time they flood.
-                        handleFlooding("Self", llGetOwner());
+                        handleFlooding("Timer", llGetOwner());
                     }
                     else {
                         handleWetting("Timer", llGetOwner()); // "Timer" is the cause of the wetting, llGetOwner is to determine what printout to trigger.
