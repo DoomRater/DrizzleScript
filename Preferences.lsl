@@ -34,7 +34,7 @@ list g_BackFaces;
 list g_Panels;
 list g_Cuties;
 list g_Printouts;
-list g_settingsMenu = ["<--TOP", "Plastic❤Pants", "Gender", "Skins", "Printouts", "Chatter", "Potty", "Interactions", "Volume"];
+list g_settingsMenu = ["<--TOP", "★", "Gender", "Skins", "Printouts", "Chatter", "Potty", "Interactions", "Volume"];
 list g_plasticPantsMenu = ["<--BACK","Put❤On","Take❤Off"];
 list g_appearanceMenu = ["<--BACK","Help", "*","Diaper❤Print","Tapes"];
 list g_genderMenu = ["<--BACK", "★", "★", "Boy", "Girl"];
@@ -47,6 +47,8 @@ list g_interactionsOptions = ["<--BACK","★", "★","Everyone","Carers❤&❤Me
 /* For Misc Diaper Models */
 integer g_mainPrim;
 string g_mainPrimName = ""; // By default, set to "".
+integer g_plasticPantsPrim;
+string g_plasticPantsName = "Plastic Pants";
 //various diapers have different texture settings
 //ABAR Sculpted diaper bases uses repeat 1.0, 1.0 and offset .03, -.5
 string g_diaperType = "Fluffems";
@@ -79,6 +81,9 @@ init()
     g_uniqueChan = generateChan(llGetOwner()) + 1; // Remove collision with Menu listen handler via +1
     loadInventoryList();
     findPrims();
+    if(g_plasticPantsPrim) {
+        g_settingsMenu = llListReplaceList(g_settingsMenu, ["Plastic❤Pants"], 1, 1);
+    }
     if(g_diaperType == "") {
         detectDiaperType();
     }
@@ -93,20 +98,20 @@ init()
 }
 
 findPrims() {
-    
+    integer i; // Used to loop through the linked objects
+    integer primCount = llGetNumberOfPrims(); //should be attached, not sat on
+    for(i = 1; i <= primCount; i++) {
+        string primName = (string) llGetLinkPrimitiveParams(i, [PRIM_NAME]); // Get the name of linked object i
+        if(g_mainPrimName == primName) { // Is this the prim?
+            g_mainPrim = i;
+        }
+        else if(g_plasticPantsName == primName) {
+            g_plasticPantsPrim = i;
+        }
+            //add additional prims to seek here
+    }
     if(g_mainPrimName == "") { // No specified prim. Look for root.
         g_mainPrim = 1;
-    }
-    else {// Specified prim. Find it.
-        integer i; // Used to loop through the linked objects
-        integer primCount = llGetNumberOfPrims(); //should be attached, not sat on
-        for(i = 1; i <= primCount; i++) {
-            string primName = (string) llGetLinkPrimitiveParams(i, [PRIM_NAME]); // Get the name of linked object i
-            if(g_mainPrimName == primName) { // Is this the prim?
-                g_mainPrim = i;
-            }    
-            //add additional prims to seek here
-        }
     }
 }
 
