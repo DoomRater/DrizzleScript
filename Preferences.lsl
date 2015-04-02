@@ -327,10 +327,10 @@ integer generateChan(key id) {
 //equal in this function.
 offerMenu(key id, string dialogMessage, list buttons) {
     llListenRemove(g_mainListen);
+    g_mainListen = llListen(g_uniqueChan, "", id, "");
     g_currMenuButtons = buttons;
     g_currMenuMessage = dialogMessage;
-    g_mainListen = llListen(g_uniqueChan, "", id, "");
-    if(g_queueid) {
+    if(g_queueid != NULL_KEY) {
         llRegionSayTo(g_queueid, 0, "I'm sorry, someone else is still using the menu! You'll need to try again after they're done.");
         g_queueid = NULL_KEY;
     }
@@ -623,11 +623,11 @@ default {
     timer() {
         llSetTimerEvent(0.0);
         llListenRemove(g_mainListen);
-        if(g_queueid) {
+        if(g_queueid != NULL_KEY) {
             g_currentid = g_queueid;
             g_queueid = NULL_KEY;
             g_currMenu = "";
-            offerMenu(g_queueid, m_topMenu(), g_settingsMenu);
+            offerMenu(g_currentid, m_topMenu(), g_settingsMenu);
         }
         else {
             g_currentid = NULL_KEY;
@@ -639,7 +639,7 @@ default {
             parseSettings(msg);
         }
         else if(num == -1) {
-            if(msg == "Options" && g_currentid == NULL_KEY) {
+            if(msg == "Options" && g_currentid == NULL_KEY || g_currentid == id) {
                 g_currentid = id;
                 g_currMenu = "";
                 offerMenu(id, m_topMenu(), g_settingsMenu);
@@ -761,7 +761,7 @@ default {
                 g_PlasticPants = TRUE;
             }
             else if(msg == "Take❤Off") {
-                g_PlasticPants = TRUE;
+                g_PlasticPants = FALSE;
             }
             llMessageLinked(LINK_THIS, -3, g_currMenu + ":" + msg, NULL_KEY);
             offerMenu(id, g_currMenuMessage, g_currMenuButtons);
