@@ -169,8 +169,8 @@ integer prevPage(string MenuText, list l, integer readLocation, key id) {
         readLocation += 11;
     }
     else {
-        temp = ["<--BACK", "<--PREV", "NEXT-->"] + llList2List(l, readLocation+1, readLocation+10);
-        readLocation += 11;
+        temp = ["<--BACK", "<--PREV", "NEXT-->"] + llList2List(l, readLocation+1, readLocation+9);
+        readLocation += 10;
     }
     offerMenu(id, MenuText, temp);
     return readLocation;
@@ -326,16 +326,17 @@ integer generateChan(key id) {
 //This doesn't give the user ultimate control- carers and users are considered
 //equal in this function.
 offerMenu(key id, string dialogMessage, list buttons) {
+    llSetTimerEvent(0.0);
     llListenRemove(g_mainListen);
-    g_mainListen = llListen(g_uniqueChan, "", id, "");
     g_currMenuButtons = buttons;
     g_currMenuMessage = dialogMessage;
     if(g_queueid != NULL_KEY) {
         llRegionSayTo(g_queueid, 0, "I'm sorry, someone else is still using the menu! You'll need to try again after they're done.");
         g_queueid = NULL_KEY;
     }
+    g_mainListen = llListen(g_uniqueChan, "", id, "");
     llSetTimerEvent(30.0);
-    llDialog(id, dialogMessage, buttons,g_uniqueChan);
+    llDialog(id, dialogMessage, buttons, g_uniqueChan);
 }
 
 integer msgToNumber(string msg) {
@@ -408,7 +409,7 @@ sendSettings() {
     (string) g_wetVolume + "," +
     (string) g_messVolume + "," +
     (string) g_PlasticPants;
-    llMessageLinked(LINK_SET, -3, csv, NULL_KEY);
+    llMessageLinked(LINK_THIS, -3, csv, NULL_KEY);
     llMessageLinked(LINK_ALL_OTHERS, 6, csv, NULL_KEY);
 }
 
@@ -615,12 +616,13 @@ default {
     }
     
     changed(integer change) {
-        if(change & CHANGED_OWNER | CHANGED_INVENTORY) {
+        if(change & (CHANGED_OWNER | CHANGED_INVENTORY)) {
             init();
         }
     }
     
     timer() {
+        llRegionSayTo(g_currentid,0,"Timeout!");
         llSetTimerEvent(0.0);
         llListenRemove(g_mainListen);
         if(g_queueid != NULL_KEY) {
@@ -656,22 +658,22 @@ default {
     {
         if(msg == "★") {// Someone misclicked in the menu!
             if(isDebug < 2) {
-                llOwnerSay("The stars are just there to look pretty! =p");
+                llRegionSayTo(id, 0, "The stars are just there to look pretty! =p");
             }
             offerMenu(id, g_currMenuMessage, g_currMenuButtons);
         }
         else if(msg == "<--BACK") {
-            if(~llListFindList(g_pottyMenu,[g_currMenu])) {
+            if(~llListFindList(g_pottyMenu, [g_currMenu])) {
                 g_currMenu = "";
-                offerMenu(id, m_pottyMenu(),g_pottyMenu);
+                offerMenu(id, m_pottyMenu(), g_pottyMenu);
             }
-            else if(~llListFindList(g_volumeMenu,[g_currMenu])) {
+            else if(~llListFindList(g_volumeMenu, [g_currMenu])) {
                 g_currMenu = "";
-                offerMenu(id, m_volumeMenu(),g_volumeMenu);
+                offerMenu(id, m_volumeMenu(), g_volumeMenu);
             }
-            else if(~llListFindList(g_appearanceMenu,[g_currMenu])) {
+            else if(~llListFindList(g_appearanceMenu, [g_currMenu])) {
                 g_currMenu = "";
-                offerMenu(id, m_appearanceMenu(),g_appearanceMenu);
+                offerMenu(id, m_appearanceMenu(), g_appearanceMenu);
             }
             else {
                 g_currMenu = "";
