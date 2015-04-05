@@ -832,7 +832,7 @@ default {
         if(change & CHANGED_OWNER) {
             init();
         }
-        else if(change & CHANGED_SCALE) {
+        if(change & CHANGED_SCALE) {
             fitPlasticPants();
         }
     }
