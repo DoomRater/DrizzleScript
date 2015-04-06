@@ -138,123 +138,85 @@ scanForResizerScript() {
     }
 }
 
-integer firstPage(string MenuText, list l, key id) {
-    list temp;
-    integer readLocation;
-    if(llGetListLength(l) <= 11) {
-        temp = ["<--BACK"] + llList2List(l, readLocation+1, readLocation+11);
-        readLocation = 12;
-    }
-    else {
-        temp = ["<--BACK", "NEXT-->"] + llList2List(l, readLocation+1, readLocation+10); // This is a list of 10 skins
-        readLocation = 11;
-    }
-    offerMenu(id, MenuText, temp);
-    return readLocation;
+//Created by Ugleh Ulrik
+//Edited by Taff Nouvelle to put the buttons in correct order.
+
+list order_buttons(list buttons) {
+    return llList2List(buttons, -3, -1) + llList2List(buttons, -6, -4) +
+        llList2List(buttons, -9, -7) + llList2List(buttons, -12, -10);
 }
-
-
-//@l = list of dialog options
-//@readLocation = The index used to determine where to start reading the list
-//@id = Key used to dispatch finished page
-//---- This function generates the page to be displayed (This function curiously is used to display page 1)
-integer prevPage(string MenuText, list l, integer readLocation, key id) {
-    if(readLocation < -1) return readLocation;
-    list temp;    
-    readLocation -= 22; //Go back two pages (11 for current page, 11 more to get readLocation to the start of the page)
-    
-    if(readLocation == -1) {//First page
-        //@temp = elements 0 through 9 in g_Skins, and then 10 and 11 are Back and Next-->
-        temp = ["<--BACK", "NEXT-->"] + llList2List(l, readLocation+1, readLocation+10);
-        readLocation += 11;
+ 
+DialogPlus(string msg, list buttons, integer CurMenu, key id) {
+    if (11 < llGetListLength(buttons)) {
+        list lbut = buttons;
+        list Nbuttons = [];
+        if(CurMenu == -1) {
+            CurMenu = 0;
+            g_currCount = 0;
+        }
+ 
+        if((Nbuttons = (llList2List(buttons, (CurMenu * 9), ((CurMenu * 9) + 8)) + ["<--BACK", "<--PREV", "NEXT-->"])) == ["<--BACK", "<--PREV", "NEXT-->"]) {
+            DialogPlus(msg, lbut, g_currCount = 0, id);
+        }
+        else {
+            offerMenu(id, msg,  order_buttons(Nbuttons));
+        }
     }
     else {
-        temp = ["<--BACK", "<--PREV", "NEXT-->"] + llList2List(l, readLocation+1, readLocation+9);
-        readLocation += 10;
+        offerMenu(id, msg,  ["<--BACK"] + order_buttons(buttons));
     }
-    offerMenu(id, MenuText, temp);
-    return readLocation;
 }
 
 //@id = The key used to send the menu out.
 //This function determines which page needs to be generated
 handlePrev(key id) {
     if(g_currMenu == "Skins") {
-         g_currCount = prevPage(m_skinMenu(), g_Skins, g_currCount, id);
+         DialogPlus(m_skinMenu(), g_Skins, --g_currCount, id);
     }
     else if(g_currMenu == "Printouts") {
-        g_currCount = prevPage(m_printMenu(),g_Printouts, g_currCount, id);
+        DialogPlus(m_printMenu(),g_Printouts, --g_currCount, id);
     }
     //handling for Kawaii Diapers
     else if(g_currMenu == "Diaper❤Print") {
-        g_currCount = prevPage(m_skinMenu(), g_Skins, g_currCount, id);
+        DialogPlus(m_skinMenu(), g_Skins, --g_currCount, id);
     }
     else if(g_currMenu == "Tapes") {
-        g_currCount = prevPage(m_tapesMenu(),g_Tapes, g_currCount, id);
+        DialogPlus(m_tapesMenu(),g_Tapes, --g_currCount, id);
     }
     else if(g_currMenu == "Back❤Face") {
-        g_currCount = prevPage(m_backFaceMenu(),g_BackFaces, g_currCount, id);
+        DialogPlus(m_backFaceMenu(),g_BackFaces, --g_currCount, id);
     }
     else if(g_currMenu == "Panel") {
-        g_currCount = prevPage(m_panelMenu(),g_Panels, g_currCount, id);
+        DialogPlus(m_panelMenu(),g_Panels, --g_currCount, id);
     }
     else if(g_currMenu == "Cutie*Mark") {
-        g_currCount = prevPage(m_cutieMenu(),g_Cuties, g_currCount, id);
+        DialogPlus(m_cutieMenu(),g_Cuties, --g_currCount, id);
     }
-}
-
-//@l = list of dialog options
-//@readLocation = The index used to determine where to start reading the list
-//@id = Key used to dispatch finished page
-//---- This function generates the page to be displayed
-integer nextPage(string MenuText, list l, integer readLocation, key id) {
-    integer maxReadLocation = llGetListLength(l);
-    integer i;
-    list temp;
-    list stars;
-    
-    if(readLocation > maxReadLocation) return readLocation; // Invalid readLocation
-    if(readLocation+11 > maxReadLocation) { //This is the last page, and it wont be full
-        temp = llList2List(l, readLocation, readLocation+10);
-        readLocation += 11;
-        integer numStars = 10 - (llGetListLength(temp)); // 10 stars leaves room for Back and <--PREV
-        //Add the stars for filler
-        for(i = 0; i < numStars; i++) {
-            stars += ["★"];
-        }
-        temp = ["<--BACK", "<--PREV"] + stars + temp;
-    }
-    else { // Full page.
-        temp = ["<--BACK","<--PREV","NEXT-->"] + llList2List(l, readLocation, readLocation+10); 
-        readLocation += 11;
-    }
-    offerMenu(id, MenuText, temp);
-    return readLocation;
 }
 
 //@id = The key used to send the menu out.
 //This function determines which page needs to be generated
 handleNext(key id) {
     if(g_currMenu == "Skins") {
-         g_currCount = nextPage(m_skinMenu() ,g_Skins, g_currCount, id);
+         DialogPlus(m_skinMenu() ,g_Skins, ++g_currCount, id);
     }
     else if(g_currMenu == "Printouts") {
-        g_currCount = nextPage(m_printMenu(), g_Printouts, g_currCount, id);
+        DialogPlus(m_printMenu(), g_Printouts, ++g_currCount, id);
     }
     else if(g_currMenu == "Diaper❤Print") {
-        g_currCount = nextPage(m_skinMenu(), g_Skins, g_currCount, id);
+        DialogPlus(m_skinMenu(), g_Skins, ++g_currCount, id);
     }
     else if(g_currMenu == "Tapes") {
-        g_currCount = nextPage(m_tapesMenu(), g_Tapes, g_currCount, id);
+        DialogPlus(m_tapesMenu(), g_Tapes, ++g_currCount, id);
     }
     else if(g_currMenu == "Back❤Face") {
-        g_currCount = nextPage(m_backFaceMenu(),g_BackFaces, g_currCount, id);
+        DialogPlus(m_backFaceMenu(),g_BackFaces, ++g_currCount, id);
     }
     else if(g_currMenu == "Panel") {
-        g_currCount = nextPage(m_panelMenu(),g_Panels, g_currCount, id);
+        DialogPlus(m_panelMenu(),g_Panels, ++g_currCount, id);
     }
     else if(g_currMenu == "Cutie*Mark") {
-        g_currCount = nextPage(m_cutieMenu(),g_Cuties, g_currCount, id);
+        DialogPlus(m_cutieMenu(),g_Cuties, ++g_currCount, id);
     }
 }
 
@@ -622,7 +584,6 @@ default {
     }
     
     timer() {
-        llRegionSayTo(g_currentid,0,"Timeout!");
         llSetTimerEvent(0.0);
         llListenRemove(g_mainListen);
         if(g_queueid != NULL_KEY) {
@@ -809,7 +770,7 @@ default {
             g_currMenu = msg;
             if(g_diaperType == "Fluffems" || g_diaperType == "ABARSculpt" || msg == "Diaper❤Print") {
                 //these two diapers only use one prim for skins; Kawaii uses Diaper❤Print for this menu
-                g_currCount = firstPage(m_skinMenu(), g_Skins, id);
+                DialogPlus(m_skinMenu(), g_Skins, g_currCount = 0, id);
             }
             else if(g_diaperType == "Kawaii") {
                 //this diaper can use tapes, panels, and the like, so show the skin menu instead
@@ -818,19 +779,19 @@ default {
         }
         else if(msg == "Tapes") {
             g_currMenu = msg;
-            g_currCount = firstPage(m_tapesMenu(), g_Tapes, id);
+            DialogPlus(m_tapesMenu(), g_Tapes, g_currCount = 0, id);
         }
         else if(msg == "Panel") {
             g_currMenu = msg;
-            g_currCount = firstPage(m_panelMenu(), g_Panels, id);
+            DialogPlus(m_panelMenu(), g_Panels, g_currCount = 0, id);
         }
         else if(msg == "Back❤Face") {
             g_currMenu = msg;
-            g_currCount = firstPage(m_backFaceMenu(), g_BackFaces, id);
+            DialogPlus(m_backFaceMenu(), g_BackFaces, g_currCount = 0, id);
         }
         else if(msg == "Cutie*Mark") {
             g_currMenu = msg;
-            g_currCount = firstPage(m_cutieMenu(), g_Cuties, id);
+            DialogPlus(m_cutieMenu(), g_Cuties, g_currCount = 0, id);
         }
         else if(msg == "Help") {
             llOwnerSay("Adding your own skins and notecards is easy!  Just prefix your textures with the appropriate tag for where you want it to be and drag it into the diaper!  I'll take care of the rest.");
@@ -870,18 +831,7 @@ default {
         }
         else if(msg == "Printouts") {
             g_currMenu = msg;
-            g_currCount = -1;
-            list temp;
-        
-            if(llGetListLength(g_Printouts) <= 11) {
-                temp = ["<--BACK"] + llList2List(g_Printouts, g_currCount+1, g_currCount+11);
-                g_currCount += 12; //g_currCount is now 11 (starts at -1)
-            }
-            else {
-                temp = ["<--BACK", "NEXT-->"] + llList2List(g_Printouts, g_currCount+1, g_currCount+10); // This is a list of 10 skins
-                g_currCount += 11; //g_currCount is now 10 (starts at -1)
-            }
-            offerMenu(id, "Choose a Printout style:", temp);
+            DialogPlus(m_printMenu(), g_Printouts, g_currCount = 0, id);
         }
         else if(msg == "Plastic❤Pants") {
             g_currMenu = msg;
