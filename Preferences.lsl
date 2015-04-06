@@ -542,27 +542,27 @@ string m_plasticPantsMenu() {
 }
 
 string m_skinMenu() {
-    return "Choose a diaper print:";
+    return "Choose a diaper print.\nPrefix is SKIN:";
 }
 
 string m_tapesMenu() {
-    return "Choose a tape texture:";
+    return "Choose a tape texture.\nPrefix is TAPE:";
 }
 
 string m_panelMenu() {
-    return "Choose a panel print:";
+    return "Choose a panel print.\nPrefix is PANEL:";
 }
 
 string m_backFaceMenu() {
-    return "Choose a butt print:";
+    return "Choose a butt print.\nPrefix is BACKFACE:";
 }
 
 string m_cutieMenu() {
-    return "Yay cutie marks!\n\nChoose a cutie mark:";
+    return "Yay cutie marks!\n\nChoose a cutie mark.\nPrefix is CUTIE:";
 }
 
 string m_printMenu() {
-    return "Choose a Printout style:";
+    return "Choose a Printout style.\nPrefix is PRINT:";
 }
 
 default {
@@ -644,7 +644,7 @@ default {
         else if(msg=="DEBUG") {
             printDebugSettings();
         }
-        else if(~llListFindList(g_Skins, [msg]) && (g_currMenu == "Skins" || g_currMenu == "Diaper❤Print")) {
+        else if(~llListFindList(g_Skins, [msg]) && g_currMenu == "Diaper❤Print") {
             applyTexture(msg, "SKIN:");
             offerMenu(id, g_currMenuMessage, g_currMenuButtons);
         }
@@ -768,11 +768,10 @@ default {
         }
         else if(msg == "Skins" || msg == "Diaper❤Print") {
             g_currMenu = msg;
-            if(g_diaperType == "Fluffems" || g_diaperType == "ABARSculpt" || msg == "Diaper❤Print") {
-                //these two diapers only use one prim for skins; Kawaii uses Diaper❤Print for this menu
+            if(g_diaperType == "ABARSculpt" || msg == "Diaper❤Print") {
                 DialogPlus(m_skinMenu(), g_Skins, g_currCount = 0, id);
             }
-            else if(g_diaperType == "Kawaii") {
+            else if(g_diaperType == "Fluffems" || g_diaperType == "Kawaii") {
                 //this diaper can use tapes, panels, and the like, so show the skin menu instead
                 offerMenu(id, m_appearanceMenu(), g_appearanceMenu);
             }
