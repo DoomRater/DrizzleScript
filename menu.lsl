@@ -879,10 +879,12 @@ default {
         if(msg == "DEBUG" && userRank == 0) {
             printCarers();
             printDebugSettings();
+            mainMenu(id);
         }
         else if(msg == "Show/Hide" && userRank < 2) {
             toggleHide(); // Needs to keep in mind what Should and SHOULD NOT be visible
             adjustWetMessPrims(); // Ensure prims are properly hidden/shown after a state change.
+            mainMenu(id);
         }
         else if(msg == "Options" && userRank < 2) { //Outsiders should never be able to invoke this
             sendSettings(); //make sure preferences knows the current settings
@@ -894,6 +896,7 @@ default {
         else if(msg == "On/Off" || msg == "On"){
             if(userRank < 2) {
                 toggleOnOff();
+                mainMenu(id);
             }
             else if(g_diaperType == "Kawaii") {
                 nedryError(id);
@@ -941,7 +944,7 @@ default {
                 }
             }
             else if(msg == "Caretakers" && userRank == 0) {
-                llDialog(id, "Customize your carers!", g_userCareMenu, g_uniqueChan);   
+                llDialog(id, "Customize your carers!", g_userCareMenu, g_uniqueChan);
             }
             else if(msg == "Add" && userRank == 0) {
                 llDialog(id, "Who would you like to care for you?", g_ButtonizedAvatars, g_uniqueChan);
@@ -952,25 +955,31 @@ default {
                 g_addRemove = 0;   
             }
             else if(msg == "List" && userRank == 0) {
-                printCarers();    
+                printCarers();
+                llDialog(id, "Customize your carers!", g_userCareMenu, g_uniqueChan);
             }//End of Caretaker handling
             else if(msg == "<--BACK") {
                 mainMenu(id);
             }
             else if(msg == "Get❤Soggy" && userRank == 0) {
                 handleWetting("Self", id);
+                mainMenu(id);
             }
             else if(msg == "Get❤Stinky" && userRank == 0) {
                 handleMessing("Self", id);    
+                mainMenu(id);
             }
             else if(msg == "❤Flood❤" && userRank == 0) {
                 handleFlooding("Self", id);
+                mainMenu(id);
             }
             else if(msg == "Force❤Mess" && userRank == 1) {
                 handleMessing("Force", id);
+                mainMenu(id);
             }
             else if(msg == "Force❤Wet"  && userRank == 1) {
                 handleWetting("Force", id);
+                mainMenu(id);
             }
             else if(msg == "Check") {
                 if(userRank == 0) { // User checked self
@@ -986,7 +995,9 @@ default {
                     if(g_diaperType == "Kawaii") {
                         nedryError(id);
                     }
+                    return;
                 }
+                mainMenu(id);
             }
             else if(msg == "Change") {
                 if(userRank == 0) {
@@ -1002,7 +1013,9 @@ default {
                     if(g_diaperType == "Kawaii") {
                         nedryError(id);
                     }
+                    return;
                 }
+                mainMenu(id);
             }
             //check for carer userrank or if outsiders are allowed to trigger events
             else if(userRank == 1 || g_interact == TRUE) {
@@ -1013,6 +1026,7 @@ default {
                     else { // No mess this time!
                          llMessageLinked(LINK_THIS, -4, (string) g_gender + ":" + (string) g_wetLevel + ":" + (string) g_messLevel + ":" + "Rub Fail" + ":" + llKey2Name(id), id);
                     }
+                    mainMenu(id);
                 }
                 else if(msg == "❤Tickle❤") {
                     if(findPercentage("Tckl")) { // They wet!
@@ -1021,24 +1035,31 @@ default {
                     else {
                         llMessageLinked(LINK_THIS, -4, (string) g_gender + ":" + (string) g_wetLevel + ":" + (string) g_messLevel + ":" + "Tickle Fail" + ":" + llKey2Name(id), id);
                     }
+                    mainMenu(id);
                 }
                 else if(msg == "Raspberry") {
                      llMessageLinked(LINK_THIS, -2, (string) g_gender + ":" + (string) g_wetLevel + ":" + (string) g_messLevel + ":" + "Raspberry" + ":" + llKey2Name(id), id);
+                    mainMenu(id);
                 }
                 else if(msg == "Poke") {
                     llMessageLinked(LINK_THIS, -2, (string) g_gender + ":" + (string) g_wetLevel + ":" + (string) g_messLevel + ":" + "Poke" + ":" + llKey2Name(id), id);            
+                    mainMenu(id);
                 }
                 else if(msg == "Spank") { // ouch!
                     llMessageLinked(LINK_THIS, -4, (string) g_gender + ":" + (string) g_wetLevel + ":" + (string) g_messLevel + ":" + "Spank" + ":" + llKey2Name(id), id);
+                    mainMenu(id);
                 }
                 else if(msg == "Tease") { // wah!
                     llMessageLinked(LINK_THIS, -2, (string) g_gender + ":" + (string) g_wetLevel + ":" + (string) g_messLevel + ":" + "Tease" + ":" + llKey2Name(id), id);
+                    mainMenu(id);
                 }
                 else if(msg == "Wedgie") {
                     llMessageLinked(LINK_THIS, -4, (string) g_gender + ":" + (string) g_wetLevel + ":" + (string) g_messLevel + ":" + "Wedgie" + ":" + llKey2Name(id), id);
+                    mainMenu(id);
                 }
                 else if(msg == "Update" && userRank == 0) {
                     checkForUpdates();
+                    mainMenu(id);
                 }
             }
         }
@@ -1104,9 +1125,11 @@ default {
         string temp;
         
         if(msg == "") return;
+        /*
         else if(num == -1) return; // Preferences is being used
         else if(num == -2 || num == -4) return; // Printouts is being used
         else if(num == -7) return; // Particles is being used
+        */
         else if(num == -3) { //Update from Preferences
             integer index = llSubStringIndex(msg, ":");
             if(index == -1) { //received settings from Preferences
