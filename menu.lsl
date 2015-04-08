@@ -73,7 +73,7 @@ string g_mainPrimName = ""; // By default, set to "".
 string g_exitText = ""; //text entered here will be spoken to the owner when the diaper is removed.
 string g_diaperType = "Fluffems";
 string g_updateScript = "ME Wireless DrizzleScript Updater";
-integer isDebug = FALSE;
+integer isDebug = TRUE;
 //set isDebug to 1 (TRUE) to enable all debug messages, and to 2 to disable info messages
 
 /* Puppy Pawz Pampers Variables */
@@ -95,7 +95,6 @@ init()
         llSetTimerEvent(0.0); // Used to check for wet/mess occurances
     }
     else if(g_isOn == TRUE) {
-        llSensorRepeat("", "", AGENT, 96.0, PI, 6.0); // Used to populate a few menus.
         llSetTimerEvent(60.0);
     }
     //find updater script and update the usermenu depending on results
@@ -902,6 +901,7 @@ default {
                 }
             }
             else if(msg == "Caretakers" && userRank == 0) {
+                llSensor("", "", AGENT, 96.0, PI); // Populate the nearby avatar menus
                 llDialog(id, "Customize your carers!", g_userCareMenu, g_uniqueChan);
             }
             else if(msg == "Add" && userRank == 0) {
