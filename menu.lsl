@@ -480,7 +480,7 @@ handleFlooding(string msg, key id) {
     Reveals the messy prim the third time the user messes.
 */
 adjustWetMessPrims() {
-    if(!isHidden()) { // Only adjust the prims if the model isn't hidden!
+    if(llGetAlpha(ALL_SIDES) != 0.0) { // Only adjust the prims if the model isn't hidden!
         if(g_diaperType == "Fluffems") {
             if(g_wetLevel == 0) {
                 llSetLinkPrimitiveParamsFast(g_wetPrim, [PRIM_COLOR, ALL_SIDES, <1,1,1>, 0.0]);
@@ -542,7 +542,7 @@ adjustWetMessPrims() {
 // this function would need to adjust based on the wetness/messyness of the diaper.
 // Example: Crinklebutt hides or shows multiple faces for its front and back
 toggleHide() {   
-    if(isHidden()) {  // Hidden; Show it.
+    if(llGetAlpha(ALL_SIDES) == 0.0) {  // Hidden; Show it.
         llSetLinkAlpha(LINK_SET, 1.0, ALL_SIDES);
     }
     else {    // Shown; Hide it.
@@ -550,18 +550,6 @@ toggleHide() {
     }
 }
 
-/*  Determines if the diaper model is hidden or not, returning TRUE if hidden
-*   FALSE otherwise
-*/
-integer isHidden() {
-    if(llGetAlpha(ALL_SIDES) == 0.0) {   // Hidden.
-       return TRUE;
-    }
-    else {                               // Shown
-        return FALSE;
-    }
-}
-            
 //This function flips the value of a boolean variable, and
 //turns the Timer event on and off as appropriate.
 toggleOnOff() {
