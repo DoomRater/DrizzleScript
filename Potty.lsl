@@ -80,7 +80,7 @@ adjustWetMessPrims() {
             if(g_wetLevel == 0) {
                 llSetLinkPrimitiveParamsFast(g_wetPrim, [PRIM_COLOR, ALL_SIDES, <1,1,1>, 0.0]);
             }
-            if(g_wetLevel == 1) {
+            else if(g_wetLevel == 1) {
                 llSetLinkPrimitiveParamsFast(g_wetPrim, [PRIM_COLOR, ALL_SIDES, <1,1,.666>, 0.20]);
             }
             else if(g_wetLevel == 2) {
@@ -137,7 +137,7 @@ parseLinkedMessage(string msg) {
     
     index = llSubStringIndex(msg, ":"); // Pull out wet level
     g_wetLevel = (integer) llGetSubString(msg, 0, index - 1);
-    msg = llGetSubString(msg, index+1, llStringLength(msg));
+    msg = llGetSubString(msg, index+1, -1);
     
     index = llSubStringIndex(msg, ":"); // Pull out mess level
     g_messLevel = (integer) llGetSubString(msg, 0, index - 1);
@@ -145,14 +145,12 @@ parseLinkedMessage(string msg) {
 
 default {
     state_entry() {
+        findPrims();
         detectDiaperType();
     }
     
     link_message(integer sender_num, integer num, string msg, key id) {
-        if(num != -2) { //the message isn't intended for us.
-            return;
-        }
-        else {
+        if(num == -2 || num == -4) {
             integer index = llSubStringIndex(msg, ":"); //Pull out the gender *Always first in list
             msg = llGetSubString(msg, index+1, -1); //Cut msg down to reflect change and move on
             if(llGetSubString(msg,0,5) == "Update") {
