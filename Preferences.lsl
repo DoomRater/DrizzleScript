@@ -14,7 +14,6 @@ Essentially, if you edit this script you have to publicly release the result.
 (Copy/Mod/Trans on this script) This stipulation helps to grow the community and
 the software together, so everyone has access to something potentially excellent.
 
-
 *Leave this header here, but if you contribute, add your name to the list!*
 ============================================================*/
 
@@ -56,7 +55,7 @@ vector g_plasticPantsSize;
 //ABAR Sculpted diaper bases uses repeat 1.0, 1.0 and offset .03, -.5
 string g_diaperType = "Fluffems";
 string g_resizerScriptName = ""; //change this to a resizer script name, if provided
-integer isDebug = TRUE;
+integer isDebug = FALSE;
 
 //menu variables passed to preferences
 integer g_wetLevel;
