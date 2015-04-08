@@ -62,6 +62,18 @@ findPrims() {
     }
 }
 
+detectDiaperType() {
+    key mainPrimCreator = llGetCreator();
+    //JDroo Resident, creator of Kawaii Diapers
+    if(mainPrimCreator == "b9878483-a1fc-411f-8d9c-be53795eca6e") {
+        g_diaperType = "Kawaii";
+    }
+    //our fallback is to use Fluffems
+    else {
+        g_diaperType = "Fluffems";
+    }
+}
+
 adjustWetMessPrims() {
     if(llGetAlpha(ALL_SIDES) != 0.0) { // Only adjust the prims if the model isn't hidden!
         if(g_diaperType == "Fluffems") {
@@ -132,6 +144,10 @@ parseLinkedMessage(string msg) {
 }
 
 default {
+    state_entry() {
+        detectDiaperType();
+    }
+    
     link_message(integer sender_num, integer num, string msg, key id) {
         if(num != -2) { //the message isn't intended for us.
             return;
