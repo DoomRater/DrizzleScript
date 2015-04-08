@@ -51,11 +51,12 @@ integer g_mainPrim;
 string g_mainPrimName = ""; // By default, set to "".
 integer g_plasticPantsPrim;
 string g_plasticPantsName = "Plastic Pants";
+vector g_plasticPantsSize;
 //various diapers have different texture settings
 //ABAR Sculpted diaper bases uses repeat 1.0, 1.0 and offset .03, -.5
 string g_diaperType = "Fluffems";
 string g_resizerScriptName = ""; //change this to a resizer script name, if provided
-integer isDebug = FALSE;
+integer isDebug = TRUE;
 
 //menu variables passed to preferences
 integer g_wetLevel;
@@ -86,6 +87,7 @@ init()
     findPrims();
     if(g_plasticPantsPrim) {
         g_settingsMenu = llListReplaceList(g_settingsMenu, ["Plastic❤Pants"], 1, 1);
+        fitPlasticPants();
     }
     if(g_diaperType == "") {
         detectDiaperType();
@@ -115,6 +117,23 @@ findPrims() {
     if(g_mainPrimName == "") { // No specified prim. Look for root.
         g_mainPrim = 1;
     }
+}
+
+adjustPlasticPants() {
+    if((llGetAlpha(ALL_SIDES) != 0.0) && g_PlasticPants == TRUE) {
+        if(g_diaperType == "Fluffems") {
+            llSetLinkPrimitiveParamsFast(g_plasticPantsPrim, [PRIM_SIZE, g_plasticPantsSize]);
+        }
+    }
+    else {
+        if(g_diaperType == "Fluffems") {
+            llSetLinkPrimitiveParamsFast(g_plasticPantsPrim, [PRIM_SIZE, <.01,.01,.01>]);
+        }
+    }
+}
+
+fitPlasticPants() { //causes a .2 second llSleep, so be judicial about when it's done
+    g_plasticPantsSize = llList2Vector(llGetLinkPrimitiveParams(g_mainPrim, [PRIM_SIZE]), 0) * 1.08;
 }
 
 detectDiaperType() {
@@ -726,7 +745,8 @@ default {
             else if(msg == "Take❤Off") {
                 g_PlasticPants = FALSE;
             }
-            llMessageLinked(LINK_THIS, -3, g_currMenu + ":" + msg, NULL_KEY);
+            adjustPlasticPants();
+            sendSettings();
             offerMenu(id, g_currMenuMessage, g_currMenuButtons);
         }
         else if(msg == "Boy") {
