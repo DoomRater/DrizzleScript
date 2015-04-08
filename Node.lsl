@@ -23,28 +23,40 @@ the software together, so everyone has access to something potentially excellent
 *  to the object with Menu.lsl in it. 
 */
 
-integer myNum = 1; //Remember myNum needs to be custom set to the appropriate number when deployed. 1 to 5.
+integer myNum;
+
+//quick and dirty integer scrape from the script name to assign to myNum
+//assumes there is a space between the script main name and the version, if there is anything
+//past the script name.  SubStringIndex returns -1 if it's not found
+integer getMyNum() {
+    string temp = llGetScriptName();
+    temp = llGetSubString(temp, 4, llSubStringIndex(temp, " "));
+    return (integer) temp;
+}
 
 integer getListSize() {
     if(llGetObjectDesc() == "") {// Empty
-        llSetColor(<0,255,0>, ALL_SIDES);
         return 0;
     }
     else {// One item or more saved already
         list temp = llCSV2List(llGetObjectDesc());
-        integer size = (temp != []);
-        if(size < 4) {
-            llSetColor(<0,255,0>, ALL_SIDES);
-        }
-        else if(size >= 4 && size <= 6) {
-            llSetColor(<0,0,255>, ALL_SIDES);   
-        }
-        else if(size > 6) {
-            llSetColor(<255,0,0>, ALL_SIDES);   
-        }
+        integer size = llGetListLength(temp);
         return size;
     }
 }
+
+updateColors(integer size) {
+    if(size < 4) {
+        llSetColor(<0.0, 1.0, 0.0>, ALL_SIDES);
+    }
+    else if(size >= 4 && size <= 6) {
+        llSetColor(<1.0, 1.0, 0.0>, ALL_SIDES);   
+    }
+    else {
+        llSetColor(<1.0, 0.0, 0.0>, ALL_SIDES);   
+    }
+}
+
 integer isFull() {
     if(getListSize() >= 8) {
         return TRUE;
@@ -82,15 +94,16 @@ removeInfo(string msg, key id) {
 
 saveInfo(string msg) {
     string temp = llGetObjectDesc();
-    if(getListSize() == 0) {// Empty
+    integer size = getListSize();
+    if(size == 0) {// Empty
         temp += msg;
         llSetObjectDesc(temp);
     }
-    else if(getListSize() < 8) {//1, 2, 3
+    else if(size < 8) {//1, 2, 3
         temp += "," + msg;
         llSetObjectDesc(temp);
     }
-    getListSize(); // Updates colors (Take this out when done debugging.)
+    updateColors(size);
 }
 
 forwardMessage(string msg) {
@@ -105,6 +118,16 @@ sendList() {
 }
 
 default {
+    changed(integer c) {
+        if(c & CHANGED_OWNER) {
+            llSetObjectDesc("");
+        }
+    }
+    
+    state_entry() {
+        myNum = getMyNum();
+    }
+
     link_message(integer sender_num, integer num, string msg, key id) {
         if(msg == "SEND") {
             if(num == myNum) {
