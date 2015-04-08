@@ -34,12 +34,18 @@ integer getMyNum() {
     return (integer) temp;
 }
 
+//relevant LSL limits:
+//-the longest SL name possible is 63 characters including the space in between
+//-the maximum length of prim description is 127 characters, long enough to store at least 2 carers
+//-WHY DOES THE CODE ALLOW FOR A MAXIMUM OF 8?
+//Current code only stores one carer per prim description
 integer getListSize() {
-    if(llGetObjectDesc() == "") {// Empty
+    string storedData = llGetObjectDesc();
+    if(storedData == "") {// Empty
         return 0;
     }
     else {// One item or more saved already
-        list temp = llCSV2List(llGetObjectDesc());
+        list temp = llCSV2List(storedData);
         integer size = llGetListLength(temp);
         return size;
     }
