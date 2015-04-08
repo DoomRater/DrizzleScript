@@ -29,9 +29,9 @@ integer myNum;
 //assumes there is a space between the script main name and the version, if there is anything
 //past the script name.  SubStringIndex returns -1 if it's not found
 integer getMyNum() {
-    string temp = llGetScriptName();
-    temp = llGetSubString(temp, 4, llSubStringIndex(temp, " "));
-    return (integer) temp;
+    string scrapedNum = llGetScriptName();
+    scrapedNum = llGetSubString(scrapedNum, 4, llSubStringIndex(scrapedNum, " "));
+    return (integer) scrapedNum;
 }
 
 //relevant LSL limits:
@@ -72,22 +72,12 @@ integer isFull() {
     }
 }
 
-integer isCarer(string msg) {
-    list temp = llCSV2List(llGetObjectDesc());
-    if(~llListFindList(temp, [msg])) {
-        return TRUE;
-    }
-    else {
-        return FALSE;   
-    }
-}
-
 removeInfo(string msg, key id) {
-    list temp = llCSV2List(llGetObjectDesc());
-    integer i = llListFindList(temp, [msg]);
+    list storedList = llCSV2List(llGetObjectDesc());
+    integer i = llListFindList(storedList, [msg]);
     
     if(~i) {//Found
-        llSetObjectDesc(llList2CSV(llDeleteSubList(temp, i, i)));
+        llSetObjectDesc(llList2CSV(llDeleteSubList(storedList, i, i)));
         return;
     }
     else {// Forward
@@ -99,15 +89,15 @@ removeInfo(string msg, key id) {
 }
 
 saveInfo(string msg) {
-    string temp = llGetObjectDesc();
+    string storedData = llGetObjectDesc();
     integer size = getListSize();
     if(size == 0) {// Empty
-        temp += msg;
-        llSetObjectDesc(temp);
+        storedData += msg;
+        llSetObjectDesc(storedData);
     }
     else if(size < 8) {//1, 2, 3
-        temp += "," + msg;
-        llSetObjectDesc(temp);
+        storedData += "," + msg;
+        llSetObjectDesc(storedData);
     }
     updateColors(size);
 }
