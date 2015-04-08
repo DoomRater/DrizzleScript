@@ -22,17 +22,8 @@ the software together, so everyone has access to something potentially excellent
 *  with Menu.lsl in it.
 */
 
-//BUGFIX: SEND now has to actually hear nyNum before it sends its settings
-
 integer myNum = 6;
 
-integer getListSize() {
-    if(llGetObjectDesc() != "") {
-        list temp = llCSV2List(llGetObjectDesc());
-        return llGetListLength(temp);
-    }
-    else return 0;
-}
 saveInfo(string msg) {
     llSetObjectDesc(msg);
 }
