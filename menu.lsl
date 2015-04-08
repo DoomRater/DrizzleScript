@@ -73,7 +73,7 @@ string g_mainPrimName = ""; // By default, set to "".
 string g_exitText = ""; //text entered here will be spoken to the owner when the diaper is removed.
 string g_diaperType = "Fluffems";
 string g_updateScript = "ME Wireless DrizzleScript Updater";
-integer isDebug = TRUE;
+integer isDebug = FALSE;
 //set isDebug to 1 (TRUE) to enable all debug messages, and to 2 to disable info messages
 
 /* Puppy Pawz Pampers Variables */
