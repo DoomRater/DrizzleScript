@@ -68,8 +68,6 @@ string g_newCarer = "";
 
 integer g_isCrinkling = FALSE;  //just to tell the diaper if someone is still walking
 
-integer g_mainPrim;
-string g_mainPrimName = ""; // By default, set to "".
 string g_exitText = ""; //text entered here will be spoken to the owner when the diaper is removed.
 string g_diaperType = "";
 string g_updateScript = "ME Wireless DrizzleScript Updater";
@@ -121,7 +119,6 @@ init()
         llOwnerSay("Silent mode.  No info messages will be printed byond this point.");
     }
     llRequestPermissions(llGetOwner(),PERMISSION_TAKE_CONTROLS); //so we can see whether someone is moving and make them crinkle!
-    findPrims(); // This locates the link number of the wet/mess prims for a model.
     if(g_diaperType == "") {
         detectDiaperType();
     }
@@ -407,7 +404,7 @@ handleChange(string msg, key id) {
     else if(msg == "Other") {
         llMessageLinked(LINK_THIS, -2, (string) g_gender + ":" + (string) g_wetLevel + ":" + (string) g_messLevel + ":" + "Normal Change" + ":" + llKey2Name(id), id);
     }
-    adjustWetMessPrims();
+//    adjustWetMessPrims();
     sendSettings();
 }//End handleChange(string, id)
 // This function is called to manage wettings
@@ -429,7 +426,7 @@ handleWetting(string msg, key id) {
         llMessageLinked(LINK_THIS, -4, (string) g_gender + ":" + (string) g_wetLevel + ":" + (string) g_messLevel + ":" + "Force Wet" + ":" + llKey2Name(id), id); 
     }
     playWetSound(g_WetVolume * .00333);
-    adjustWetMessPrims();  //Correct Prim to be Visible/Change textures on mesh
+//    adjustWetMessPrims();  //Correct Prim to be Visible/Change textures on mesh
     timesHeldWet = 0;
     sendSettings();
 }//End handleWettings(string, key)
@@ -452,7 +449,7 @@ handleMessing(string msg, key id) {
     else if(msg == "Force") {
         llMessageLinked(LINK_THIS, -4, (string) g_gender + ":" + (string) g_wetLevel + ":" + (string) g_messLevel + ":" + "Force Mess" + ":" + llKey2Name(id), id);
     }
-    adjustWetMessPrims();  //Set Correct Prim to be Visible/Change textures on mesh
+//    adjustWetMessPrims();  //Set Correct Prim to be Visible/Change textures on mesh
     timesHeldMess = 0;
     sendSettings();
 }//End handleMessing(string, key)
@@ -470,7 +467,7 @@ handleFlooding(string msg, key id) {
     }
     playWetSound(g_WetVolume * .01);  //todo: add a special flooding sound
     timesHeldWet = 0;
-    adjustWetMessPrims();  //Set Correct Prim to be Visible/Change textures on mesh
+//    adjustWetMessPrims();  //Set Correct Prim to be Visible/Change textures on mesh
     sendSettings();
 }
 
@@ -602,36 +599,6 @@ integer getToucherRank(key id) {
     }
 }
  
-// This function is customized to work with Zyriik's Puppy Pawz Pampers model.
-// It assumes that the wet and mess prims are named "Pee" and "Poo" respectively
-// and searches through the link set until it discovers them.
-// the function now also finds the main prim and the platic pants prim
-findPrims() {
-    integer i; // Used to loop through the linked objects
-    integer primCount = llGetNumberOfPrims(); //should be attached, not sat on
-    for(i = 0; i <= primCount; i++) { 
-        string primName = (string) llGetLinkPrimitiveParams(i, [PRIM_NAME]); // Get the name of linked object i
-        if(primName == "Pee") {
-            g_wetPrim = i;
-        }
-        else if(primName == "Poo") {
-            g_messPrim = i;
-        }
-        else if(primName == g_mainPrimName) {
-            g_mainPrim = i;
-        }
-    }
-    //just in case there is an unnamed prim in the linkset, do this here
-    if(g_mainPrimName == "") { // No specified prim. Look for root.
-        if(primCount == 1) { //not a linked set, so the first prim is 0
-            g_mainPrim = 0;
-        }
-        else {
-            g_mainPrim = 1;
-        }
-    }
-}
-
 mainMenu(key id) {
     integer userRank = getToucherRank(id);
     if(g_isOn) { // Diaper's On
@@ -710,7 +677,7 @@ default {
         
     attach(key id) {
         if(id) { // Attached
-            findPrims();  // This locates the link number of the wet/mess prims for a model.
+            
         }
         else if(g_exitText)
         {
