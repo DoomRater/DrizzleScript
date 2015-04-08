@@ -1132,7 +1132,6 @@ default {
             return;
         }
         if(num <= 5 && num > 0) { // Carer List or a "List is Full" Message
-            if(num == 1)
             if(msg != "I'm sorry! There is no more room for carers, please delete one.") { // Valid send
                 if(msg != "") {
                     list temp = llCSV2List(msg);
