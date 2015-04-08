@@ -71,7 +71,7 @@ integer g_isCrinkling = FALSE;  //just to tell the diaper if someone is still wa
 integer g_mainPrim;
 string g_mainPrimName = ""; // By default, set to "".
 string g_exitText = ""; //text entered here will be spoken to the owner when the diaper is removed.
-string g_diaperType = "Fluffems";
+string g_diaperType = "";
 string g_updateScript = "ME Wireless DrizzleScript Updater";
 integer isDebug = TRUE;
 //set isDebug to 1 (TRUE) to enable all debug messages, and to 2 to disable info messages
@@ -476,65 +476,10 @@ handleFlooding(string msg, key id) {
 
 /* 
     Updates wet/mess prims to show as required.
-    Steadily shows the wet prim more clearly over many wettings.
-    Reveals the messy prim the third time the user messes.
+    Refer to Potty.lsl for exact details
 */
 adjustWetMessPrims() {
-    if(llGetAlpha(ALL_SIDES) != 0.0) { // Only adjust the prims if the model isn't hidden!
-        if(g_diaperType == "Fluffems") {
-            if(g_wetLevel == 0) {
-                llSetLinkPrimitiveParamsFast(g_wetPrim, [PRIM_COLOR, ALL_SIDES, <1,1,1>, 0.0]);
-            }
-            if(g_wetLevel == 1) {
-                llSetLinkPrimitiveParamsFast(g_wetPrim, [PRIM_COLOR, ALL_SIDES, <1,1,.666>, 0.20]);
-            }
-            else if(g_wetLevel == 2) {
-                llSetLinkPrimitiveParamsFast(g_wetPrim, [PRIM_COLOR, ALL_SIDES, <1,1,.5>, 0.35]);
-            }
-            else if(g_wetLevel == 3) {
-                llSetLinkPrimitiveParamsFast(g_wetPrim, [PRIM_COLOR, ALL_SIDES, <1,1,.333>, 0.45]);
-            }
-            else if(g_wetLevel == 4) {
-                llSetLinkPrimitiveParamsFast(g_wetPrim, [PRIM_COLOR, ALL_SIDES, <1,1,.25>, 0.55]);
-            }
-            else if(g_wetLevel == 5) {
-                llSetLinkPrimitiveParamsFast(g_wetPrim, [PRIM_COLOR, ALL_SIDES, <1,1,.1667>, 0.65]);
-            }
-            else if(g_wetLevel >= 6) {
-                llSetLinkPrimitiveParamsFast(g_wetPrim, [PRIM_COLOR, ALL_SIDES, <1,1,0>, 0.85]);
-            }
-        
-            if(g_messLevel < 3) {
-                llSetLinkPrimitiveParamsFast(g_messPrim, [PRIM_COLOR, ALL_SIDES, <0.749, 0.588, 0.392>, 0.0]);
-            }
-            else {
-                llSetLinkPrimitiveParamsFast(g_messPrim, [PRIM_COLOR, ALL_SIDES, <0.749, 0.588, 0.392>, 0.65]);
-            }
-        }
-        else if(g_diaperType == "Kawaii") {
-            if(g_wetLevel == 0) {
-                llSetLinkPrimitiveParamsFast(g_mainPrim, [PRIM_COLOR, g_wetFace, <1,1,1>, 0.0]);
-            }
-            else if(g_wetLevel == 1) {
-                llSetLinkPrimitiveParamsFast(g_mainPrim, [PRIM_COLOR, g_wetFace, <1,1,.666>, 0.20]);
-            }
-            else if(g_wetLevel == 2) {
-                llSetLinkPrimitiveParamsFast(g_mainPrim, [PRIM_COLOR, g_wetFace, <1,1,.5>, 0.35]);
-            }
-            else if(g_wetLevel == 3) {
-                llSetLinkPrimitiveParamsFast(g_mainPrim, [PRIM_COLOR, g_wetFace, <1,1,.333>, 0.45]);
-            }
-            else if(g_wetLevel == 4) {
-                llSetLinkPrimitiveParamsFast(g_mainPrim, [PRIM_COLOR, g_wetFace, <1,1,.25>, 0.55]);
-            }
-            else if(g_wetLevel == 5) {
-                llSetLinkPrimitiveParamsFast(g_mainPrim, [PRIM_COLOR, g_wetFace, <1,1,.1667>, 0.65]);
-            }
-            else if(g_wetLevel >= 6) {
-                llSetLinkPrimitiveParamsFast(g_mainPrim, [PRIM_COLOR, g_wetFace, <1,1,0>, 0.85]);
-            }
-        }
-    }
+    llMessageLinked(LINK_THIS, -2,(string) g_gender + ":" + (string) g_wetLevel + ":" + (string) g_messLevel, NULL_KEY);
 }//End WetMessPrims()
 
 // Shows or hides the full model of the diaper.
@@ -1106,16 +1051,6 @@ default {
                 llMessageLinked(LINK_THIS, -2, (string) g_gender + ":" + temp, NULL_KEY);
                 llMessageLinked(LINK_THIS, -4, (string) g_gender + ":" + temp, NULL_KEY);
             }
-            /*
-            else if(setting == "Plastic❤Pants") {
-                if(msg == "Put❤On") {
-                    g_PlasticPants = TRUE;
-                }
-                else if(msg == "Take❤Off") {
-                    g_PlasticPants = FALSE;
-                }
-                adjustPlasticPants();
-            }*/
             else if(setting == "Cancel") {
                 mainMenu(msg);
                 return;
