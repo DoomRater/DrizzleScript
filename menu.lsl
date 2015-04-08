@@ -20,7 +20,7 @@ the software together, so everyone has access to something potentially excellent
 // Main Script used for the Diaper, is the central hub of
 // communication between all other scripts 
 list g_userMenu = ["Show/Hide", "Options", "On/Off", "❤Flood❤", "Check", "Change", "Get❤Soggy", "Get❤Stinky", "Caretakers","Update"];
-list g_careMenu = ["Check", "Change", "Tease", "Raspberry", "Poke", "Options","Show/Hide", "❤ ❤ ❤"];
+list g_careMenu = ["Check", "Change", "Tease", "Raspberry", "Poke", "Options","Show/Hide", "❤ ❤ ❤", "Carer❤List"];
 list g_careMenuDiaper = ["Force❤Wet", "Force❤Mess","❤Tickle❤", "Tummy❤Rub", "Wedgie", "Spank"];
 list g_userCareMenu = ["<--BACK", "*", "*", "Add", "Remove", "List"];
 list g_inboundMenu = ["❤Tickle❤", "Tummy❤Rub", "Tease", "Check", "Change", "Raspberry", "Spank", "Wedgie", "Poke"];
@@ -68,10 +68,8 @@ string g_newCarer = "";
 
 integer g_isCrinkling = FALSE;  //just to tell the diaper if someone is still walking
 
-integer g_mainPrim;
-string g_mainPrimName = ""; // By default, set to "".
 string g_exitText = ""; //text entered here will be spoken to the owner when the diaper is removed.
-string g_diaperType = "Fluffems";
+string g_diaperType = "";
 string g_updateScript = "ME Wireless DrizzleScript Updater";
 integer isDebug = FALSE;
 //set isDebug to 1 (TRUE) to enable all debug messages, and to 2 to disable info messages
@@ -95,7 +93,6 @@ init()
         llSetTimerEvent(0.0); // Used to check for wet/mess occurances
     }
     else if(g_isOn == TRUE) {
-        llSensorRepeat("", "", AGENT, 96.0, PI, 6.0); // Used to populate a few menus.
         llSetTimerEvent(60.0);
     }
     //find updater script and update the usermenu depending on results
@@ -122,7 +119,6 @@ init()
         llOwnerSay("Silent mode.  No info messages will be printed byond this point.");
     }
     llRequestPermissions(llGetOwner(),PERMISSION_TAKE_CONTROLS); //so we can see whether someone is moving and make them crinkle!
-    findPrims(); // This locates the link number of the wet/mess prims for a model.
     if(g_diaperType == "") {
         detectDiaperType();
     }
@@ -408,7 +404,7 @@ handleChange(string msg, key id) {
     else if(msg == "Other") {
         llMessageLinked(LINK_THIS, -2, (string) g_gender + ":" + (string) g_wetLevel + ":" + (string) g_messLevel + ":" + "Normal Change" + ":" + llKey2Name(id), id);
     }
-    adjustWetMessPrims();
+//    adjustWetMessPrims();
     sendSettings();
 }//End handleChange(string, id)
 // This function is called to manage wettings
@@ -430,7 +426,7 @@ handleWetting(string msg, key id) {
         llMessageLinked(LINK_THIS, -4, (string) g_gender + ":" + (string) g_wetLevel + ":" + (string) g_messLevel + ":" + "Force Wet" + ":" + llKey2Name(id), id); 
     }
     playWetSound(g_WetVolume * .00333);
-    adjustWetMessPrims();  //Correct Prim to be Visible/Change textures on mesh
+//    adjustWetMessPrims();  //Correct Prim to be Visible/Change textures on mesh
     timesHeldWet = 0;
     sendSettings();
 }//End handleWettings(string, key)
@@ -453,7 +449,7 @@ handleMessing(string msg, key id) {
     else if(msg == "Force") {
         llMessageLinked(LINK_THIS, -4, (string) g_gender + ":" + (string) g_wetLevel + ":" + (string) g_messLevel + ":" + "Force Mess" + ":" + llKey2Name(id), id);
     }
-    adjustWetMessPrims();  //Set Correct Prim to be Visible/Change textures on mesh
+//    adjustWetMessPrims();  //Set Correct Prim to be Visible/Change textures on mesh
     timesHeldMess = 0;
     sendSettings();
 }//End handleMessing(string, key)
@@ -471,71 +467,16 @@ handleFlooding(string msg, key id) {
     }
     playWetSound(g_WetVolume * .01);  //todo: add a special flooding sound
     timesHeldWet = 0;
-    adjustWetMessPrims();  //Set Correct Prim to be Visible/Change textures on mesh
+//    adjustWetMessPrims();  //Set Correct Prim to be Visible/Change textures on mesh
     sendSettings();
 }
 
 /* 
     Updates wet/mess prims to show as required.
-    Steadily shows the wet prim more clearly over many wettings.
-    Reveals the messy prim the third time the user messes.
+    Refer to Potty.lsl for exact details
 */
 adjustWetMessPrims() {
-    if(!isHidden()) { // Only adjust the prims if the model isn't hidden!
-        if(g_diaperType == "Fluffems") {
-            if(g_wetLevel == 0) {
-                llSetLinkPrimitiveParamsFast(g_wetPrim, [PRIM_COLOR, ALL_SIDES, <1,1,1>, 0.0]);
-            }
-            if(g_wetLevel == 1) {
-                llSetLinkPrimitiveParamsFast(g_wetPrim, [PRIM_COLOR, ALL_SIDES, <1,1,.666>, 0.20]);
-            }
-            else if(g_wetLevel == 2) {
-                llSetLinkPrimitiveParamsFast(g_wetPrim, [PRIM_COLOR, ALL_SIDES, <1,1,.5>, 0.35]);
-            }
-            else if(g_wetLevel == 3) {
-                llSetLinkPrimitiveParamsFast(g_wetPrim, [PRIM_COLOR, ALL_SIDES, <1,1,.333>, 0.45]);
-            }
-            else if(g_wetLevel == 4) {
-                llSetLinkPrimitiveParamsFast(g_wetPrim, [PRIM_COLOR, ALL_SIDES, <1,1,.25>, 0.55]);
-            }
-            else if(g_wetLevel == 5) {
-                llSetLinkPrimitiveParamsFast(g_wetPrim, [PRIM_COLOR, ALL_SIDES, <1,1,.1667>, 0.65]);
-            }
-            else if(g_wetLevel >= 6) {
-                llSetLinkPrimitiveParamsFast(g_wetPrim, [PRIM_COLOR, ALL_SIDES, <1,1,0>, 0.85]);
-            }
-        
-            if(g_messLevel < 3) {
-                llSetLinkPrimitiveParamsFast(g_messPrim, [PRIM_COLOR, ALL_SIDES, <0.749, 0.588, 0.392>, 0.0]);
-            }
-            else {
-                llSetLinkPrimitiveParamsFast(g_messPrim, [PRIM_COLOR, ALL_SIDES, <0.749, 0.588, 0.392>, 0.65]);
-            }
-        }
-        else if(g_diaperType == "Kawaii") {
-            if(g_wetLevel == 0) {
-                llSetLinkPrimitiveParamsFast(g_mainPrim, [PRIM_COLOR, g_wetFace, <1,1,1>, 0.0]);
-            }
-            else if(g_wetLevel == 1) {
-                llSetLinkPrimitiveParamsFast(g_mainPrim, [PRIM_COLOR, g_wetFace, <1,1,.666>, 0.20]);
-            }
-            else if(g_wetLevel == 2) {
-                llSetLinkPrimitiveParamsFast(g_mainPrim, [PRIM_COLOR, g_wetFace, <1,1,.5>, 0.35]);
-            }
-            else if(g_wetLevel == 3) {
-                llSetLinkPrimitiveParamsFast(g_mainPrim, [PRIM_COLOR, g_wetFace, <1,1,.333>, 0.45]);
-            }
-            else if(g_wetLevel == 4) {
-                llSetLinkPrimitiveParamsFast(g_mainPrim, [PRIM_COLOR, g_wetFace, <1,1,.25>, 0.55]);
-            }
-            else if(g_wetLevel == 5) {
-                llSetLinkPrimitiveParamsFast(g_mainPrim, [PRIM_COLOR, g_wetFace, <1,1,.1667>, 0.65]);
-            }
-            else if(g_wetLevel >= 6) {
-                llSetLinkPrimitiveParamsFast(g_mainPrim, [PRIM_COLOR, g_wetFace, <1,1,0>, 0.85]);
-            }
-        }
-    }
+    llMessageLinked(LINK_THIS, -2,(string) g_gender + ":" + (string) g_wetLevel + ":" + (string) g_messLevel, NULL_KEY);
 }//End WetMessPrims()
 
 // Shows or hides the full model of the diaper.
@@ -543,7 +484,7 @@ adjustWetMessPrims() {
 // this function would need to adjust based on the wetness/messyness of the diaper.
 // Example: Crinklebutt hides or shows multiple faces for its front and back
 toggleHide() {   
-    if(isHidden()) {  // Hidden; Show it.
+    if(llGetAlpha(ALL_SIDES) == 0.0) {  // Hidden; Show it.
         llSetLinkAlpha(LINK_SET, 1.0, ALL_SIDES);
     }
     else {    // Shown; Hide it.
@@ -551,18 +492,6 @@ toggleHide() {
     }
 }
 
-/*  Determines if the diaper model is hidden or not, returning TRUE if hidden
-*   FALSE otherwise
-*/
-integer isHidden() {
-    if(llGetAlpha(ALL_SIDES) == 0.0) {   // Hidden.
-       return TRUE;
-    }
-    else {                               // Shown
-        return FALSE;
-    }
-}
-            
 //This function flips the value of a boolean variable, and
 //turns the Timer event on and off as appropriate.
 toggleOnOff() {
@@ -592,7 +521,7 @@ printDebugSettings() {
     llOwnerSay("On/Off: " + (string) g_isOn);
     llOwnerSay("Other Interaction: " + (string) g_interact);
     llOwnerSay("Channel: " + (string) g_uniqueChan);
-    llOwnerSay("Detected Avatars: " + (string) g_detectedAvatars);
+    llOwnerSay("Detected Avatars: " + llDumpList2String(g_detectedAvatars,", "));
     llOwnerSay("Wet Prim: " + (string) g_wetPrim);
     llOwnerSay("Mess Prim: " + (string) g_messPrim);
     llOwnerSay("Crinkle Volume: "+(string) g_CrinkleVolume);
@@ -605,9 +534,11 @@ printDebugSettings() {
 }
 
 /* Basic function for printing out the carer's list with a header */
-printCarers() {
-    llOwnerSay("Carer List: " + llDumpList2String(g_Carers,", "));
-    llOwnerSay("Buttonized List: "+ llDumpList2String(g_ButtonCarers,", "));
+printCarers(key id) {
+    llRegionSayTo(id, 0, "Carer List: " + llDumpList2String(g_Carers,", "));
+    if(isDebug == TRUE) {
+        llRegionSayTo(id, 0, "Buttonized List: "+ llDumpList2String(g_ButtonCarers,", "));
+    }
 }
 
 //Called at Startup to initialize variables from the memory core.
@@ -623,7 +554,7 @@ addCarer(string name) {
     }
     else {
         llMessageLinked(LINK_ALL_CHILDREN, 1, name, NULL_KEY); //Null key sent flags "Add Carer" as the action for the memory core.
-        g_Carers += [name];
+        g_Carers += name;
         makeButtonsForCarers();
     }
 }
@@ -637,9 +568,6 @@ removeCarer(string name) {
         llMessageLinked(LINK_ALL_CHILDREN, 1, llList2String(g_Carers,carerIndex), llGetOwner()); //Valid key sent flags "Delete Carer" as the action for the memory core.
         g_Carers = llDeleteSubList(g_Carers,carerIndex,carerIndex);
         makeButtonsForCarers();
-        if(isDebug == TRUE) {
-            printCarers();
-        }
     }
     else {
         llOwnerSay("That person isn't on your list!");
@@ -663,44 +591,14 @@ integer getToucherRank(key id) {
     if(id == llGetOwner()) {
         return 0;
     }
-    else if(~llListFindList(g_Carers, [llKey2Name(id)])) { // Carer (This is safe because the Carer is guaranteed to be in the sim)
+    else if(~llListFindList(g_Carers, [llKey2Name(id)])) {
         return 1;
     }
     else {
-        return 2; // Outsider
+        return 2;
     }
 }
  
-// This function is customized to work with Zyriik's Puppy Pawz Pampers model.
-// It assumes that the wet and mess prims are named "Pee" and "Poo" respectively
-// and searches through the link set until it discovers them.
-// the function now also finds the main prim and the platic pants prim
-findPrims() {
-    integer i; // Used to loop through the linked objects
-    integer primCount = llGetNumberOfPrims(); //should be attached, not sat on
-    for(i = 0; i <= primCount; i++) { 
-        string primName = (string) llGetLinkPrimitiveParams(i, [PRIM_NAME]); // Get the name of linked object i
-        if(primName == "Pee") {
-            g_wetPrim = i;
-        }
-        else if(primName == "Poo") {
-            g_messPrim = i;
-        }
-        else if(primName == g_mainPrimName) {
-            g_mainPrim = i;
-        }
-    }
-    //just in case there is an unnamed prim in the linkset, do this here
-    if(g_mainPrimName == "") { // No specified prim. Look for root.
-        if(primCount == 1) { //not a linked set, so the first prim is 0
-            g_mainPrim = 0;
-        }
-        else {
-            g_mainPrim = 1;
-        }
-    }
-}
-
 mainMenu(key id) {
     integer userRank = getToucherRank(id);
     if(g_isOn) { // Diaper's On
@@ -779,7 +677,7 @@ default {
         
     attach(key id) {
         if(id) { // Attached
-            findPrims();  // This locates the link number of the wet/mess prims for a model.
+            
         }
         else if(g_exitText)
         {
@@ -833,9 +731,9 @@ default {
     }//End touch_start(integer)
     
     listen(integer chan, string name, key id, string msg) {
-        integer userRank = getToucherRank(id); // Used to guarantee the correct version of each action is executed.
+        integer userRank = getToucherRank(id); // Used to secure the diaper against tomfoolery
         if(msg == "DEBUG" && userRank == 0) {
-            printCarers();
+            printCarers(id);
             printDebugSettings();
             mainMenu(id);
         }
@@ -844,11 +742,11 @@ default {
             adjustWetMessPrims(); // Ensure prims are properly hidden/shown after a state change.
             mainMenu(id);
         }
-        else if(msg == "Options" && userRank < 2) { //Outsiders should never be able to invoke this
+        else if(msg == "Options" && userRank < 2) {
             sendSettings(); //make sure preferences knows the current settings
             llMessageLinked(LINK_THIS, -1, msg, id); // Tell Preferences script to talk to id
         }
-        else if(msg == "❤ ❤ ❤" && userRank == 1) {  //Only caretakers should be able to make the diaper give them this message!
+        else if(msg == "❤ ❤ ❤" && userRank == 1) {
             llDialog(id, "For the mischievous brat in us all.",  g_careMenuDiaper, g_uniqueChan);        
         }
         else if(msg == "On/Off" || msg == "On"){
@@ -902,6 +800,7 @@ default {
                 }
             }
             else if(msg == "Caretakers" && userRank == 0) {
+                llSensor("", "", AGENT, 96.0, PI); // Populate the nearby avatar menus
                 llDialog(id, "Customize your carers!", g_userCareMenu, g_uniqueChan);
             }
             else if(msg == "Add" && userRank == 0) {
@@ -912,8 +811,12 @@ default {
                 llDialog(id, "Who would you like to remove?", g_ButtonCarers, g_uniqueChan);
                 g_addRemove = 0;   
             }
+            else if(msg == "Carer❤List" && userRank == 1) {
+                printCarers(id);
+                mainMenu(id);
+            }
             else if(msg == "List" && userRank == 0) {
-                printCarers();
+                printCarers(id);
                 llDialog(id, "Customize your carers!", g_userCareMenu, g_uniqueChan);
             }//End of Caretaker handling
             else if(msg == "<--BACK") {
@@ -1115,16 +1018,6 @@ default {
                 llMessageLinked(LINK_THIS, -2, (string) g_gender + ":" + temp, NULL_KEY);
                 llMessageLinked(LINK_THIS, -4, (string) g_gender + ":" + temp, NULL_KEY);
             }
-            /*
-            else if(setting == "Plastic❤Pants") {
-                if(msg == "Put❤On") {
-                    g_PlasticPants = TRUE;
-                }
-                else if(msg == "Take❤Off") {
-                    g_PlasticPants = FALSE;
-                }
-                adjustPlasticPants();
-            }*/
             else if(setting == "Cancel") {
                 mainMenu(msg);
                 return;
@@ -1133,7 +1026,6 @@ default {
             return;
         }
         if(num <= 5 && num > 0) { // Carer List or a "List is Full" Message
-            if(num == 1)
             if(msg != "I'm sorry! There is no more room for carers, please delete one.") { // Valid send
                 if(msg != "") {
                     list temp = llCSV2List(msg);
