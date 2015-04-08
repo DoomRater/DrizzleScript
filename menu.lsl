@@ -76,7 +76,7 @@ vector g_plasticPantsSize;
 string g_exitText = ""; //text entered here will be spoken to the owner when the diaper is removed.
 string g_diaperType = "Fluffems";
 string g_updateScript = "ME Wireless DrizzleScript Updater";
-integer isDebug = FALSE;
+integer isDebug = TRUE;
 //set isDebug to 1 (TRUE) to enable all debug messages, and to 2 to disable info messages
 
 /* Puppy Pawz Pampers Variables */
@@ -326,7 +326,6 @@ sendSettings() {
     (string) g_WetVolume + "," +
     (string) g_MessVolume + "," +
     (string) g_PlasticPants;
-    //For lite consider shifting to LINK_THIS
     llMessageLinked(LINK_ALL_OTHERS, 6, csv, NULL_KEY);
     llMessageLinked(LINK_THIS, -6, csv, NULL_KEY);
 }
@@ -341,7 +340,6 @@ integer generateChan(key id) {
 // @type = The form of diaper use to be attempted.
 // Case 1: Success, Held it, printout
 // Case 2: Failure, Had an Accident,  printout
-// Future Feature(in code now): Holding it will reduce chance to hold it in the future.
 integer findPercentage(string type) {
     // Add check for trainer mode.
     integer toCheck;
@@ -628,16 +626,6 @@ printDebugSettings() {
     llOwnerSay("Free Memory: " + (string) llGetFreeMemory());
 }
 
-/* Simple function that searches g_Carers for a given user name */
-integer isCarer(string name) {
-    if(~llListFindList(g_Carers, [name])) { // name found, they're a carer!
-        return TRUE;
-    }
-    else {
-        return FALSE;
-    }
-}
-
 /* Basic function for printing out the carer's list with a header */
 printCarers() {
     llOwnerSay("Carer List: " + llDumpList2String(g_Carers,", "));
@@ -699,7 +687,7 @@ integer getToucherRank(key id) {
     if(id == llGetOwner()) {
         return 0;
     }
-    else if(isCarer(llKey2Name(id))) { // Carer (This is safe because the Carer is guaranteed to be in the sim)
+    else if(~llListFindList(g_Carers, [llKey2Name(id)])) { // Carer (This is safe because the Carer is guaranteed to be in the sim)
         return 1;
     }
     else {
