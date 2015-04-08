@@ -20,7 +20,7 @@ the software together, so everyone has access to something potentially excellent
 // Main Script used for the Diaper, is the central hub of
 // communication between all other scripts 
 list g_userMenu = ["Show/Hide", "Options", "On/Off", "❤Flood❤", "Check", "Change", "Get❤Soggy", "Get❤Stinky", "Caretakers","Update"];
-list g_careMenu = ["Check", "Change", "Tease", "Raspberry", "Poke", "Options","Show/Hide", "❤ ❤ ❤"];
+list g_careMenu = ["Check", "Change", "Tease", "Raspberry", "Poke", "Options","Show/Hide", "❤ ❤ ❤", "Carer❤List"];
 list g_careMenuDiaper = ["Force❤Wet", "Force❤Mess","❤Tickle❤", "Tummy❤Rub", "Wedgie", "Spank"];
 list g_userCareMenu = ["<--BACK", "*", "*", "Add", "Remove", "List"];
 list g_inboundMenu = ["❤Tickle❤", "Tummy❤Rub", "Tease", "Check", "Change", "Raspberry", "Spank", "Wedgie", "Poke"];
@@ -604,10 +604,10 @@ printDebugSettings() {
 }
 
 /* Basic function for printing out the carer's list with a header */
-printCarers() {
-    llOwnerSay("Carer List: " + llDumpList2String(g_Carers,", "));
+printCarers(key id) {
+    llRegionSayTo(id, 0, "Carer List: " + llDumpList2String(g_Carers,", "));
     if(isDebug == TRUE) {
-        llOwnerSay("Buttonized List: "+ llDumpList2String(g_ButtonCarers,", "));
+        llRegionSayTo(id, 0, "Buttonized List: "+ llDumpList2String(g_ButtonCarers,", "));
     }
 }
 
@@ -831,9 +831,9 @@ default {
     }//End touch_start(integer)
     
     listen(integer chan, string name, key id, string msg) {
-        integer userRank = getToucherRank(id); // Used to guarantee the correct version of each action is executed.
+        integer userRank = getToucherRank(id); // Used to secure the diaper against tomfoolery
         if(msg == "DEBUG" && userRank == 0) {
-            printCarers();
+            printCarers(id);
             printDebugSettings();
             mainMenu(id);
         }
@@ -842,11 +842,11 @@ default {
             adjustWetMessPrims(); // Ensure prims are properly hidden/shown after a state change.
             mainMenu(id);
         }
-        else if(msg == "Options" && userRank < 2) { //Outsiders should never be able to invoke this
+        else if(msg == "Options" && userRank < 2) {
             sendSettings(); //make sure preferences knows the current settings
             llMessageLinked(LINK_THIS, -1, msg, id); // Tell Preferences script to talk to id
         }
-        else if(msg == "❤ ❤ ❤" && userRank == 1) {  //Only caretakers should be able to make the diaper give them this message!
+        else if(msg == "❤ ❤ ❤" && userRank == 1) {
             llDialog(id, "For the mischievous brat in us all.",  g_careMenuDiaper, g_uniqueChan);        
         }
         else if(msg == "On/Off" || msg == "On"){
@@ -911,8 +911,12 @@ default {
                 llDialog(id, "Who would you like to remove?", g_ButtonCarers, g_uniqueChan);
                 g_addRemove = 0;   
             }
+            else if(msg == "Carer❤List" && userRank == 1) {
+                printCarers(id);
+                mainMenu(id);
+            }
             else if(msg == "List" && userRank == 0) {
-                printCarers();
+                printCarers(id);
                 llDialog(id, "Customize your carers!", g_userCareMenu, g_uniqueChan);
             }//End of Caretaker handling
             else if(msg == "<--BACK") {
