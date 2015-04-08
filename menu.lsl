@@ -70,9 +70,6 @@ integer g_isCrinkling = FALSE;  //just to tell the diaper if someone is still wa
 
 integer g_mainPrim;
 string g_mainPrimName = ""; // By default, set to "".
-integer g_plasticPantsPrim;
-string g_plasticPantsName = "Plastic Pants";
-vector g_plasticPantsSize;
 string g_exitText = ""; //text entered here will be spoken to the owner when the diaper is removed.
 string g_diaperType = "Fluffems";
 string g_updateScript = "ME Wireless DrizzleScript Updater";
@@ -125,7 +122,6 @@ init()
         llOwnerSay("Silent mode.  No info messages will be printed byond this point.");
     }
     llRequestPermissions(llGetOwner(),PERMISSION_TAKE_CONTROLS); //so we can see whether someone is moving and make them crinkle!
-    loadCarers();
     findPrims(); // This locates the link number of the wet/mess prims for a model.
     if(g_diaperType == "") {
         detectDiaperType();
@@ -458,7 +454,7 @@ handleMessing(string msg, key id) {
         llMessageLinked(LINK_THIS, -4, (string) g_gender + ":" + (string) g_wetLevel + ":" + (string) g_messLevel + ":" + "Force Mess" + ":" + llKey2Name(id), id);
     }
     adjustWetMessPrims();  //Set Correct Prim to be Visible/Change textures on mesh
-    timesHeldMess = 0; //Shouldn't this be here instead?
+    timesHeldMess = 0;
     sendSettings();
 }//End handleMessing(string, key)
 
@@ -467,7 +463,6 @@ handleMessing(string msg, key id) {
 // @id = The key of the user who triggered this function. We use this to identify what message to send to the printouts script(s).
 handleFlooding(string msg, key id) {
     g_wetLevel = g_wetLevel + 4;
-    
     if(msg == "Self") {
         llMessageLinked(LINK_THIS, -4, (string) g_gender + ":" + (string) g_wetLevel + ":" + (string) g_messLevel + ":" + "Self Flood" + ":" + llKey2Name(llGetOwner()), llGetOwner());
     }
@@ -542,23 +537,6 @@ adjustWetMessPrims() {
         }
     }
 }//End WetMessPrims()
-
-adjustPlasticPants() {
-    if(!isHidden() && g_PlasticPants == TRUE) {
-        if(g_diaperType == "Fluffems") {
-            llSetLinkPrimitiveParamsFast(g_plasticPantsPrim, [PRIM_SIZE, g_plasticPantsSize]);
-        }
-    }
-    else {
-        if(g_diaperType == "Fluffems") {
-            llSetLinkPrimitiveParamsFast(g_plasticPantsPrim, [PRIM_SIZE, <.01,.01,.01>]);
-        }
-    }
-}
-
-fitPlasticPants() { //causes a .2 second llSleep, so be judicial about when it's done
-    g_plasticPantsSize = llList2Vector(llGetLinkPrimitiveParams(g_mainPrim, [PRIM_SIZE]), 0) * 1.08;
-}
 
 // Shows or hides the full model of the diaper.
 // Note: If multiple overlapping models are used to display wet/mess
@@ -647,7 +625,6 @@ addCarer(string name) {
         llMessageLinked(LINK_ALL_CHILDREN, 1, name, NULL_KEY); //Null key sent flags "Add Carer" as the action for the memory core.
         g_Carers += [name];
         makeButtonsForCarers();
-        loadCarers();
     }
 }
 
@@ -663,7 +640,6 @@ removeCarer(string name) {
         if(isDebug == TRUE) {
             printCarers();
         }
-        loadCarers();   
     }
     else {
         llOwnerSay("That person isn't on your list!");
@@ -707,14 +683,11 @@ findPrims() {
         if(primName == "Pee") {
             g_wetPrim = i;
         }
-        if(primName == "Poo") {
+        else if(primName == "Poo") {
             g_messPrim = i;
         }
-        if(primName == g_mainPrimName) {
+        else if(primName == g_mainPrimName) {
             g_mainPrim = i;
-        }
-        if(primName == g_plasticPantsName) {
-            g_plasticPantsPrim = i;
         }
     }
     //just in case there is an unnamed prim in the linkset, do this here
@@ -782,7 +755,7 @@ nedryError(key id) {
 default {
     state_entry() {
         init();
-        fitPlasticPants();
+        loadCarers();
     }
     
     run_time_permissions(integer perm) {  //The proper way to handle permissions
@@ -819,9 +792,6 @@ default {
     changed(integer change) {
         if(change & CHANGED_OWNER) {
             init();
-        }
-        if(change & CHANGED_SCALE) {
-            fitPlasticPants();
         }
     }
     //Searches the area, stashing the names of those nearby in one list, and their keys in another
@@ -1145,6 +1115,7 @@ default {
                 llMessageLinked(LINK_THIS, -2, (string) g_gender + ":" + temp, NULL_KEY);
                 llMessageLinked(LINK_THIS, -4, (string) g_gender + ":" + temp, NULL_KEY);
             }
+            /*
             else if(setting == "Plastic❤Pants") {
                 if(msg == "Put❤On") {
                     g_PlasticPants = TRUE;
@@ -1153,7 +1124,7 @@ default {
                     g_PlasticPants = FALSE;
                 }
                 adjustPlasticPants();
-            }
+            }*/
             else if(setting == "Cancel") {
                 mainMenu(msg);
                 return;
@@ -1162,10 +1133,11 @@ default {
             return;
         }
         if(num <= 5 && num > 0) { // Carer List or a "List is Full" Message
+            if(num == 1)
             if(msg != "I'm sorry! There is no more room for carers, please delete one.") { // Valid send
                 if(msg != "") {
                     list temp = llCSV2List(msg);
-                    g_Carers = temp;
+                    g_Carers += temp;
                     makeButtonsForCarers();
                 }
             }
