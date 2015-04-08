@@ -591,7 +591,7 @@ printDebugSettings() {
     llOwnerSay("On/Off: " + (string) g_isOn);
     llOwnerSay("Other Interaction: " + (string) g_interact);
     llOwnerSay("Channel: " + (string) g_uniqueChan);
-    llOwnerSay("Detected Avatars: " + (string) g_detectedAvatars);
+    llOwnerSay("Detected Avatars: " + llDumpList2String(g_detectedAvatars,", "));
     llOwnerSay("Wet Prim: " + (string) g_wetPrim);
     llOwnerSay("Mess Prim: " + (string) g_messPrim);
     llOwnerSay("Crinkle Volume: "+(string) g_CrinkleVolume);
@@ -606,7 +606,9 @@ printDebugSettings() {
 /* Basic function for printing out the carer's list with a header */
 printCarers() {
     llOwnerSay("Carer List: " + llDumpList2String(g_Carers,", "));
-    llOwnerSay("Buttonized List: "+ llDumpList2String(g_ButtonCarers,", "));
+    if(isDebug == TRUE) {
+        llOwnerSay("Buttonized List: "+ llDumpList2String(g_ButtonCarers,", "));
+    }
 }
 
 //Called at Startup to initialize variables from the memory core.
@@ -622,7 +624,7 @@ addCarer(string name) {
     }
     else {
         llMessageLinked(LINK_ALL_CHILDREN, 1, name, NULL_KEY); //Null key sent flags "Add Carer" as the action for the memory core.
-        g_Carers += [name];
+        g_Carers += name;
         makeButtonsForCarers();
     }
 }
@@ -636,9 +638,6 @@ removeCarer(string name) {
         llMessageLinked(LINK_ALL_CHILDREN, 1, llList2String(g_Carers,carerIndex), llGetOwner()); //Valid key sent flags "Delete Carer" as the action for the memory core.
         g_Carers = llDeleteSubList(g_Carers,carerIndex,carerIndex);
         makeButtonsForCarers();
-        if(isDebug == TRUE) {
-            printCarers();
-        }
     }
     else {
         llOwnerSay("That person isn't on your list!");
@@ -662,11 +661,11 @@ integer getToucherRank(key id) {
     if(id == llGetOwner()) {
         return 0;
     }
-    else if(~llListFindList(g_Carers, [llKey2Name(id)])) { // Carer (This is safe because the Carer is guaranteed to be in the sim)
+    else if(~llListFindList(g_Carers, [llKey2Name(id)])) {
         return 1;
     }
     else {
-        return 2; // Outsider
+        return 2;
     }
 }
  
