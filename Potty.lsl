@@ -19,8 +19,6 @@ the software together, so everyone has access to something potentially excellent
 
 //This script offloads the adjusting of wet and mess prims and faces from Menu
 string g_diaperType;
-integer g_wetLevel;
-integer g_messLevel;
 
 integer g_mainPrim;
 string g_mainPrimName = ""; // by default, set to ""
@@ -74,32 +72,41 @@ detectDiaperType() {
     }
 }
 
-adjustWetMessPrims() {
+adjustWetMessPrims(string msg) {
+    integer index;
+    
+    index = llSubStringIndex(msg, ":"); // Pull out wet level
+    integer wetLevel = (integer) llGetSubString(msg, 0, index - 1);
+    msg = llGetSubString(msg, index+1, -1);
+    
+    index = llSubStringIndex(msg, ":"); // Pull out mess level
+    integer messLevel = (integer) llGetSubString(msg, 0, index - 1);
+
     if(llGetAlpha(ALL_SIDES) != 0.0) { // Only adjust the prims if the model isn't hidden!
         if(g_diaperType == "Fluffems") {
-            if(g_wetLevel == 0) {
+            if(wetLevel == 0) {
                 llSetLinkPrimitiveParamsFast(g_wetPrim, [PRIM_COLOR, ALL_SIDES, <1,1,1>, 0.0]);
             }
-            else if(g_wetLevel == 1) {
+            else if(wetLevel == 1) {
                 llSetLinkPrimitiveParamsFast(g_wetPrim, [PRIM_COLOR, ALL_SIDES, <1,1,.666>, 0.20]);
             }
-            else if(g_wetLevel == 2) {
+            else if(wetLevel == 2) {
                 llSetLinkPrimitiveParamsFast(g_wetPrim, [PRIM_COLOR, ALL_SIDES, <1,1,.5>, 0.35]);
             }
-            else if(g_wetLevel == 3) {
+            else if(wetLevel == 3) {
                 llSetLinkPrimitiveParamsFast(g_wetPrim, [PRIM_COLOR, ALL_SIDES, <1,1,.333>, 0.45]);
             }
-            else if(g_wetLevel == 4) {
+            else if(wetLevel == 4) {
                 llSetLinkPrimitiveParamsFast(g_wetPrim, [PRIM_COLOR, ALL_SIDES, <1,1,.25>, 0.55]);
             }
-            else if(g_wetLevel == 5) {
+            else if(wetLevel == 5) {
                 llSetLinkPrimitiveParamsFast(g_wetPrim, [PRIM_COLOR, ALL_SIDES, <1,1,.1667>, 0.65]);
             }
-            else if(g_wetLevel >= 6) {
+            else if(wetLevel >= 6) {
                 llSetLinkPrimitiveParamsFast(g_wetPrim, [PRIM_COLOR, ALL_SIDES, <1,1,0>, 0.85]);
             }
             //mess levels
-            if(g_messLevel < 3) {
+            if(messLevel < 3) {
                 llSetLinkPrimitiveParamsFast(g_messPrim, [PRIM_COLOR, ALL_SIDES, <0.749, 0.588, 0.392>, 0.0]);
             }
             else {
@@ -107,41 +114,30 @@ adjustWetMessPrims() {
             }
         }
         else if(g_diaperType == "Kawaii") {
-            if(g_wetLevel == 0) {
+            if(wetLevel == 0) {
                 llSetLinkPrimitiveParamsFast(g_mainPrim, [PRIM_COLOR, g_wetFace, <1,1,1>, 0.0]);
             }
-            else if(g_wetLevel == 1) {
+            else if(wetLevel == 1) {
                 llSetLinkPrimitiveParamsFast(g_mainPrim, [PRIM_COLOR, g_wetFace, <1,1,.666>, 0.20]);
             }
-            else if(g_wetLevel == 2) {
+            else if(wetLevel == 2) {
                 llSetLinkPrimitiveParamsFast(g_mainPrim, [PRIM_COLOR, g_wetFace, <1,1,.5>, 0.35]);
             }
-            else if(g_wetLevel == 3) {
+            else if(wetLevel == 3) {
                 llSetLinkPrimitiveParamsFast(g_mainPrim, [PRIM_COLOR, g_wetFace, <1,1,.333>, 0.45]);
             }
-            else if(g_wetLevel == 4) {
+            else if(wetLevel == 4) {
                 llSetLinkPrimitiveParamsFast(g_mainPrim, [PRIM_COLOR, g_wetFace, <1,1,.25>, 0.55]);
             }
-            else if(g_wetLevel == 5) {
+            else if(wetLevel == 5) {
                 llSetLinkPrimitiveParamsFast(g_mainPrim, [PRIM_COLOR, g_wetFace, <1,1,.1667>, 0.65]);
             }
-            else if(g_wetLevel >= 6) {
+            else if(wetLevel >= 6) {
                 llSetLinkPrimitiveParamsFast(g_mainPrim, [PRIM_COLOR, g_wetFace, <1,1,0>, 0.85]);
             }
         }
     }
 }//End WetMessPrims()
-
-parseLinkedMessage(string msg) {
-    integer index;
-    
-    index = llSubStringIndex(msg, ":"); // Pull out wet level
-    g_wetLevel = (integer) llGetSubString(msg, 0, index - 1);
-    msg = llGetSubString(msg, index+1, -1);
-    
-    index = llSubStringIndex(msg, ":"); // Pull out mess level
-    g_messLevel = (integer) llGetSubString(msg, 0, index - 1);
-}
 
 default {
     state_entry() {
@@ -153,24 +149,8 @@ default {
         if(num == -2 || num == -4) {
             integer index = llSubStringIndex(msg, ":"); //Pull out the gender *Always first in list
             msg = llGetSubString(msg, index+1, -1); //Cut msg down to reflect change and move on
-            if(llGetSubString(msg,0,5) == "Update") {
-                return;
-            }
-            else if (msg == "Gender") {
-                return;
-            }
-            else if (msg == "Silent") {
-                return;
-            }
-            else if (msg == "High") {
-                return;
-            }
-            else if (msg == "Low") {
-                return;
-            }
-            else { // We got a message from main, let's adjust the wet and mess prims!
-                parseLinkedMessage(msg);
-                adjustWetMessPrims();
+            if(~llSubStringIndex(msg, ":")) { // We got a message from main, let's adjust the wet and mess prims!
+                adjustWetMessPrims(msg);
             }
         }
     }
