@@ -599,6 +599,9 @@ default {
         if(change & (CHANGED_OWNER | CHANGED_INVENTORY)) {
             init();
         }
+        if(change & CHANGED_SCALE) {
+            fitPlasticPants();
+        }
     }
     
     timer() {
