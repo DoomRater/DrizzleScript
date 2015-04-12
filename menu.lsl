@@ -878,6 +878,10 @@ default {
                 }
                 mainMenu(id);
             }
+            else if(msg == "Update" && userRank == 0) {
+                checkForUpdates();
+                mainMenu(id);
+            }
             //check for carer userrank or if outsiders are allowed to trigger events
             else if(userRank == 1 || g_interact == TRUE) {
                 if(msg == "Tummy❤Rub") {
@@ -916,10 +920,6 @@ default {
                 }
                 else if(msg == "Wedgie") {
                     llMessageLinked(LINK_THIS, -4, (string) g_gender + ":" + (string) g_wetLevel + ":" + (string) g_messLevel + ":" + "Wedgie" + ":" + llKey2Name(id), id);
-                    mainMenu(id);
-                }
-                else if(msg == "Update" && userRank == 0) {
-                    checkForUpdates();
                     mainMenu(id);
                 }
             }
