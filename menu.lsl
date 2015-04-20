@@ -25,6 +25,7 @@ list g_careMenuDiaper = ["Force❤Wet", "Force❤Mess","❤Tickle❤", "Tummy❤
 list g_userCareMenu = ["<--BACK", "*", "*", "Add", "Remove", "List"];
 list g_inboundMenu = ["❤Tickle❤", "Tummy❤Rub", "Tease", "Check", "Change", "Raspberry", "Spank", "Wedgie", "Poke"];
 list g_offMenu = ["On", "Options", "Show/Hide"];
+string g_commandHandle;
 list g_Carers;
 list g_ButtonCarers;  //to address really long carer names
 list g_detectedAvatars;
@@ -124,6 +125,14 @@ init()
     }
     g_mainListen = llListen(g_uniqueChan, "", "", "");
 }
+
+constructHandle() {
+    string temp = llKey2Name(llGetOwner());
+    integer space = llSubStringIndex(temp," ");
+    temp = llGetSubString(temp,0,0) + llGetSubString(temp,space+1,space+1);
+    g_commandHandle = llToLower(temp) + "diaper";
+}
+
 
 checkForUpdates() {
     if(isDebug < 2) {
@@ -654,6 +663,9 @@ default {
     state_entry() {
         init();
         loadCarers();
+        //this only needs to be done once, for now
+        constructHandle();
+        llListen(1,"","",g_commandHandle);
     }
     
     run_time_permissions(integer perm) {  //The proper way to handle permissions
@@ -732,7 +744,10 @@ default {
     
     listen(integer chan, string name, key id, string msg) {
         integer userRank = getToucherRank(id); // Used to secure the diaper against tomfoolery
-        if(msg == "DEBUG" && userRank == 0) {
+        if(msg == g_commandHandle) {
+            mainMenu(id);
+        }
+        else if(msg == "DEBUG" && userRank == 0) {
             printCarers(id);
             printDebugSettings();
             mainMenu(id);
