@@ -668,7 +668,7 @@ default {
         llListen(1,"","",g_commandHandle);
     }
     
-    run_time_permissions(integer perm) {  //The proper way to handle permissions
+    run_time_permissions(integer perm) {
         if(perm&PERMISSION_TAKE_CONTROLS) {
             llTakeControls(CONTROL_FWD|CONTROL_BACK|CONTROL_LEFT|CONTROL_RIGHT,TRUE,TRUE);
         }
