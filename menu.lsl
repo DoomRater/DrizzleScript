@@ -506,13 +506,11 @@ toggleHide() {
 toggleOnOff() {
     g_isOn = !g_isOn;
     if(g_isOn == FALSE) {
-        llSensorRemove();
         llSetTimerEvent(0.0);
     }
     else {
         llResetTime();
         llSetTimerEvent(60.0);  //Check to see if a user wet/messed themselves once a minute.
-        llSensorRepeat("", "", AGENT, 96.0, PI, 6.0);
     }
     sendSettings();
 }
