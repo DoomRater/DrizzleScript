@@ -298,7 +298,7 @@ parseSettings(string temp) {
 integer myTimer(integer duration) {
     integer x = llRound(llGetTime());
     
-    if(x > 10000) { // Failsafe, resets script time if approaching threshold for integer capacity.
+    if(x + duration > 2000000000) { // Failsafe, resets script time if approaching threshold for integer capacity.
         llResetTime();
         x = llRound(llGetTime());
     }
