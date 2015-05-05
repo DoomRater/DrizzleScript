@@ -245,11 +245,31 @@ parseSettings(string temp) {
     temp = llGetSubString(temp, index+1, -1);
     
     index = llSubStringIndex(temp, ",");
-    g_wetTimer = (integer) llGetSubString(temp, 0, index-1);
+    integer newTimer = (integer) llGetSubString(temp, 0, index-1);
+    //This is messy but needed here
+    if(g_wetTimer != newTimer) {
+        if(newTimer == 0) {
+            g_wForecast = 2000000000;
+        }
+        else {
+            g_wForecast = myTimer(newTimer * 60);
+        }
+        g_wetTimer = newTimer;
+    }
     temp = llGetSubString(temp, index+1, -1);
     
     index = llSubStringIndex(temp, ",");
-    g_messTimer = (integer) llGetSubString(temp, 0, index-1);
+    newTimer = (integer) llGetSubString(temp, 0, index-1);
+    //A little more messy
+    if(g_messTimer != newTimer) {
+        if(newTimer == 0) {
+            g_mForecast = 2000000000;
+        }
+        else {
+            g_mForecast = myTimer(newTimer * 60);
+        }
+        g_messTimer = newTimer;
+    }
     temp = llGetSubString(temp, index+1, -1);
     
     index = llSubStringIndex(temp, ",");
@@ -298,7 +318,10 @@ parseSettings(string temp) {
 integer myTimer(integer duration) {
     integer x = llRound(llGetTime());
     
-    if(x > 10000) { // Failsafe, resets script time if approaching threshold for integer capacity.
+    if(x + duration > 2000000000) { // Failsafe, resets script time if approaching threshold for integer capacity.
+        //we need to adjust the forecasts so they aren't unobtainable due to time reset
+        g_wForecast -= x;
+        g_mForecast -= x;
         llResetTime();
         x = llRound(llGetTime());
     }
@@ -435,8 +458,9 @@ handleWetting(string msg, key id) {
         llMessageLinked(LINK_THIS, -4, (string) g_gender + ":" + (string) g_wetLevel + ":" + (string) g_messLevel + ":" + "Force Wet" + ":" + llKey2Name(id), id); 
     }
     playWetSound(g_WetVolume * .00333);
-//    adjustWetMessPrims();  //Correct Prim to be Visible/Change textures on mesh
     timesHeldWet = 0;
+    //new forecast for wetting
+    g_wForecast = myTimer(g_wetTimer * 60);
     sendSettings();
 }//End handleWettings(string, key)
 
@@ -458,8 +482,9 @@ handleMessing(string msg, key id) {
     else if(msg == "Force") {
         llMessageLinked(LINK_THIS, -4, (string) g_gender + ":" + (string) g_wetLevel + ":" + (string) g_messLevel + ":" + "Force Mess" + ":" + llKey2Name(id), id);
     }
-//    adjustWetMessPrims();  //Set Correct Prim to be Visible/Change textures on mesh
     timesHeldMess = 0;
+    //new forecast for messing
+    g_mForecast = myTimer(g_messTimer * 60);
     sendSettings();
 }//End handleMessing(string, key)
 
@@ -476,7 +501,8 @@ handleFlooding(string msg, key id) {
     }
     playWetSound(g_WetVolume * .01);  //todo: add a special flooding sound
     timesHeldWet = 0;
-//    adjustWetMessPrims();  //Set Correct Prim to be Visible/Change textures on mesh
+    //new forecast for wetting
+    g_wForecast = myTimer(g_wetTimer * 60);
     sendSettings();
 }
 
@@ -945,15 +971,15 @@ default {
         if(g_isOn == TRUE) {
             //Timer of 0 (Off) prevent accidents.
             if(g_wetTimer == 0) {
-                g_wForecast = myTimer(1000); 
+                g_wForecast = 2000000000;
             }
             //Timer of 0 (Off) prevent accidents.
             if(g_messTimer == 0) {
-                g_mForecast = myTimer(1000);
+                g_mForecast = 2000000000;
             }
             integer currentTime = llRound(llGetTime());
-            if(currentTime <= 60) { // Stops the script from glitch-printing on on rez/login
-                return;        
+            if(currentTime <= 60) {
+                return;
             }
             // If both wet and mess forecasts are past their time. . .
             if(g_wForecast <= currentTime && g_mForecast <= currentTime) {
