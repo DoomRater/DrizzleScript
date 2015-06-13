@@ -174,7 +174,8 @@ DialogPlus(string msg, list buttons, integer CurMenu, key id) {
         }
  
         if((Nbuttons = (llList2List(buttons, (CurMenu * 9), ((CurMenu * 9) + 8)) + ["<--BACK", "<--PREV", "NEXT-->"])) == ["<--BACK", "<--PREV", "NEXT-->"]) {
-            DialogPlus(msg, lbut, g_currCount = 0, id);
+            g_currCount = 0;
+            DialogPlus(msg, lbut, g_currCount, id);
         }
         else {
             offerMenu(id, msg,  order_buttons(Nbuttons));
@@ -189,10 +190,12 @@ DialogPlus(string msg, list buttons, integer CurMenu, key id) {
 //This function determines which page needs to be generated
 handlePrev(key id) {
     if(g_currMenu == "Skins") {
-         DialogPlus(m_skinMenu(), g_Skins, --g_currCount, id);
+        g_currCount--;
+        DialogPlus(m_skinMenu(), g_Skins, g_currCount, id);
     }
     else if(g_currMenu == "Printouts") {
-        DialogPlus(m_printMenu(),g_Printouts, --g_currCount, id);
+        g_currCount--;
+        DialogPlus(m_printMenu(),g_Printouts, g_currCount, id);
     }
     //handling for Kawaii Diapers
     else if(g_currMenu == "Diaper❤Print") {
@@ -665,27 +668,27 @@ default {
         else if(msg=="DEBUG") {
             printDebugSettings();
         }
-        else if(~llListFindList(g_Skins, [msg]) && g_currMenu == "Diaper❤Print") {
+        else if((~llListFindList(g_Skins, [msg])) && g_currMenu == "Diaper❤Print") {
             applyTexture(msg, "SKIN:");
             offerMenu(id, g_currMenuMessage, g_currMenuButtons);
         }
-        else if(~llListFindList(g_Panels, [msg]) && g_currMenu == "Panel") {
+        else if((~llListFindList(g_Panels, [msg])) && g_currMenu == "Panel") {
             applyTexture(msg, "PANEL:");
             offerMenu(id, g_currMenuMessage, g_currMenuButtons);
         }
-        else if(~llListFindList(g_Tapes, [msg]) && g_currMenu == "Tapes") {
+        else if((~llListFindList(g_Tapes, [msg])) && g_currMenu == "Tapes") {
             applyTexture(msg, "TAPE:");
             offerMenu(id, g_currMenuMessage, g_currMenuButtons);
         }
-        else if(~llListFindList(g_BackFaces, [msg]) && g_currMenu == "Back❤Face") {
+        else if((~llListFindList(g_BackFaces, [msg])) && g_currMenu == "Back❤Face") {
             applyTexture(msg, "BACKFACE:");
             offerMenu(id, g_currMenuMessage, g_currMenuButtons);
         }
-        else if(~llListFindList(g_Cuties, [msg]) && g_currMenu == "Cutie*Mark") {
+        else if((~llListFindList(g_Cuties, [msg])) && g_currMenu == "Cutie*Mark") {
             applyTexture(msg, "CUTIE:");
             offerMenu(id, g_currMenuMessage, g_currMenuButtons);
         }
-        else if(~llListFindList(g_Printouts, [msg])  && g_currMenu == "Printouts") {// new printout notecard!
+        else if((~llListFindList(g_Printouts, [msg])) && g_currMenu == "Printouts") {// new printout notecard!
             llMessageLinked(LINK_THIS, -3, g_currMenu + ":" + msg, NULL_KEY);
             offerMenu(id, g_currMenuMessage, g_currMenuButtons);
         }
@@ -791,7 +794,8 @@ default {
         else if(msg == "Skins" || msg == "Diaper❤Print") {
             g_currMenu = msg;
             if(g_diaperType == "ABARSculpt" || msg == "Diaper❤Print") {
-                DialogPlus(m_skinMenu(), g_Skins, g_currCount = 0, id);
+                g_currCount = 0;
+                DialogPlus(m_skinMenu(), g_Skins, g_currCount, id);
             }
             else if(g_diaperType == "Fluffems" || g_diaperType == "Kawaii") {
                 //this diaper can use tapes, panels, and the like, so show the skin menu instead
@@ -800,19 +804,23 @@ default {
         }
         else if(msg == "Tapes") {
             g_currMenu = msg;
-            DialogPlus(m_tapesMenu(), g_Tapes, g_currCount = 0, id);
+            g_currCount = 0;
+            DialogPlus(m_tapesMenu(), g_Tapes, g_currCount, id);
         }
         else if(msg == "Panel") {
             g_currMenu = msg;
-            DialogPlus(m_panelMenu(), g_Panels, g_currCount = 0, id);
+            g_currCount = 0;
+            DialogPlus(m_panelMenu(), g_Panels, g_currCount, id);
         }
         else if(msg == "Back❤Face") {
             g_currMenu = msg;
-            DialogPlus(m_backFaceMenu(), g_BackFaces, g_currCount = 0, id);
+            g_currCount = 0;
+            DialogPlus(m_backFaceMenu(), g_BackFaces, g_currCount, id);
         }
         else if(msg == "Cutie*Mark") {
             g_currMenu = msg;
-            DialogPlus(m_cutieMenu(), g_Cuties, g_currCount = 0, id);
+            g_currCount = 0;
+            DialogPlus(m_cutieMenu(), g_Cuties, g_currCount, id);
         }
         else if(msg == "Help") {
             llOwnerSay("Adding your own skins and notecards is easy!  Just prefix your textures with the appropriate tag for where you want it to be and drag it into the diaper!  I'll take care of the rest.");
@@ -852,7 +860,8 @@ default {
         }
         else if(msg == "Printouts") {
             g_currMenu = msg;
-            DialogPlus(m_printMenu(), g_Printouts, g_currCount = 0, id);
+            g_currCount = 0;
+            DialogPlus(m_printMenu(), g_Printouts, g_currCount, id);
         }
         else if(msg == "Plastic❤Pants") {
             g_currMenu = msg;
