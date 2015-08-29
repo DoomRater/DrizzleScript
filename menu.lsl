@@ -126,11 +126,11 @@ init()
     g_mainListen = llListen(g_uniqueChan, "", "", "");
 }
 
-constructHandle() {
+string constructHandle() {
     string temp = llKey2Name(llGetOwner());
     integer space = llSubStringIndex(temp," ");
     temp = llGetSubString(temp,0,0) + llGetSubString(temp,space+1,space+1);
-    g_commandHandle = llToLower(temp) + "diaper";
+    return llToLower(temp) + "diaper";
 }
 
 
@@ -621,7 +621,7 @@ makeButtonsForCarers() { //construct g_ButtonCarers from g_Carers
 // @id - The user whose access level is to be assessed.
 // 0 = Owner, 1 = Carer, 2 = Outsider
 integer getToucherRank(key id) {
-    if(id == llGetOwner()) {
+    if(llGetOwnerKey(id) == llGetOwner()) {
         return 0;
     }
     else if(~llListFindList(g_Carers, [llKey2Name(id)])) {
@@ -688,7 +688,7 @@ default {
         init();
         loadCarers();
         //this only needs to be done once, for now
-        constructHandle();
+        g_commandHandle = constructHandle();
         llListen(1,"","",g_commandHandle);
     }
     
@@ -1067,8 +1067,8 @@ default {
         if(num <= 5 && num > 0) { // Carer List or a "List is Full" Message
             if(msg != "I'm sorry! There is no more room for carers, please delete one.") { // Valid send
                 if(msg != "") {
-                    list temp = llCSV2List(msg);
-                    g_Carers += temp;
+                    list tempList = llCSV2List(msg);
+                    g_Carers += tempList;
                     makeButtonsForCarers();
                 }
             }
