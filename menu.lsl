@@ -651,7 +651,7 @@ mainMenu(key id) {
     }
         else { // Diaper's Off
         if(userRank == 0) {
-            llDialog(id, "Your diaper is off.  No pottying or carer scanning will be done, but you can still change settings!", g_offMenu, g_uniqueChan);
+            llDialog(llGetOwner(), "Your diaper is off.  No pottying or carer scanning will be done, but you can still change settings!", g_offMenu, g_uniqueChan);
         }
         else if(userRank == 1) {
             llDialog(id, "Good news! You're a carer. This means you can turn this diaper back on if you wish!", g_offMenu, g_uniqueChan);
