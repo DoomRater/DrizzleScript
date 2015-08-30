@@ -636,7 +636,7 @@ mainMenu(key id) {
     integer userRank = getToucherRank(id);
     if(g_isOn) { // Diaper's On
         if(userRank == 0) {
-            llDialog(id, "User Menu for " + llKey2Name(llGetOwner()) + "'s diaper.", g_userMenu, g_uniqueChan);
+            llDialog(llGetOwner(), "User Menu for " + llKey2Name(llGetOwner()) + "'s diaper.", g_userMenu, g_uniqueChan);
         }
         else if(userRank == 1) {
             llDialog(id, "Carer Menu for " + llKey2Name(llGetOwner()) + "'s diaper.", g_careMenu, g_uniqueChan);
@@ -689,6 +689,9 @@ default {
         loadCarers();
         //this only needs to be done once, for now
         g_commandHandle = constructHandle();
+        if(isDebug == TRUE) {
+            llOwnerSay("Your command handle is "+g_commandHandle);
+        }
         llListen(1,"","",g_commandHandle);
     }
     
