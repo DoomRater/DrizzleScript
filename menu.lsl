@@ -784,7 +784,7 @@ default {
                 string data = llGetSubString(msg, index + 1, -1);
                 if(prefix == "CARERS:") {
                     if(data != "I'm sorry! There is no more room for carers, please delete one.") { // Valid send
-                        if(data != "") {
+                        if(data != prefix) {
                             list tempList = llCSV2List(data);
                             g_Carers += tempList;
                             makeButtonsForCarers();
