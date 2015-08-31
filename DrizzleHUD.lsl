@@ -79,7 +79,6 @@ default {
             loadSettings();
         }
         else {
-            //First things first, parse the data we hear.  If it's junk, discard it
             integer index = llSubStringIndex(msg, ":");
             if(~index) {
                 string prefix = llGetSubString(msg, 0, index);
@@ -116,10 +115,10 @@ default {
     
     link_message(integer sender_num, integer num, string msg, key id) {
         //todo: upon receiving the information back from the memory core, pass it back to the diaper
-        if(sender_num == 6) {
+        if(num == 6) {
             llSay(g_uniqueChan, "SETTINGS:"+msg);
         }
-        if(sender_num >= 1 && sender_num <=5) {
+        if(num >= 1 && num <=5) {
             llSay(g_uniqueChan, "CARERS:"+msg);
         }
     }
