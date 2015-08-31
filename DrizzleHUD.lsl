@@ -23,6 +23,7 @@ the software together, so everyone has access to something potentially excellent
 //-change memory communication
 //-prevent spoofing by other people's objects; a user or worn objects may be able to communicate but outside objects should need permissions first
 //-document API on how to communicate with diaper or HUD
+integer g_listenerHandle;
 integer g_uniqueChan;
 string g_commandHandle;
 
@@ -38,18 +39,71 @@ string constructHandle() {
     return llToLower(temp) + "diaper";
 }
 
+//imported from main so that we have access to linked prims
+loadCarers() {
+    llMessageLinked(LINK_ALL_CHILDREN, 1, "SEND", NULL_KEY); // Tells the memory core to send us its data!
+}
+
+loadSettings() {
+    llMessageLinked(LINK_ALL_CHILDREN, 6, "SEND", NULL_KEY);
+}
+
+saveSettings(string csv) {
+    //todo: expose the wet and mess information to linked prims to the HUD so we can see them visually
+    llMessageLinked(LINK_ALL_CHILDREN, 6, csv, NULL_KEY);
+}
+
+addCarer(string name) {
+    llMessageLinked(LINK_ALL_CHILDREN, 1, name, NULL_KEY); //Null key sent flags "Add Carer" as the action for the memory core.
+}
+
+removeCarer(string name) {
+    llMessageLinked(LINK_ALL_CHILDREN, 1, name, llGetOwner()); //Valid key sent flags "Delete Carer" as the action for the memory core.
+}
+
 default {
     state_entry() {
-        //todo: unsure
         g_uniqueChan = generateChan(llGetOwner());
         g_commandHandle = constructHandle();
+        g_listenerHandle = llListen(g_uniqueChan, "", "", "");
+        //attempt to send a sync of data right off the bat
+        loadSettings();
+        loadCarers();
     }
     
-    listen(integer c, string n, key id, string m) {
+    listen(integer c, string n, key id, string msg) {
         //todo: listen to user's personal channel and parse info to be sent to memory core
         //we can do this here without rewriting the memory core!
-        //once information is verified and/or parsed, send it to the memory core with llMessageLinked
-        //Additionally, if we add wet and mess indicators to the HUD users can see that without checking themselves
+        if(msg  == "SYNC") {
+            loadCarers();
+            loadSettings();
+        }
+        else {
+            //First things first, parse the data we hear.  If it's junk, discard it
+            integer index = llSubStringIndex(msg, ":");
+            if(~index) {
+                string prefix = llGetSubString(msg, 0, index);
+                string data = llGetSubString(msg, index + 1, -1);
+                if(prefix == "CARERS:") {
+                    //re-use of variables, messy, fix later
+                    index = llSubStringIndex(msg, ":");
+                    prefix = llGetSubString(data, 0, index);
+                    data = llGetSubString(msg, index + 1, -1);
+                    if(prefix == "Load") {
+                        loadCarers();
+                    }
+                    else if(prefix == "Add:") {
+                        addCarer(data);
+                    }
+                    else if(prefix == "Remove:") {
+                        removeCarer(data);
+                    }
+                }
+                else if(prefix == "SETTINGS:") {
+                    saveSettings(data);
+                }
+            }
+        }
     }
     
     touch_end(integer t) {
@@ -57,6 +111,16 @@ default {
         if(llDetectedKey(0) != llGetOwner()) {
             return;
         }
-        llSay(1, g_commandHandle);
+        llSay(g_uniqueChan, g_commandHandle);
+    }
+    
+    link_message(integer sender_num, integer num, string msg, key id) {
+        //todo: upon receiving the information back from the memory core, pass it back to the diaper
+        if(sender_num == 6) {
+            llSay(g_uniqueChan, "SETTINGS:"+msg);
+        }
+        if(sender_num >= 1 && sender_num <=5) {
+            llSay(g_uniqueChan, "CARERS:"+msg);
+        }
     }
 }
