@@ -350,7 +350,9 @@ sendSettings() {
     (string) g_WetVolume + "," +
     (string) g_MessVolume + "," +
     (string) g_PlasticPants;
-    llMessageLinked(LINK_ALL_OTHERS, 6, csv, NULL_KEY);
+    //llMessageLinked(LINK_ALL_OTHERS, 6, csv, NULL_KEY); //depreciated now that memory core is no longer attached
+    //todo: detect if memory core is attached and has sent us data first before sending
+    llSay(g_uniqueChan,"SETTINGS:"+csv); //tell memory core new data
     llMessageLinked(LINK_THIS, -6, csv, NULL_KEY);
 }
 
@@ -576,7 +578,7 @@ printCarers(key id) {
 
 //Called at Startup to initialize variables from the memory core.
 loadCarers() {
-    llMessageLinked(LINK_ALL_CHILDREN, 1, "SEND", NULL_KEY); // Tells the memory core to send us its data!
+    llSay(g_uniqueChan,"CARERS:Load"); //Tell the memory core to send us its data!
 }
 
 // If a given name is not already in the carer's list, we add them to the carer's list.
@@ -586,7 +588,7 @@ addCarer(string name) {
         llOwnerSay("You've already added that carer once silly!");   
     }
     else {
-        llMessageLinked(LINK_ALL_CHILDREN, 1, name, NULL_KEY); //Null key sent flags "Add Carer" as the action for the memory core.
+        llSay(g_uniqueChan, "CARERS:Add:"+name); //Tell the memory core to remember this carer.
         g_Carers += name;
         makeButtonsForCarers();
     }
@@ -598,7 +600,7 @@ addCarer(string name) {
 removeCarer(string name) {
     integer carerIndex =llListFindList(g_ButtonCarers, [name]);
     if(~carerIndex) {
-        llMessageLinked(LINK_ALL_CHILDREN, 1, llList2String(g_Carers,carerIndex), llGetOwner()); //Valid key sent flags "Delete Carer" as the action for the memory core.
+        llSay(g_uniqueChan, "CARERS:Remove:"+name); //Tell the memory core to remove this carer.
         g_Carers = llDeleteSubList(g_Carers,carerIndex,carerIndex);
         makeButtonsForCarers();
     }
