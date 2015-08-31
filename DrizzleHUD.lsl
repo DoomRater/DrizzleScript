@@ -85,7 +85,6 @@ default {
                 string data = llGetSubString(msg, index + 1, -1);
                 if(prefix == "CARERS:") {
                     //re-use of variables, messy, fix later
-                    llOwnerSay(data);
                     index = llSubStringIndex(data, ":");
                     prefix = llGetSubString(data, 0, index);
                     data = llGetSubString(data, index + 1, -1);
