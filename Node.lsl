@@ -23,6 +23,7 @@ the software together, so everyone has access to something potentially excellent
 *  to the object with Menu.lsl in it. 
 */
 
+//todo: update the code so as to not rely on hard coded 5 nodes- instead allow SaveSettings (which is the final node) to report that it has reached the end of the carer list
 integer myNum;
 
 //quick and dirty integer scrape from the script name to assign to myNum
@@ -94,7 +95,7 @@ saveInfo(string msg) {
         storedData += msg;
         llSetObjectDesc(storedData);
     }
-    else if(!isFull()) {//1, 2, 3
+    else {
         storedData += "," + msg;
         llSetObjectDesc(storedData);
     }
@@ -105,7 +106,7 @@ forwardMessage(string msg) {
 }
 
 sendList() {
-    //Safe for 1 -> 11, their numbers will tell main what to do.
+    //Safe for 1 -> 5, their numbers will tell main what to do.
     
     llMessageLinked(LINK_ROOT, myNum, llGetObjectDesc(), NULL_KEY); // Send main this object's list
     llMessageLinked(LINK_ALL_CHILDREN, myNum+1, "SEND", NULL_KEY); // Pass the message on to the next object
