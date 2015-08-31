@@ -37,8 +37,6 @@ integer getMyNum() {
 //relevant LSL limits:
 //-the longest SL name possible is 63 characters including the space in between
 //-the maximum length of prim description is 127 characters, long enough to store at least 2 carers
-//-WHY DOES THE CODE ALLOW FOR A MAXIMUM OF 8?
-//Current code only stores one carer per prim description
 integer getListSize() {
     string storedData = llGetObjectDesc();
     if(storedData == "") {// Empty
@@ -51,11 +49,12 @@ integer getListSize() {
     }
 }
 
-updateColors(integer size) {
-    if(size < 4) {
+updateColors() {
+    integer size = getListSize();
+    if(size < 1) {
         llSetColor(<0.0, 1.0, 0.0>, ALL_SIDES);
     }
-    else if(size >= 4 && size <= 6) {
+    else if(size == 1) {
         llSetColor(<1.0, 1.0, 0.0>, ALL_SIDES);   
     }
     else {
@@ -64,7 +63,7 @@ updateColors(integer size) {
 }
 
 integer isFull() {
-    if(getListSize() >= 8) {
+    if(getListSize() >= 2) {
         return TRUE;
     }
     else {
@@ -95,11 +94,10 @@ saveInfo(string msg) {
         storedData += msg;
         llSetObjectDesc(storedData);
     }
-    else if(size < 8) {//1, 2, 3
+    else if(!isFull()) {//1, 2, 3
         storedData += "," + msg;
         llSetObjectDesc(storedData);
     }
-    updateColors(size);
 }
 
 forwardMessage(string msg) {
@@ -135,6 +133,7 @@ default {
         else if(id) { // Valid key in message is used to delete
             if(num == myNum) {
                 removeInfo(msg, id);
+                updateColors();
                 return;
             }
         }
@@ -142,6 +141,7 @@ default {
             if(num == myNum) {
                 if(!isFull()) {
                     saveInfo(msg);
+                    updateColors();
                     return;
                 }
                 else {
