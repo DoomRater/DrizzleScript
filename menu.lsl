@@ -359,7 +359,7 @@ sendSettings() {
     (string) g_PlasticPants;
     //llMessageLinked(LINK_ALL_OTHERS, 6, csv, NULL_KEY); //depreciated now that memory core is no longer attached
     //todo: detect if memory core is attached and has sent us data first before sending
-    llSay(g_uniqueChan,"SETTINGS:"+csv); //tell memory core new data
+    sendToCore("SETTINGS:"+csv); //tell memory core new data
     llMessageLinked(LINK_THIS, -6, csv, NULL_KEY);
 }
 
@@ -1068,6 +1068,7 @@ default {
         else if(num == -3) { //Update from Preferences
             integer index = llSubStringIndex(msg, ":");
             if(index == -1) { //received settings from Preferences
+                sendToCore("SETTINGS:"+msg);
                 parseSettings(msg);
                 return;
             }
