@@ -591,11 +591,6 @@ sendToCore(string msg) {
     }
 }
 
-//Called at Startup to initialize variables from the memory core.
-loadCarers() {
-    sendToCore("CARERS:Load"); //Tell the memory core to send us its data!
-}
-
 // If a given name is not already in the carer's list, we add them to the carer's list.
 // @name - The name to be tested for carer status
 addCarer(string name) {
@@ -707,7 +702,6 @@ default {
             llOwnerSay("Your command handle is "+g_commandHandle);
         }
         init();
-        loadCarers();
     }
     
     run_time_permissions(integer perm) {
@@ -786,6 +780,29 @@ default {
     
     listen(integer chan, string name, key id, string msg) {
         integer userRank = getToucherRank(id); // Used to secure the diaper against tomfoolery
+        if(userRank == 0 && id != llGetOwner()) { //start of Owner's object/HUD handling
+            integer index = llSubStringIndex(msg, ":");
+            if(~index) {
+                string prefix = llGetSubString(msg, 0, index);
+                string data = llGetSubString(msg, index + 1, -1);
+                if(prefix == "CARERS:") {
+                    if(data != "I'm sorry! There is no more room for carers, please delete one.") { // Valid send
+                        if(data != "") {
+                            list tempList = llCSV2List(data);
+                            g_Carers += tempList;
+                            makeButtonsForCarers();
+                        }
+                    }
+                    else { // No more room for carers!
+                        llOwnerSay(data);
+                    }
+                }
+                else if(prefix == "SETTINGS:") {
+                    g_isHUDsynced = TRUE;
+                    parseSettings(data);
+                }
+            }
+        }//end of Owner object/HUD handling
         if(msg == g_commandHandle) {
             mainMenu(id);
         }
@@ -1080,23 +1097,6 @@ default {
                 return;
             }
             sendSettings();
-            return;
-        }
-        if(num <= 5 && num > 0) { // Carer List or a "List is Full" Message
-            if(msg != "I'm sorry! There is no more room for carers, please delete one.") { // Valid send
-                if(msg != "") {
-                    list tempList = llCSV2List(msg);
-                    g_Carers += tempList;
-                    makeButtonsForCarers();
-                }
-            }
-            else { // No more room for carers!
-                llOwnerSay(msg);
-                return;   
-            }
-        }
-        else if(num == 6) { // Settings!
-            parseSettings(msg); // Pulls apart msg to set appropriate values for this script.
             return;
         }
     }//End of link_message(integer, integer, string, key)
