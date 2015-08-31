@@ -113,6 +113,20 @@ default {
         llSay(g_uniqueChan, g_commandHandle);
     }
     
+    changed(integer change) {
+        if(change & CHANGED_OWNER) {
+            llListenRemove(g_listenerHandle);
+            g_uniqueChan = generateChan(llGetOwner());
+            g_commandHandle = constructHandle();
+            g_listenerHandle = llListen(g_uniqueChan, "", "", "");
+        }
+    }
+    
+    on_rez(integer start_param) {
+        loadSettings();
+        loadCarers();
+    }
+    
     link_message(integer sender_num, integer num, string msg, key id) {
         //todo: upon receiving the information back from the memory core, pass it back to the diaper
         if(num == 6) {
