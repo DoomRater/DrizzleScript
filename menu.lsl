@@ -94,6 +94,7 @@ init()
     llListenRemove(g_mainListen);
     llListenRemove(g_voiceListen);
     g_uniqueChan = generateChan(llGetOwner()); // Used to avoid diapers talking to one another via menus.
+    g_commandHandle = constructHandle();
     if(g_isOn == FALSE) {
         llSetTimerEvent(0.0); // Used to check for wet/mess occurances
     }
@@ -697,10 +698,6 @@ nedryError(key id) {
 
 default {
     state_entry() {
-        g_commandHandle = constructHandle();
-        if(isDebug == TRUE) {
-            llOwnerSay("Your command handle is "+g_commandHandle);
-        }
         init();
     }
     
