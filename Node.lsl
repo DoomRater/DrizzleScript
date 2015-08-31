@@ -117,10 +117,13 @@ default {
         if(c & CHANGED_OWNER) {
             llSetObjectDesc("");
         }
+        updateColors();
     }
     
     state_entry() {
         myNum = getMyNum();
+        llOwnerSay((string)myNum); //debug
+        updateColors();
     }
 
     link_message(integer sender_num, integer num, string msg, key id) {
