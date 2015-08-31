@@ -37,7 +37,9 @@ integer g_addRemove = -1;
 integer g_uniqueChan = -1;
 integer g_mainListen;
 integer g_carerListen;
+integer g_voiceListen;
 integer g_userResponded = FALSE;
+integer g_isHUDsynced = FALSE;
 
 //Saved Non-Carer Settings
 integer g_wetLevel = 0;    //0 - 5 times wet
@@ -88,7 +90,9 @@ integer g_errorCount = 0;
 
 init()
 {
+    g_isHUDsynced = FALSE; //don't send any additional data to the HUD until we hear back from it.
     llListenRemove(g_mainListen);
+    llListenRemove(g_voiceListen);
     g_uniqueChan = generateChan(llGetOwner()); // Used to avoid diapers talking to one another via menus.
     if(g_isOn == FALSE) {
         llSetTimerEvent(0.0); // Used to check for wet/mess occurances
@@ -124,6 +128,9 @@ init()
         detectDiaperType();
     }
     g_mainListen = llListen(g_uniqueChan, "", "", "");
+    g_voiceListen = llListen(1,"","",g_commandHandle);
+
+    sendToCore("SYNC"); //catch-all command asking the HUD to send us both memory core data AND carers
 }
 
 string constructHandle() {
@@ -576,9 +583,17 @@ printCarers(key id) {
     }
 }
 
+//basically an llSay on the secret channel, with a few additional checks to
+//ensure that we've heard back from the core first... unless we're syncing
+sendToCore(string msg) {
+    if(g_isHUDsynced || msg=="SYNC") {
+        llSay(g_uniqueChan, msg);
+    }
+}
+
 //Called at Startup to initialize variables from the memory core.
 loadCarers() {
-    llSay(g_uniqueChan,"CARERS:Load"); //Tell the memory core to send us its data!
+    sendToCore("CARERS:Load"); //Tell the memory core to send us its data!
 }
 
 // If a given name is not already in the carer's list, we add them to the carer's list.
@@ -588,7 +603,7 @@ addCarer(string name) {
         llOwnerSay("You've already added that carer once silly!");   
     }
     else {
-        llSay(g_uniqueChan, "CARERS:Add:"+name); //Tell the memory core to remember this carer.
+        sendToCore("CARERS:Add:"+name); //Tell the memory core to remember this carer.
         g_Carers += name;
         makeButtonsForCarers();
     }
@@ -600,7 +615,7 @@ addCarer(string name) {
 removeCarer(string name) {
     integer carerIndex =llListFindList(g_ButtonCarers, [name]);
     if(~carerIndex) {
-        llSay(g_uniqueChan, "CARERS:Remove:"+name); //Tell the memory core to remove this carer.
+        sendToCore("CARERS:Remove:"+name); //Tell the memory core to remove this carer.
         g_Carers = llDeleteSubList(g_Carers,carerIndex,carerIndex);
         makeButtonsForCarers();
     }
@@ -687,14 +702,12 @@ nedryError(key id) {
 
 default {
     state_entry() {
-        init();
-        loadCarers();
-        //this only needs to be done once, for now
         g_commandHandle = constructHandle();
         if(isDebug == TRUE) {
             llOwnerSay("Your command handle is "+g_commandHandle);
         }
-        llListen(1,"","",g_commandHandle);
+        init();
+        loadCarers();
     }
     
     run_time_permissions(integer perm) {
