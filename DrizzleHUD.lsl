@@ -75,8 +75,8 @@ default {
         //todo: listen to user's personal channel and parse info to be sent to memory core
         //we can do this here without rewriting the memory core!
         if(msg  == "SYNC") {
-            loadCarers();
             loadSettings();
+            llSay(g_uniqueChan, "SYNC:OK");
         }
         else {
             integer index = llSubStringIndex(msg, ":");
