@@ -778,25 +778,32 @@ default {
     listen(integer chan, string name, key id, string msg) {
         integer userRank = getToucherRank(id); // Used to secure the diaper against tomfoolery
         if(userRank == 0 && id != llGetOwner()) { //start of Owner's object/HUD handling
-            integer index = llSubStringIndex(msg, ":");
-            if(~index) {
-                string prefix = llGetSubString(msg, 0, index);
-                string data = llGetSubString(msg, index + 1, -1);
-                if(prefix == "CARERS:") {
-                    if(data != "I'm sorry! There is no more room for carers, please delete one.") { // Valid send
-                        if(data != prefix) {
-                            list tempList = llCSV2List(data);
-                            g_Carers += tempList;
-                            makeButtonsForCarers();
+            if(msg == "SYNC:OK") {
+                g_isHUDsynced = TRUE;
+                g_Carers = [];
+                g_ButtonCarers = [];
+                sendToCore("CARERS:Load");
+            }
+            else {
+                integer index = llSubStringIndex(msg, ":");
+                if(~index) {
+                    string prefix = llGetSubString(msg, 0, index);
+                    string data = llGetSubString(msg, index + 1, -1);
+                    if(prefix == "CARERS:") {
+                        if(data != "I'm sorry! There is no more room for carers, please delete one.") { // Valid send
+                            if(data != prefix) {
+                                list tempList = llCSV2List(data);
+                                g_Carers += tempList;
+                                makeButtonsForCarers();
+                            }
+                        }
+                        else { // No more room for carers!
+                            llOwnerSay(data);
                         }
                     }
-                    else { // No more room for carers!
-                        llOwnerSay(data);
+                    else if(prefix == "SETTINGS:") {
+                        parseSettings(data);
                     }
-                }
-                else if(prefix == "SETTINGS:") {
-                    g_isHUDsynced = TRUE;
-                    parseSettings(data);
                 }
             }
         }//end of Owner object/HUD handling
