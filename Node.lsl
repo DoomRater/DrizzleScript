@@ -105,6 +105,11 @@ forwardMessage(string msg) {
     llMessageLinked(LINK_ALL_CHILDREN, myNum+1, msg, NULL_KEY);
 }
 
+wipeList() {
+    llSetObjectDesc("");
+    llMessageLinked(LINK_ALL_CHILDREN, myNum+1, "WIPE", NULL_KEY);
+}
+
 sendList() {
     //Safe for 1 -> 5, their numbers will tell main what to do.
     
@@ -133,6 +138,12 @@ default {
                 return;
             }
             return;   
+        }
+        else if(msg == "WIPE") { //used to reset the carers
+            if(num == myNum) {
+                wipeList();
+                updateColors();
+            }
         }
         else if(id) { // Valid key in message is used to delete
             if(num == myNum) {
