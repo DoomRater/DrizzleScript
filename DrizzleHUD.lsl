@@ -45,6 +45,10 @@ loadCarers() {
     llMessageLinked(LINK_ALL_CHILDREN, 1, "SEND", NULL_KEY); // Tells the memory core to send us its data!
 }
 
+wipeCarers() {
+    llMessageLinked(LINK_ALL_CHILDREN, 1, "WIPE", NULL_KEY);
+}
+
 loadSettings() {
     llMessageLinked(LINK_ALL_CHILDREN, 6, "SEND", NULL_KEY);
 }
@@ -87,6 +91,7 @@ default {
         else if(msg == "Yuppers!") {
             llSetTimerEvent(0.0);
             llListenRemove(g_confirmHandle);
+            wipeCarers();
             llSay(g_uniqueChan, "CARERS:Load");
             llSay(g_uniqueChan, "SETTINGS:Load");
         }
@@ -113,9 +118,17 @@ default {
                     else if(prefix == "Remove:") {
                         removeCarer(data);
                     }
-                    else if(prefix == data){ //A carer list, or no carer was sent
-                        //todo: figure out a safe way to wipe the list so we can make use oft his data
-                        //we have an established way that the HUD does it, so let's use that
+                    else if(prefix == data && data != ""){ //A carer list was sent
+                        //this will be wiped by the time we get here
+                        //if there are two carers being sent at the same time, separate them before sending
+                        index = llSubStringIndex(data, ",");
+                        if(~index) {
+                            addCarer(llGetSubString(data, 0, index - 1));
+                            addCarer(llGetSubString(data, index + 1, -1));
+                        }
+                        else {
+                            addCarer(data);
+                        }
                     }
                 }
                 else if(prefix == "SETTINGS:") {
