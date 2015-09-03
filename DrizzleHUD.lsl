@@ -23,6 +23,7 @@ the software together, so everyone has access to something potentially excellent
 //-change memory communication
 //-prevent spoofing by other people's objects; a user or worn objects may be able to communicate but outside objects should need permissions first
 //-document API on how to communicate with diaper or HUD
+integer g_confirmHandle;
 integer g_listenerHandle;
 integer g_uniqueChan;
 string g_commandHandle;
@@ -67,16 +68,31 @@ default {
         g_commandHandle = constructHandle();
         g_listenerHandle = llListen(g_uniqueChan, "", "", "");
         //attempt to send a sync of data right off the bat
-        loadSettings();
-        loadCarers();
+        llSay(g_uniqueChan, "SYNC:OK");
     }
     
     listen(integer c, string n, key id, string msg) {
         //todo: listen to user's personal channel and parse info to be sent to memory core
         //we can do this here without rewriting the memory core!
         if(msg  == "SYNC") {
-            loadSettings();
             llSay(g_uniqueChan, "SYNC:OK");
+        }
+        else if(msg == "SYNC:OK") { //This came from another HUD, let's confirm with the user
+        //Todo: get the version from the original HUD and include that with the dialog message
+            llListenRemove(g_confirmHandle);
+            g_confirmHandle = llListen(g_uniqueChan + 1, "", llGetOwner(), "");
+            llDialog(llGetOwner(), "Another HUD is requesting to sync with this one.  This will wipe your carers and settings, and replace them with new ones!",["Yuppers!","Pls no"], g_uniqueChan + 1);
+        llSetTimerEvent(60.0);
+        }
+        else if(msg == "Yuppers!") {
+            llSetTimerEvent(0.0);
+            llListenRemove(g_confirmHandle);
+            llSay(g_uniqueChan, "CARERS:Load");
+            llSay(g_uniqueChan, "SETTINGS:Load");
+        }
+        else if(msg == "Pls no") {
+            llSetTimerEvent(0.0);
+            llListenRemove(g_confirmHandle);
         }
         else {
             integer index = llSubStringIndex(msg, ":");
@@ -97,9 +113,18 @@ default {
                     else if(prefix == "Remove:") {
                         removeCarer(data);
                     }
+                    else if(prefix == data){ //A carer list, or no carer was sent
+                        //todo: figure out a safe way to wipe the list so we can make use oft his data
+                        //we have an established way that the HUD does it, so let's use that
+                    }
                 }
                 else if(prefix == "SETTINGS:") {
-                    saveSettings(data);
+                    if(data == "Load") {
+                        loadSettings();
+                    }
+                    else {
+                        saveSettings(data);
+                    }
                 }
             }
         }
@@ -124,7 +149,7 @@ default {
     
     on_rez(integer start_param) {
         loadSettings();
-        loadCarers();
+        llSay(g_uniqueChan, "SYNC:OK");
     }
     
     link_message(integer sender_num, integer num, string msg, key id) {
@@ -135,5 +160,10 @@ default {
         if(num >= 1 && num <=5) {
             llSay(g_uniqueChan, "CARERS:"+msg);
         }
+    }
+    
+    timer() {
+        llSetTimerEvent(0.0);
+        llListenRemove(g_confirmHandle);
     }
 }
