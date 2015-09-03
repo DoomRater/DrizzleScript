@@ -782,6 +782,7 @@ default {
                 g_isHUDsynced = TRUE;
                 g_Carers = [];
                 g_ButtonCarers = [];
+                sendToCore("SETTINGS:Load");
                 sendToCore("CARERS:Load");
             }
             else {
@@ -801,7 +802,7 @@ default {
                             llOwnerSay(data);
                         }
                     }
-                    else if(prefix == "SETTINGS:") {
+                    else if(prefix == "SETTINGS:" && data != "Load") {
                         parseSettings(data);
                     }
                 }
