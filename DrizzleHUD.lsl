@@ -20,13 +20,13 @@ the software together, so everyone has access to something potentially excellent
 //DrizzleHUD: contains memory core and interactive diaper statistics
 //This represents a fundamental shift in how DrizzleScript stores its information.
 //todo:
-//-change memory communication
 //-prevent spoofing by other people's objects; a user or worn objects may be able to communicate but outside objects should need permissions first
 //-document API on how to communicate with diaper or HUD
 integer g_confirmHandle;
 integer g_listenerHandle;
 integer g_uniqueChan;
 string g_commandHandle;
+integer userConfirmed;
 
 integer generateChan(key id) {
     string channel = "0xE" +  llGetSubString((string)id, 0, 6);
@@ -76,19 +76,23 @@ default {
     }
     
     listen(integer c, string n, key id, string msg) {
-        //todo: listen to user's personal channel and parse info to be sent to memory core
-        //we can do this here without rewriting the memory core!
+        //todo: add some form of verification to allow HUDs permission but not other objects
+        //Make permsisions configurable so that users can choose how much protection against spoofing they want
         if(msg  == "SYNC") {
             llSay(g_uniqueChan, "SYNC:OK");
         }
         else if(msg == "SYNC:OK") { //This came from another HUD, let's confirm with the user
-        //Todo: get the version from the original HUD and include that with the dialog message
+            //Todo: get the version from the original HUD and include that with the dialog message
+            userConfirmed = FALSE;
+            list otherHUD = llParseString2List(n,["-V"],["-V"]);
+            string invVersion = llList2String(otherHUD,1);
             llListenRemove(g_confirmHandle);
             g_confirmHandle = llListen(g_uniqueChan + 1, "", llGetOwner(), "");
-            llDialog(llGetOwner(), "Another HUD is requesting to sync with this one.  This will wipe your carers and settings, and replace them with new ones!",["Yuppers!","Pls no"], g_uniqueChan + 1);
+            llDialog(llGetOwner(), "Another HUD (V" + invVersion +") is requesting to sync with this one.  This will wipe your carers and settings, and replace them with new ones!",["Yuppers!","Pls no"], g_uniqueChan + 1);
         llSetTimerEvent(60.0);
         }
         else if(msg == "Yuppers!") {
+            userConfirmed = TRUE;
             llSetTimerEvent(0.0);
             llListenRemove(g_confirmHandle);
             wipeCarers();
@@ -118,7 +122,7 @@ default {
                     else if(prefix == "Remove:") {
                         removeCarer(data);
                     }
-                    else if(prefix == data && data != ""){ //A carer list was sent
+                    else if(prefix != data && userConfirmed == TRUE){ //A carer list was sent, and we have permissions
                         //this will be wiped by the time we get here
                         //if there are two carers being sent at the same time, separate them before sending
                         index = llSubStringIndex(data, ",");
