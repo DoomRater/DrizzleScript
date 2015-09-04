@@ -77,14 +77,7 @@ string g_updateScript = "ME Wireless DrizzleScript Updater";
 integer isDebug = FALSE;
 //set isDebug to 1 (TRUE) to enable all debug messages, and to 2 to disable info messages
 
-/* Puppy Pawz Pampers Variables */
-integer g_wetPrim;
-integer g_messPrim;
-/* End of PPP variables*/
-
 /* Nezzy's Brand Kawaii Diapers Variables */
-//Kawaii doesn't use multiple prims for its settings, instead it uses faces
-integer g_wetFace = 0;
 integer g_errorCount = 0;
 /*End of Kawaii variables*/
 
@@ -565,8 +558,6 @@ printDebugSettings() {
     llOwnerSay("Other Interaction: " + (string) g_interact);
     llOwnerSay("Channel: " + (string) g_uniqueChan);
     llOwnerSay("Detected Avatars: " + llDumpList2String(g_detectedAvatars,", "));
-    llOwnerSay("Wet Prim: " + (string) g_wetPrim);
-    llOwnerSay("Mess Prim: " + (string) g_messPrim);
     llOwnerSay("Crinkle Volume: "+(string) g_CrinkleVolume);
     llOwnerSay("Wet Sound Volume: "+(string) g_WetVolume);
     llOwnerSay("Mess Sound Volume: "+(string) g_MessVolume);
