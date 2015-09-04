@@ -39,7 +39,7 @@ integer g_mainListen;
 integer g_carerListen;
 integer g_voiceListen;
 integer g_userResponded = FALSE;
-integer g_isHUDsynced = FALSE;
+key g_isHUDsynced = NULL_KEY;
 
 //Saved Non-Carer Settings
 integer g_wetLevel = 0;    //0 - 5 times wet
@@ -90,7 +90,7 @@ integer g_errorCount = 0;
 
 init()
 {
-    g_isHUDsynced = FALSE; //don't send any additional data to the HUD until we hear back from it.
+    g_isHUDsynced = NULL_KEY; //don't send any additional data to the HUD until we hear back from it.
     llListenRemove(g_mainListen);
     llListenRemove(g_voiceListen);
     g_uniqueChan = generateChan(llGetOwner()); // Used to avoid diapers talking to one another via menus.
@@ -587,7 +587,7 @@ printCarers(key id) {
 //basically an llSay on the secret channel, with a few additional checks to
 //ensure that we've heard back from the core first... unless we're syncing
 sendToCore(string msg) {
-    if(g_isHUDsynced || msg=="SYNC") {
+    if(g_isHUDsynced != NULL_KEY || msg=="SYNC") {
         llSay(g_uniqueChan, msg);
     }
 }
@@ -732,11 +732,6 @@ default {
         }
     }
     
-    changed(integer change) {
-        if(change & CHANGED_OWNER) {
-            init();
-        }
-    }
     //Searches the area, stashing the names of those nearby in one list, and their keys in another
     sensor(integer num_detected) {
         integer i = 0;
@@ -778,19 +773,19 @@ default {
     listen(integer chan, string name, key id, string msg) {
         integer userRank = getToucherRank(id); // Used to secure the diaper against tomfoolery
         if(userRank == 0 && id != llGetOwner()) { //start of Owner's object/HUD handling
-            if(msg == "SYNC:OK") {
-                g_isHUDsynced = TRUE;
+            if(msg == "SYNC:OK" && g_isHUDsynced == NULL_KEY) {
+                g_isHUDsynced = id;
                 g_Carers = [];
                 g_ButtonCarers = [];
                 sendToCore("SETTINGS:Load");
                 sendToCore("CARERS:Load");
             }
-            else {
+            else if(id == g_isHUDsynced) {//don't run these unless it's the HUD we synced to
                 integer index = llSubStringIndex(msg, ":");
                 if(~index) {
                     string prefix = llGetSubString(msg, 0, index);
                     string data = llGetSubString(msg, index + 1, -1);
-                    if(prefix == "CARERS:") {
+                    if(prefix == "CARERS:" && data != "Load") {
                         if(data != "I'm sorry! There is no more room for carers, please delete one.") { // Valid send
                             if(data != prefix) {
                                 list tempList = llCSV2List(data);
