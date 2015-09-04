@@ -29,6 +29,7 @@ string g_commandHandle;
 integer userConfirmed;
 integer g_wetLevel;
 integer g_messLevel;
+integer g_totalCarers;
 
 //used to remember the linked prim set for the on-HUD indicators, if found
 integer g_wetBar;
@@ -104,8 +105,26 @@ updateBars(string csv) {
     if(g_messBar) {
         llSetLinkPrimitiveParamsFast(g_messBar,[PRIM_SLICE, <0.0, g_messLevel / 3.0, 0.0>, PRIM_COLOR, ALL_SIDES, <0.357, 0.239, 0.145>, (g_messLevel > 0) * 1.0]);
     }
+    xyzzyText(1,"Wetness: "+(string)g_wetLevel+"/5");
+    xyzzyText(2,"Messiness: "+(string)g_messLevel+"/3");
 }
 
+integer countCarers(string msg) {
+    if(msg == "" || msg == "I'm sorry! There is no more room for carers, please delete one.") {
+        return 0;
+    }
+    integer index = llSubStringIndex(msg, ",");
+    if(~index) {
+        return 2;
+    }
+    else {
+        return 1;
+    }
+}
+
+xyzzyText(integer row, string msg) {
+    llMessageLinked(LINK_THIS,204000,msg,(string)row);
+}
 
 default {
     state_entry() {
@@ -138,6 +157,8 @@ default {
             llSetTimerEvent(0.0);
             llListenRemove(g_confirmHandle);
             wipeCarers();
+            g_totalCarers = 0;
+            xyzzyText(3,"Total Carers: ??");
             llSay(g_uniqueChan, "CARERS:Load");
             llSay(g_uniqueChan, "SETTINGS:Load");
         }
@@ -160,14 +181,16 @@ default {
                     }
                     else if(prefix == "Add:") {
                         addCarer(data);
+                        g_totalCarers += countCarers(data);
                     }
                     else if(prefix == "Remove:") {
                         removeCarer(data);
+                        g_totalCarers -= countCarers(data);
                     }
                     else if(prefix != "CARERS:" && userConfirmed == TRUE){ //A carer list was sent, and we have permissions
-                        //this will be wiped by the time we get here
                         //if there are two carers being sent at the same time, separate them before sending
                         index = llSubStringIndex(data, ",");
+                        g_totalCarers += countCarers(data);
                         if(~index) {
                             addCarer(llGetSubString(data, 0, index - 1));
                             addCarer(llGetSubString(data, index + 1, -1));
@@ -176,6 +199,7 @@ default {
                             addCarer(data);
                         }
                     }
+                    xyzzyText(3,"Total Carers: "+(string)g_totalCarers);
                 }
                 else if(prefix == "SETTINGS:") {
                     if(data == "Load") {
@@ -219,7 +243,10 @@ default {
             llSay(g_uniqueChan, "SETTINGS:"+msg);
         }
         if(num >= 1 && num <=5) {
+            //update the carer count
+            g_totalCarers = countCarers(msg);
             llSay(g_uniqueChan, "CARERS:"+msg);
+            xyzzyText(3,"Total Carers: "+(string)g_totalCarers);
         }
     }
     
