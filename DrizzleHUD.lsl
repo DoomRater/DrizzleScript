@@ -99,10 +99,10 @@ updateBars(string csv) {
     g_messLevel = (integer) llGetSubString(csv, 0, index-1);
 
     if(g_wetBar) {
-        llSetLinkPrimitiveParamsFast(g_wetBar,[PRIM_SLICE, <0.0, g_wetLevel / 5.0, 0.0>]);
+        llSetLinkPrimitiveParamsFast(g_wetBar,[PRIM_SLICE, <0.0, g_wetLevel / 5.0, 0.0>, PRIM_COLOR, ALL_SIDES, <0.8, 0.765, 0.2>, (g_wetLevel > 0) * 1.0]);
     }
     if(g_messBar) {
-        llSetLinkPrimitiveParamsFast(g_messBar,[PRIM_SLICE, <0.0, g_messLevel / 3.0, 0.0>]);
+        llSetLinkPrimitiveParamsFast(g_messBar,[PRIM_SLICE, <0.0, g_messLevel / 3.0, 0.0>, PRIM_COLOR, ALL_SIDES, <0.357, 0.239, 0.145>, (g_messLevel > 0) * 1.0]);
     }
 }
 
