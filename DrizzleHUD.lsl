@@ -155,16 +155,12 @@ default {
         llSay(g_uniqueChan, g_commandHandle);
     }
     
-    changed(integer change) {
-        if(change & CHANGED_OWNER) {
-            llListenRemove(g_listenerHandle);
-            g_uniqueChan = generateChan(llGetOwner());
-            g_commandHandle = constructHandle();
-            g_listenerHandle = llListen(g_uniqueChan, "", "", "");
-        }
-    }
-    
     on_rez(integer start_param) {
+        //changed event is fired AFTER on_rez, so we need to do this here
+        llListenRemove(g_listenerHandle);
+        g_uniqueChan = generateChan(llGetOwner());
+        g_commandHandle = constructHandle();
+        g_listenerHandle = llListen(g_uniqueChan, "", "", "");
         loadSettings();
         llSay(g_uniqueChan, "SYNC:OK");
     }
