@@ -27,6 +27,12 @@ integer g_listenerHandle;
 integer g_uniqueChan;
 string g_commandHandle;
 integer userConfirmed;
+integer g_wetLevel;
+integer g_messLevel;
+
+//used to remember the linked prim set for the on-HUD indicators, if found
+integer g_wetBar;
+integer g_messBar;
 
 integer generateChan(key id) {
     string channel = "0xE" +  llGetSubString((string)id, 0, 6);
@@ -66,8 +72,44 @@ removeCarer(string name) {
     llMessageLinked(LINK_ALL_CHILDREN, 1, name, llGetOwner()); //Valid key sent flags "Delete Carer" as the action for the memory core.
 }
 
+findPrims() {
+    g_wetBar = 0;
+    g_messBar = 0;
+    integer i; // Used to loop through the linked objects
+    integer primCount = llGetNumberOfPrims(); //should be attached, not sat on
+    for(i = 0; i <= primCount; i++) { 
+        string primName = (string) llGetLinkPrimitiveParams(i, [PRIM_NAME]); // Get the name of linked object i
+        if(primName == "WetBar") {
+            g_wetBar = i;
+        }
+        else if(primName == "MessBar") {
+            g_messBar = i;
+        }
+    }
+}
+
+updateBars(string csv) {
+    integer index; // Used to hold the location of a comma in the CSV
+    
+    index = llSubStringIndex(csv, ",");
+    g_wetLevel = (integer) llGetSubString(csv, 0, index-1);
+    csv = llGetSubString(csv, index+1, -1); // Remove the used data.
+    
+    index = llSubStringIndex(csv, ",");
+    g_messLevel = (integer) llGetSubString(csv, 0, index-1);
+
+    if(g_wetBar) {
+        llSetLinkPrimitiveParamsFast(g_wetBar,[PRIM_SLICE, <0.0, g_wetLevel / 5.0, 0.0>]);
+    }
+    if(g_messBar) {
+        llSetLinkPrimitiveParamsFast(g_messBar,[PRIM_SLICE, <0.0, g_messLevel / 3.0, 0.0>]);
+    }
+}
+
+
 default {
     state_entry() {
+        findPrims();
         g_uniqueChan = generateChan(llGetOwner());
         g_commandHandle = constructHandle();
         g_listenerHandle = llListen(g_uniqueChan, "", "", "");
@@ -122,7 +164,7 @@ default {
                     else if(prefix == "Remove:") {
                         removeCarer(data);
                     }
-                    else if(prefix != data && userConfirmed == TRUE){ //A carer list was sent, and we have permissions
+                    else if(prefix != "CARERS:" && userConfirmed == TRUE){ //A carer list was sent, and we have permissions
                         //this will be wiped by the time we get here
                         //if there are two carers being sent at the same time, separate them before sending
                         index = llSubStringIndex(data, ",");
@@ -141,6 +183,7 @@ default {
                     }
                     else {
                         saveSettings(data);
+                        updateBars(data);
                     }
                 }
             }
