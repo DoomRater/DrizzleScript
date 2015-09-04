@@ -439,7 +439,7 @@ handleChange(string msg, key id) {
     else if(msg == "Other") {
         llMessageLinked(LINK_THIS, -2, (string) g_gender + ":" + (string) g_wetLevel + ":" + (string) g_messLevel + ":" + "Normal Change" + ":" + llKey2Name(id), id);
     }
-//    adjustWetMessPrims();
+//    adjustWetMessVisuals(); //This automatically happens due to the link messages we are sending.
     sendSettings();
 }//End handleChange(string, id)
 // This function is called to manage wettings
@@ -513,7 +513,7 @@ handleFlooding(string msg, key id) {
     Updates wet/mess prims to show as required.
     Refer to Potty.lsl for exact details
 */
-adjustWetMessPrims() {
+adjustWetMessVisuals() {
     llMessageLinked(LINK_THIS, -2,(string) g_gender + ":" + (string) g_wetLevel + ":" + (string) g_messLevel, NULL_KEY);
 }//End WetMessPrims()
 
@@ -790,6 +790,7 @@ default {
                     }
                     else if(prefix == "SETTINGS:" && data != "Load") {
                         parseSettings(data);
+                        adjustWetMessVisuals();
                     }
                 }
             }
@@ -804,7 +805,7 @@ default {
         }
         else if(msg == "Show/Hide" && userRank < 2) {
             toggleHide(); // Needs to keep in mind what Should and SHOULD NOT be visible
-            adjustWetMessPrims(); // Ensure prims are properly hidden/shown after a state change.
+            adjustWetMessVisuals(); // Ensure prims are properly hidden/shown after a state change.
             mainMenu(id);
         }
         else if(msg == "Options" && userRank < 2) {
