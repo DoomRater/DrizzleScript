@@ -244,9 +244,7 @@ default {
         }
         if(num >= 1 && num <=5) {
             //update the carer count
-            g_totalCarers = countCarers(msg);
             llSay(g_uniqueChan, "CARERS:"+msg);
-            xyzzyText(3,"Total Carers: "+(string)g_totalCarers);
         }
     }
     
