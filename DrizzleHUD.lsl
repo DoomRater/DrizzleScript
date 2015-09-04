@@ -204,8 +204,13 @@ default {
         g_uniqueChan = generateChan(llGetOwner());
         g_commandHandle = constructHandle();
         g_listenerHandle = llListen(g_uniqueChan, "", "", "");
-        loadSettings();
         llSay(g_uniqueChan, "SYNC:OK");
+    }
+    
+    changed(integer c) {
+        if(c & CHANGED_LINK) {
+            findPrims();
+        }
     }
     
     link_message(integer sender_num, integer num, string msg, key id) {
