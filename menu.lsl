@@ -485,6 +485,7 @@ handleMessing(string msg, key id) {
     else if(msg == "Force") {
         llMessageLinked(LINK_THIS, -4, (string) g_gender + ":" + (string) g_wetLevel + ":" + (string) g_messLevel + ":" + "Force Mess" + ":" + llKey2Name(id), id);
     }
+    playMessSound(g_MessVolume * .00333);
     timesHeldMess = 0;
     //new forecast for messing
     g_mForecast = myTimer(g_messTimer * 60);
