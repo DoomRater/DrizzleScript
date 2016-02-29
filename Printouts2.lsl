@@ -30,7 +30,7 @@ string g_toucherName; // "Self" or "Tickle" or "Forced"
 key g_toucherKey; //in case we need to print to the toucher
 string g_useType; // "Wet" "Mess"
 string g_PrintoutCard = "Default";
-integer isDebug = FALSE;
+integer isDebug = TRUE;
 //set isDebug to 1 (TRUE) to enable all debug messages, and to 2 to disable info messages
 
 //Variables which hold all printouts in memory for speed.
@@ -63,6 +63,14 @@ string carer_forceWet1;         //Prints for carer 'Force' options
 string carer_forceWet2;
 string carer_forceMess1; 
 string carer_forceMess2;
+string carer_forcePotty;
+
+//Potty stuff
+string havetoPee;
+string havetoPoo;
+string noPotty_W;
+string noPotty_M;
+string forbitten;
 
 //Other Check in Printouts1 (19)
 
@@ -132,6 +140,14 @@ clearCustomPrints() {
     carer_forceWet2="";
     carer_forceMess1=""; 
     carer_forceMess2="";
+    carer_forcePotty="";;
+
+//Potty stuff
+    havetoPee="";
+    havetoPoo="";
+    noPotty_W="";
+    noPotty_M="";
+    forbitten="";
 
     instantFlood="";
 
@@ -342,6 +358,24 @@ constructPrint(string data, integer append, string printoutType) {
         else if(printoutType == "@oWedgieMess2") {
             messWedgie2 += data;
         }
+        else if(printoutType == "@forcePotty") {
+            carer_forcePotty += data;
+        }
+        else if(printoutType == "@havetoPee") {
+            havetoPee += data;
+        }
+        else if(printoutType == "@havetoPoo") {
+            havetoPoo += data;
+        }
+        else if(printoutType == "@noPotty_W") {
+            noPotty_W += data;
+        }
+        else if(printoutType == "@noPotty_M") {
+            noPotty_M += data;
+        }
+        else if(printoutType == "@forbitten") {
+            forbitten += data;
+        }
     }
     else { // Not appending, replace the printout!
         if(printoutType == "@CareCheckClean") {
@@ -479,6 +513,24 @@ constructPrint(string data, integer append, string printoutType) {
         }
         else if(printoutType == "@oWedgieMess2") {
             messWedgie2 = data;
+        }
+        else if(printoutType == "@forcePotty") {
+            carer_forcePotty = data;
+        }
+        else if(printoutType == "@havetoPee") {
+            havetoPee = data;
+        }
+        else if(printoutType == "@havetoPoo") {
+            havetoPoo = data;
+        }
+        else if(printoutType == "@noPotty_W") {
+            noPotty_W = data;
+        }
+        else if(printoutType == "@noPotty_M") {
+            noPotty_M = data;
+        }
+        else if(printoutType == "@forbitten") {
+            forbitten = data;
         }
     }
 }
@@ -720,6 +772,24 @@ displayPrintout() {
                 temp = processPrint(wetWedgie5to6);
             }
         }
+    }
+    else if(g_useType == "CarerPotty") {
+        temp = processPrint(carer_forcePotty);
+    }
+    else if(g_useType == "havetoPee") {
+        temp = processPrint(havetoPee);
+    }
+    else if(g_useType == "havetoPoo") {
+        temp = processPrint(havetoPoo);
+    }
+    else if(g_useType == "noPotty_W") {
+        temp = processPrint(noPotty_W);
+    }
+    else if(g_useType == "noPotty_M") {
+        temp = processPrint(noPotty_M);
+    }
+    else if(g_useType == "Forbitten") {
+        temp = processPrint(forbitten);
     }
     if(temp) { //Allow for empty notecards to silence printouts
         index = llSubStringIndex(temp, " ");
