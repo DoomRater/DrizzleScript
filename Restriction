@@ -1,0 +1,469 @@
+/*==========================================================
+DrizzleScript restriction
+Created By: Napysusy Iadyl
+Original Date: Jan 29th, 2016
+GitHub Repository: https://github.com/DoomRater/DrizzleScript
+
+Programming Contributors: Ryhn Teardrop, Brache Spyker, Napysusy Iadyl
+Resource Contributors: Murreki Fasching, Brache Spyker
+
+License: RPL v1.5 (Outlined at http://www.opensource.org/licenses/RPL-1.5)
+
+The license can also be found in the folder these scripts are distributed in.
+Essentially, if you edit this script you have to publicly release the result.
+(Copy/Mod/Trans on this script) This stipulation helps to grow the community and
+the software together, so everyone has access to something potentially excellent.
+
+*Leave this header here, but if you contribute, add your name to the list!*
+============================================================*/
+
+/* Script used to offer and manage setting-changing menu options */
+
+integer g_uniqueChan;
+integer g_mainListen; //needed to keep track of the listens
+key g_queueid = NULL_KEY; //keep track of people who are waiting in line to use the item
+key g_currentid = NULL_KEY;
+string g_currMenu;
+string g_currMenuMessage; //Potentially usable to determine which timer is being used?
+list g_currMenuButtons;
+//
+list g_settingRLV =["DONE","LOCK","★","★","Timer","SelfChange","Poo★Warning","Poo★Hold","Poo★Potty","Pee★Warning","Pee★Hold","Pee★Potty"];
+//list g_settingRLV =["DONE","LOCK","Debug","★","Timer","SelfChange","Poo★Warning","Poo★Hold","Poo★Potty","Pee★Warning","Pee★Hold","Pee★Potty"];
+integer isDebug = FALSE;
+integer myRLVChanel = 34095;
+integer g_RLVListen;
+integer RLVenable;
+//
+//
+//menu variables passed to preferences
+integer g_wetLevel;
+integer g_messLevel;
+integer g_wetChance;
+integer g_messChance;
+integer g_wetTimer;
+integer g_messTimer;
+integer g_tummyRub;
+integer g_tickle;
+integer g_gender;
+integer g_isOn;
+integer g_interact;
+integer g_chatter;
+integer g_crinkleVolume;
+integer g_wetVolume;
+integer g_messVolume;
+integer g_mCalcForecast; 
+integer g_wCalcForecast; 
+integer g_timesHeldWet;
+integer g_timesHeldMess;
+integer g_PlasticPants;
+integer g_TimerRandom;
+integer g_allowPeePotty;
+integer g_allowPooPottty;
+integer g_allowHoldPee;
+integer g_allowHoldPoo;
+integer g_giveWarningPee;
+integer g_giveWarningPoo;
+integer g_allowSelfChange;
+integer g_lockdetach;       // 1 = options an take off is forbitten
+
+init()
+{
+    llListenRemove(g_mainListen);
+    llListenRemove(g_RLVListen);
+    g_uniqueChan = generateChan(llGetOwner()) + 3; // Remove collision with Menu listen handler via +1
+}
+
+integer generateChan(key id) {
+    string channel = "0xE" +  llGetSubString((string)id, 0, 6);
+    return (integer) channel;
+}
+
+//This function serves a new menu directly to the user, and 
+//informs the person waiting in line that they'll need to try again
+//This doesn't give the user ultimate control- carers and users are considered
+//equal in this function.
+offerMenu(key id, string dialogMessage, list buttons) {
+    llSetTimerEvent(0.0);
+    llListenRemove(g_mainListen);
+    g_currMenuButtons = buttons;
+    g_currMenuMessage = dialogMessage;
+    if(g_queueid != NULL_KEY) {
+        llRegionSayTo(g_queueid, 0, "I'm sorry, someone else is still using the menu! You'll need to try again after they're done.");
+        g_queueid = NULL_KEY;
+    }
+    g_mainListen = llListen(g_uniqueChan, "", id, "");
+    llSetTimerEvent(30.0);
+    llDialog(id, dialogMessage, buttons, g_uniqueChan);
+}
+
+
+sendSettings() {
+    string csv = (string) g_wetLevel + "," +
+    (string) g_messLevel + "," +
+    (string) g_wetChance + "," +
+    (string) g_messChance + "," +
+    (string) g_wetTimer + "," +
+    (string) g_messTimer + "," +
+    (string) g_tummyRub + "," +
+    (string) g_tickle + "," +
+    (string) g_gender + "," +
+    (string) g_isOn + "," +
+    (string) g_interact + "," +
+    (string) g_chatter + "," +
+    (string) g_crinkleVolume + "," +
+    (string) g_wetVolume + "," +
+    (string) g_messVolume + "," +
+    (string) g_mCalcForecast + "," +
+    (string) g_wCalcForecast + "," +
+    (string) g_timesHeldWet + "," +
+    (string) g_timesHeldMess + "," +
+    (string) g_PlasticPants + "," +
+    (string) g_TimerRandom + "," +
+    (string) g_allowPeePotty + "," +
+    (string) g_allowPooPottty + "," +
+    (string) g_allowHoldPee + "," +
+    (string) g_allowHoldPoo + "," +
+    (string) g_giveWarningPee + "," +
+    (string) g_giveWarningPoo + "," +
+    (string) g_lockdetach + "," +
+    (string) g_allowSelfChange;
+    llMessageLinked(LINK_THIS, -10, csv, NULL_KEY);
+    g_wCalcForecast = 0; //send this only once
+    g_mCalcForecast = 0; //send this only once
+}
+
+parseSettings(string temp) {
+    integer index; // Used to hold the location of a comma in the CSV
+   
+    index = llSubStringIndex(temp, ",");
+    g_wetLevel = (integer) llGetSubString(temp, 0, index-1);
+    temp = llGetSubString(temp, index+1, -1); // Remove the used data.
+    
+    index = llSubStringIndex(temp, ",");
+    g_messLevel = (integer) llGetSubString(temp, 0, index-1);
+    temp = llGetSubString(temp, index+1, -1);
+    
+    index = llSubStringIndex(temp, ",");
+    g_wetChance = (integer) llGetSubString(temp, 0, index-1);
+    temp = llGetSubString(temp, index+1, -1);
+    
+    index = llSubStringIndex(temp, ",");
+    g_messChance = (integer) llGetSubString(temp, 0, index-1);
+    temp = llGetSubString(temp, index+1, -1);
+    
+    index = llSubStringIndex(temp, ",");
+    g_wetTimer = (integer) llGetSubString(temp, 0, index-1);
+    temp = llGetSubString(temp, index+1, -1);
+    
+    index = llSubStringIndex(temp, ",");
+    g_messTimer = (integer) llGetSubString(temp, 0, index-1);
+    temp = llGetSubString(temp, index+1, -1);
+    
+    index = llSubStringIndex(temp, ",");
+    g_tummyRub = (integer) llGetSubString(temp, 0, index-1);
+    temp = llGetSubString(temp, index+1, -1);
+    
+    index = llSubStringIndex(temp, ",");
+    g_tickle = (integer) llGetSubString(temp, 0, index-1);
+    temp = llGetSubString(temp, index+1, -1);
+    
+    index = llSubStringIndex(temp, ",");
+    g_gender = (integer) llGetSubString(temp, 0, index-1);
+    temp = llGetSubString(temp, index+1, -1);
+
+    index = llSubStringIndex(temp, ",");
+    g_isOn = (integer) llGetSubString(temp, 0, index-1);
+    temp = llGetSubString(temp, index+1, -1);
+
+    index = llSubStringIndex(temp, ",");
+    g_interact = (integer) llGetSubString(temp, 0, index-1);
+    temp = llGetSubString(temp, index+1, -1);
+    
+    index = llSubStringIndex(temp, ",");
+    g_chatter = (integer) llGetSubString(temp, 0, index-1);
+    temp = llGetSubString(temp, index+1, -1);
+
+    index = llSubStringIndex(temp, ",");
+    g_crinkleVolume = (integer) llGetSubString(temp, 0, index-1);
+    temp = llGetSubString(temp, index+1, -1);
+
+    index = llSubStringIndex(temp, ",");
+    g_wetVolume = (integer) llGetSubString(temp, 0, index-1);
+    temp = llGetSubString(temp, index+1, -1);
+
+    index = llSubStringIndex(temp, ",");
+    g_messVolume = (integer) llGetSubString(temp, 0, index-1);
+    temp = llGetSubString(temp, index+1, -1);
+    
+    index = llSubStringIndex(temp, ",");
+    g_mCalcForecast = (integer) llGetSubString(temp, 0, index-1);
+    g_mCalcForecast = 0; // this is not importand vor this skript 
+    temp = llGetSubString(temp, index+1, -1);
+    
+    index = llSubStringIndex(temp, ",");
+    g_wCalcForecast = (integer) llGetSubString(temp, 0, index-1);
+    g_wCalcForecast = 0; // this is not importand vor this skript 
+    temp = llGetSubString(temp, index+1, -1);
+    
+    index = llSubStringIndex(temp, ",");
+    g_timesHeldWet = (integer) llGetSubString(temp, 0, index-1);
+    temp = llGetSubString(temp, index+1, -1);
+    
+    index = llSubStringIndex(temp, ",");
+    g_timesHeldMess = (integer) llGetSubString(temp, 0, index-1);
+    temp = llGetSubString(temp, index+1, -1);
+
+    index = llSubStringIndex(temp, ",");
+    g_PlasticPants = (integer) llGetSubString(temp, 0, index-1);
+    temp = llGetSubString(temp, index+1, -1);
+    
+    index = llSubStringIndex(temp, ",");
+    g_TimerRandom  = (integer) llGetSubString(temp, 0, index-1);
+    temp = llGetSubString(temp, index+1, -1);
+
+    index = llSubStringIndex(temp, ",");
+    g_allowPeePotty = (integer) llGetSubString(temp, 0, index-1);
+    temp = llGetSubString(temp, index+1, -1);
+
+    index = llSubStringIndex(temp, ",");
+    g_allowPooPottty = (integer) llGetSubString(temp, 0, index-1);
+    temp = llGetSubString(temp, index+1, -1);
+
+    index = llSubStringIndex(temp, ",");
+    g_allowHoldPee = (integer) llGetSubString(temp, 0, index-1);
+    temp = llGetSubString(temp, index+1, -1);
+
+    index = llSubStringIndex(temp, ",");
+    g_allowHoldPoo = (integer) llGetSubString(temp, 0, index-1);
+    temp = llGetSubString(temp, index+1, -1);
+
+    index = llSubStringIndex(temp, ",");
+    g_giveWarningPee = (integer) llGetSubString(temp, 0, index-1);
+    temp = llGetSubString(temp, index+1, -1);
+
+    index = llSubStringIndex(temp, ",");
+    g_giveWarningPoo = (integer) llGetSubString(temp, 0, index-1);
+    temp = llGetSubString(temp, index+1, -1);
+    
+    index = llSubStringIndex(temp, ",");
+    g_lockdetach = (integer) llGetSubString(temp, 0, index-1);
+    temp = llGetSubString(temp, index+1, -1);
+    
+    g_allowSelfChange = (integer) temp;
+}
+
+printDebugSettings() {
+    llOwnerSay("restrictions\nUsed Memory: " + (string) llGetUsedMemory());
+    llOwnerSay("Free Memory: " + (string) llGetFreeMemory());
+    llOwnerSay("RLV viewer: " + (string) RLVenable);
+}
+
+string m_RLVMenu() {
+    string settings;
+    settings ="\nToggel restriction settings\n\n";
+    if (g_TimerRandom == 0) {
+        settings += "Timersettings = strictly\n";
+    }
+    else {
+        settings += "Timersettings = vague\n";
+    }    // 0 = Timer as Set; 1 = Timer Random betwen 0 and Timer + half Timer
+    if (g_allowPeePotty == 0) {
+        settings += "Potty pee is prohibited\n";
+    }
+    else {
+        settings += "Potty pee is allowed\n";
+    }    // 1 = Allows wearer to use the Potty
+    if (g_allowPooPottty == 0) {
+        settings += "Potty poo is prohibited\n";
+    }
+    else {
+        settings += "Potty poo is allowed\n";
+    }      // 1 = Allows wearer to use the Potty
+    if (g_allowHoldPee == 0) {
+        settings += "Hold pee is prohibited\n";
+    }
+    else {
+        settings += "Hold pee is allowed\n";
+    }       // 1 = Allows wearer to use the Button Hold it dosnt chang the random Holding
+    if (g_allowHoldPoo == 0) {
+        settings += "Hold poo is prohibited\n";
+    }
+    else {
+        settings += "Hold poo is allowed\n";
+    }     // 1 = Allows wearer to use the Button Hold it dosnt chang the random Holding
+    if (g_giveWarningPee == 0) {
+        settings += "No pee warning appears\n";
+    }
+    else {
+        settings += "Pee warning appears\n";
+    }       // 1 = Give a warning to the Wearer 10% of setTimer bevor a accident happents
+    if (g_giveWarningPoo == 0) {
+        settings += "No poo warning appears\n";
+    }
+    else {
+        settings += "Poo warning appears\n";
+    }         // 1 = Give a warning to the Wearer 10% of setTimer bevor a accident happents
+    if (g_allowSelfChange == 0) {
+        settings += "Self Change is not allowed\n";
+    }
+    else {
+        settings += "Self change is allowed\n";
+    }           // 1 = Allows wearer to change self
+    if (g_lockdetach == 0) {
+        settings += "Diaper is not looked\n";
+    }
+    else {
+        settings += "Diaper is looked\n";
+    }       // 1 = options an take off is forbitten
+    return settings;
+}
+
+default {
+    state_entry() {
+        init();
+    }
+    
+    attach(key id) {
+        if(id) { // Attached
+          // listener RLV request
+          g_RLVListen = llListen(myRLVChanel, "", "", "");     
+          llSetTimerEvent(30.0);
+          RLVenable = 0;
+            llOwnerSay("@versionnew=" + (string) myRLVChanel);
+        }
+    }
+    
+    changed(integer change) {
+        if(change & (CHANGED_OWNER | CHANGED_INVENTORY)) {
+            init();
+        }
+    }
+    
+    timer() {
+        llSetTimerEvent(0.0);
+        llListenRemove(g_mainListen);
+        if(g_queueid != NULL_KEY) {
+            g_currentid = g_queueid;
+            g_queueid = NULL_KEY;
+            g_currMenu = "";
+            offerMenu(g_currentid, m_RLVMenu(), g_settingRLV);
+        }
+        else {
+            g_currentid = NULL_KEY;
+        }
+    }
+
+    link_message(integer sender_num, integer num, string msg, key id) {
+        if(num == -6 || num == -9|| num == -3) {
+           integer index = llSubStringIndex(msg, ":");
+           if(index == -1) { //received settings from Preferences
+             parseSettings(msg);
+             return;
+           }
+        }
+        else if(num == -11) {
+            if(msg == "RLV" && g_currentid == NULL_KEY || g_currentid == id) {
+                g_currentid = id;
+                g_currMenu = "";
+                offerMenu(id, m_RLVMenu(), g_settingRLV);
+            }
+            else if(msg == "RLV" && g_queueid == NULL_KEY) {
+                g_queueid = id;
+                llRegionSayTo(id, 0, "Please wait a few seconds...");
+                llSetTimerEvent(5.0); //five seconds should be enough time to wait in line
+            }
+        }
+    }
+
+    listen(integer chan, string name, key id, string msg)   {
+        if (chan == myRLVChanel) {
+            llOwnerSay(msg);
+           integer index = llSubStringIndex(msg, "RestrainedLove");
+           if(index != -1) { //received settings from Preferences
+              RLVenable = 1;
+              llListenRemove(g_RLVListen);
+              if (g_lockdetach == 1) {
+                llOwnerSay("@detach=n");
+                g_settingRLV = llListReplaceList(g_settingRLV, ["UNLOCK"], 1, 1);
+              }
+              else {
+                g_settingRLV = llListReplaceList(g_settingRLV, ["LOCK"], 1, 1);
+              }    
+           }
+           
+        }
+                             
+        if(msg == "★") {// Someone misclicked in the menu!
+            llRegionSayTo(id, 0, "The stars are just there to look pretty! =p");
+            offerMenu(id, g_currMenuMessage, g_currMenuButtons);
+        }
+        //list g_settingRLV 
+        else if(msg == "Debug") {
+            llOwnerSay(msg + m_RLVMenu());
+            // RLV Viewer?
+            llOwnerSay("@versionnew=" + (string) myRLVChanel);
+            printDebugSettings();
+            offerMenu(id, g_currMenuMessage, g_currMenuButtons);
+        }
+        else if(msg == "LOCK" || msg == "UNLOCK") {
+            if (RLVenable == 1) { //works only if RLV is enable
+                if (g_lockdetach == 1) {
+                    g_lockdetach = 0;
+                    llOwnerSay("@detach=y");
+                    g_settingRLV = llListReplaceList(g_settingRLV, ["LOCK"], 1, 1);
+                    llOwnerSay("Your diaper is now unlocked");
+                }
+                else {
+                    g_lockdetach = 1;
+                    llOwnerSay("@detach=n");
+                    g_settingRLV = llListReplaceList(g_settingRLV, ["UNLOCK"], 1, 1);
+                    llOwnerSay("Your diaper is now locked");
+                }
+            }
+            else {
+                llOwnerSay("RLV is not ready");
+            }
+            sendSettings();
+        }
+        else if(msg == "Timer") {
+            g_TimerRandom = !g_TimerRandom;
+            sendSettings();
+            offerMenu(id, m_RLVMenu(), g_currMenuButtons);
+        }
+        else if(msg == "SelfChange") {
+            g_allowSelfChange = !g_allowSelfChange;
+            sendSettings();
+            offerMenu(id, m_RLVMenu(), g_currMenuButtons);
+        }
+        else if(msg == "Pee★Warning") {
+            g_giveWarningPee = !g_giveWarningPee;
+            sendSettings();
+            offerMenu(id, m_RLVMenu(), g_currMenuButtons);
+        }
+        else if(msg == "Pee★Potty") {
+            g_allowPeePotty = !g_allowPeePotty;
+            sendSettings();
+            offerMenu(id, m_RLVMenu(), g_currMenuButtons);
+        }
+        else if(msg == "Pee★Hold") {
+            g_allowHoldPee = !g_allowHoldPee;
+            sendSettings();
+            offerMenu(id, m_RLVMenu(), g_currMenuButtons);
+        }
+        else if(msg == "Poo★Warning") {
+            g_giveWarningPoo = !g_giveWarningPoo;
+            sendSettings();
+            offerMenu(id, m_RLVMenu(), g_currMenuButtons);
+        }
+        else if(msg == "Poo★Hold") {
+            g_allowHoldPoo = !g_allowHoldPoo;
+            sendSettings();
+            offerMenu(id, m_RLVMenu(), g_currMenuButtons);
+        }
+        else if(msg == "Poo★Potty") {
+            g_allowPooPottty = !g_allowPooPottty;
+            sendSettings();
+            offerMenu(id, m_RLVMenu(), g_currMenuButtons);
+        }
+    }
+}
