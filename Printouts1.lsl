@@ -54,6 +54,15 @@ string wet6;
 //string holdwetstage9;
 //string holdunsuccessful;
 
+// holding
+string holtwTimer;
+string holtmTimer;
+string holtwButton;
+string holtmButton;
+
+string PottyW;
+string PottyM;
+
 //Mess Prints
 string mess1;
 string mess2;
@@ -139,6 +148,12 @@ clearCustomPrints() {
     wet5="";
     wet6="";
 
+    holtwTimer="";
+    holtmTimer="";
+    holtwButton="";
+    holtmButton="";
+    PottyW="";
+    PottyM="";
     mess1="";
     mess2="";
     mess3="";
@@ -264,6 +279,24 @@ constructPrint(string data, integer append, string printoutType) {
         else if(printoutType == "@Wet6") {
             wet6 += data;
         }// End of wetting printouts
+        else if(printoutType == "@uHoldwTimer") {
+            holtwTimer += data;
+        }
+        else if(printoutType == "@uHoldmTimer") {
+            holtmTimer += data;
+        }
+        else if(printoutType == "@uHoldwButton") {
+            holtwButton += data;
+        }
+        else if(printoutType == "@uHoldmButton") {
+            holtmButton += data;
+        }// End of holding printouts
+        else if(printoutType == "@uPotty_W") {
+            PottyW += data;
+        }
+        else if(printoutType == "@uPotty_M") {
+            PottyM += data;
+        }
         else if(printoutType == "@Mess1") {
             mess1 += data;
         }
@@ -444,6 +477,24 @@ constructPrint(string data, integer append, string printoutType) {
         else if(printoutType == "@Wet6") {
             wet6 = data;
         }// End of wetting printouts
+        else if(printoutType == "@uHoldwTimer") {
+            holtwTimer = data;
+        }
+        else if(printoutType == "@uHoldmTimer") {
+            holtmTimer = data;
+        }
+        else if(printoutType == "@uHoldwButton") {
+            holtwButton = data;
+        }
+        else if(printoutType == "@uHoldmButton") {
+            holtmButton = data;
+        }// End of holding printouts
+        else if(printoutType == "@uPotty_W") {
+            PottyW = data;
+        }
+        else if(printoutType == "@uPotty_M") {
+            PottyM = data;
+        }
         else if(printoutType == "@Mess1") {
             mess1 = data;
         }
@@ -872,6 +923,25 @@ displayPrintout() {
         else if(g_wetLevel >= 1 && g_messLevel >= 1) {
             temp = processPrint(wetMessTease);
         }
+    }
+    // addet napysusy to do message vor holding
+    else if(g_useType == "WHold_Button") {
+        temp = processPrint(holtwButton);
+    }
+    else if(g_useType == "WHold_Timer") {
+        temp = processPrint(holtwTimer);
+    }
+    else if(g_useType == "MHold_Button") {
+        temp = processPrint(holtmButton);
+    }
+    else if(g_useType == "MHold_Timer") {
+        temp = processPrint(holtmTimer);
+    }
+    else if(g_useType == "Potty_W") {
+        temp = processPrint(PottyW);
+    }
+    else if(g_useType == "Potty_M") {
+        temp = processPrint(PottyM);
     }
     if(temp) { //Don't chat at all if we didn't assign temp anything
         //Remove first word in sentence
