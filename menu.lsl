@@ -1,10 +1,10 @@
 /*==========================================================
-DrizzleScript
+DrizzleScript menu
 Created By: Ryhn Teardrop
 Original Date: Dec 3rd, 2011
 GitHub Repository: https://github.com/DoomRater/DrizzleScript
 
-Programming Contributors: Ryhn Teardrop, Brache Spyker
+Programming Contributors: Ryhn Teardrop, Brache Spyker, Napysusy Iadyl
 Resource Contributors: Murreki Fasching, Brache Spyker
 
 License: RPL v1.5 (Outlined at http://www.opensource.org/licenses/RPL-1.5)
@@ -19,9 +19,10 @@ the software together, so everyone has access to something potentially excellent
 
 // Main Script used for the Diaper, is the central hub of
 // communication between all other scripts 
-list g_userMenu = ["Show/Hide", "Options", "On/Off", "❤Flood❤", "Check", "Change", "Get❤Soggy", "Get❤Stinky", "Caretakers","Update"];
-list g_careMenu = ["Check", "Change", "Tease", "Raspberry", "Poke", "Options","Show/Hide", "❤ ❤ ❤", "Carer❤List"];
-list g_careMenuDiaper = ["Force❤Wet", "Force❤Mess","❤Tickle❤", "Tummy❤Rub", "Wedgie", "Spank"];
+list g_userMenu = ["Show/Hide", "Options", "On/Off", "Check", "Change",  "Caretakers","Update","❤Potty❤"];
+list g_userMenuS = [ "Check" ,"❤Potty❤","Change"];
+list g_careMenu = ["Check", "Change","Force❤Potty", "❤ ❤ ❤", "Options", "❤ ❤ ❤","Show/Hide", "Carer❤List","On/Off"];
+list g_careMenuDiaper = ["Force❤Wet", "Force❤Mess","❤Tickle❤", "Tummy❤Rub", "Wedgie", "Spank", "Poke", "Raspberry", "Tease"];
 list g_userCareMenu = ["<--BACK", "*", "*", "Add", "Remove", "List"];
 list g_inboundMenu = ["❤Tickle❤", "Tummy❤Rub", "Tease", "Check", "Change", "Raspberry", "Spank", "Wedgie", "Poke"];
 list g_offMenu = ["On", "Options", "Show/Hide"];
@@ -52,21 +53,28 @@ integer g_tummyRub = 50;   //Percent
 integer g_tickle = 50;     //Percent
 integer g_gender = 1;      // 0:Male || 1:Female, this diaper was being edited for a girl
 integer g_isOn = TRUE;
-integer g_interact = TRUE;    //will control whether non-carers can interact with the diaper
+integer g_interact = 1;    //will control whether non-carers can interact with the diaper
 integer g_chatter = 2;     // 0:self-chatter 1:Whisper chatter 2:say chatter
 integer g_CrinkleVolume = 10;
 integer g_WetVolume = 100;  //this value is thirded on normal wets
 integer g_MessVolume = 100;
 integer g_PlasticPants = FALSE;
 integer g_timesHeldWetStrength = 3; //how many times you can hold it before you flood
-integer g_timesHeldWetMultiplier = 10; //how much harder it gets each time you successfully hold it, in percent
-integer g_timesHeldMessMultiplier = 10;
+integer g_TimerRandom = 1;
+integer g_allowPeePotty = 1;
+integer g_allowPooPottty = 1;
+integer g_allowHoldPee = 1;
+integer g_allowHoldPoo = 1;
+integer g_giveWarningPee = 1;
+integer g_giveWarningPoo = 1;
+integer g_allowSelfChange = 1;
+integer g_lockDetach = 0;       // 1 = options an take off is forbitten
 //End Saved Non-Carer Settings
 
-integer g_mForecast = 0; // Determines how long until the next mess chance
-integer g_wForecast = 0; // Determines how long until the next wet chance
-integer timesHeldWet = 0;
-integer timesHeldMess = 0;
+integer g_mCalcForecast = 0; // Determines how long until the next mess chance
+integer g_wCalcForecast = 0; // Determines how long until the next wet chance
+integer g_timesHeldWet = 0;
+integer g_timesHeldMess = 0;
 string g_newCarer = "";
 
 integer g_isCrinkling = FALSE;  //just to tell the diaper if someone is still walking
@@ -123,7 +131,7 @@ init()
     }
     g_mainListen = llListen(g_uniqueChan, "", "", "");
     g_voiceListen = llListen(1,"","",g_commandHandle);
-
+    
     sendToCore("SYNC"); //catch-all command asking the HUD to send us both memory core data AND carers
 }
 
@@ -186,6 +194,18 @@ stopCrinkleSound() {
     llStopSound();
 }
 
+
+playCrinkleSound(float volume) {
+    if(llGetInventoryType("DrizzleCrinkleSound") != -1) { // Sound exists in inventory
+        llPlaySound("DrizzleCrinkleSound", volume); 
+    }
+    else {
+        if(isDebug==TRUE) {
+            llOwnerSay("No Sound Found!\nPlease drop a soundfile named: DrizzleCrinkleSound into your model!");
+        }
+    }
+}
+
 playWetSound(float volume) {
     if(llGetInventoryType("DrizzleWetSound") != -1) { // Sound exists in inventory
         llPlaySound("DrizzleWetSound", volume); 
@@ -246,31 +266,11 @@ parseSettings(string temp) {
     temp = llGetSubString(temp, index+1, -1);
     
     index = llSubStringIndex(temp, ",");
-    integer newTimer = (integer) llGetSubString(temp, 0, index-1);
-    //This is messy but needed here
-    if(g_wetTimer != newTimer) {
-        if(newTimer == 0) {
-            g_wForecast = 2000000000;
-        }
-        else {
-            g_wForecast = myTimer(newTimer * 60);
-        }
-        g_wetTimer = newTimer;
-    }
+    g_wetTimer = (integer) llGetSubString(temp, 0, index-1);
     temp = llGetSubString(temp, index+1, -1);
     
     index = llSubStringIndex(temp, ",");
-    newTimer = (integer) llGetSubString(temp, 0, index-1);
-    //A little more messy
-    if(g_messTimer != newTimer) {
-        if(newTimer == 0) {
-            g_mForecast = 2000000000;
-        }
-        else {
-            g_mForecast = myTimer(newTimer * 60);
-        }
-        g_messTimer = newTimer;
-    }
+    g_messTimer = (integer) llGetSubString(temp, 0, index-1);
     temp = llGetSubString(temp, index+1, -1);
     
     index = llSubStringIndex(temp, ",");
@@ -309,25 +309,62 @@ parseSettings(string temp) {
     g_MessVolume = (integer) llGetSubString(temp, 0, index-1);
     temp = llGetSubString(temp, index+1, -1);
     
-    g_PlasticPants = (integer) temp;
+    index = llSubStringIndex(temp, ",");
+    g_mCalcForecast = (integer) llGetSubString(temp, 0, index-1);
+    g_mCalcForecast = 0; //Used in another script
+    temp = llGetSubString(temp, index+1, -1);
     
-}//End parseSettings(string)
+    index = llSubStringIndex(temp, ",");
+    g_wCalcForecast = (integer) llGetSubString(temp, 0, index-1);
+    g_wCalcForecast = 0; // this is not importand vor this skript 
+    temp = llGetSubString(temp, index+1, -1);
+    
+    index = llSubStringIndex(temp, ",");
+    g_timesHeldWet = (integer) llGetSubString(temp, 0, index-1);
+    temp = llGetSubString(temp, index+1, -1);
+    
+    index = llSubStringIndex(temp, ",");
+    g_timesHeldMess = (integer) llGetSubString(temp, 0, index-1);
+    temp = llGetSubString(temp, index+1, -1);
 
-// Returns a forecast duration number of seconds in the future.
-// @ param [duration] : number of seconds to forecast in script runtime. 
-// @ return : the forcasted time for timer hub to execute associated command.
-integer myTimer(integer duration) {
-    integer x = llRound(llGetTime());
+    index = llSubStringIndex(temp, ",");
+    g_PlasticPants = (integer) llGetSubString(temp, 0, index-1);
+    temp = llGetSubString(temp, index+1, -1);
     
-    if(x + duration > 2000000000) { // Failsafe, resets script time if approaching threshold for integer capacity.
-        //we need to adjust the forecasts so they aren't unobtainable due to time reset
-        g_wForecast -= x;
-        g_mForecast -= x;
-        llResetTime();
-        x = llRound(llGetTime());
-    }
-    return x + duration;
-}
+    index = llSubStringIndex(temp, ",");
+    g_TimerRandom  = (integer) llGetSubString(temp, 0, index-1);
+    temp = llGetSubString(temp, index+1, -1);
+
+    index = llSubStringIndex(temp, ",");
+    g_allowPeePotty = (integer) llGetSubString(temp, 0, index-1);
+    temp = llGetSubString(temp, index+1, -1);
+
+    index = llSubStringIndex(temp, ",");
+    g_allowPooPottty = (integer) llGetSubString(temp, 0, index-1);
+    temp = llGetSubString(temp, index+1, -1);
+
+    index = llSubStringIndex(temp, ",");
+    g_allowHoldPee = (integer) llGetSubString(temp, 0, index-1);
+    temp = llGetSubString(temp, index+1, -1);
+
+    index = llSubStringIndex(temp, ",");
+    g_allowHoldPoo = (integer) llGetSubString(temp, 0, index-1);
+    temp = llGetSubString(temp, index+1, -1);
+
+    index = llSubStringIndex(temp, ",");
+    g_giveWarningPee = (integer) llGetSubString(temp, 0, index-1);
+    temp = llGetSubString(temp, index+1, -1);
+
+    index = llSubStringIndex(temp, ",");
+    g_giveWarningPoo = (integer) llGetSubString(temp, 0, index-1);
+    temp = llGetSubString(temp, index+1, -1);
+    
+    index = llSubStringIndex(temp, ",");
+    g_lockDetach = (integer) llGetSubString(temp, 0, index-1);
+    temp = llGetSubString(temp, index+1, -1);
+    
+    g_allowSelfChange = (integer) temp;
+}//End parseSettings(string)
 
 /*
 Sends a message to the SaveSettings script containing a CSV of all values stored here.
@@ -350,11 +387,23 @@ sendSettings() {
     (string) g_CrinkleVolume + "," +
     (string) g_WetVolume + "," +
     (string) g_MessVolume + "," +
-    (string) g_PlasticPants;
-    //llMessageLinked(LINK_ALL_OTHERS, 6, csv, NULL_KEY); //depreciated now that memory core is no longer attached
-    //todo: detect if memory core is attached and has sent us data first before sending
+    (string) g_mCalcForecast + "," +
+    (string) g_wCalcForecast + "," +
+    (string) g_timesHeldWet + "," +
+    (string) g_timesHeldMess + "," +
+    (string) g_PlasticPants + "," +
+    (string) g_TimerRandom + "," +
+    (string) g_allowPeePotty + "," +
+    (string) g_allowPooPottty + "," +
+    (string) g_allowHoldPee + "," +
+    (string) g_allowHoldPoo + "," +
+    (string) g_giveWarningPee + "," +
+    (string) g_giveWarningPoo + "," +
+    (string) g_lockDetach + "," +
+    (string) g_allowSelfChange;
     sendToCore("SETTINGS:"+csv); //tell memory core new data
-    llMessageLinked(LINK_THIS, -6, csv, NULL_KEY);
+    g_wCalcForecast = 0; //send this only once
+    g_mCalcForecast = 0; //send this only once
 }
 
 integer generateChan(key id) {
@@ -393,29 +442,6 @@ integer findPercentage(string type) {
             return TRUE;
         }
     }
-    else if(type == "W") {
-        toCheck = (integer) llFrand(100); // Random number between 0 and 99
-        ++toCheck;                       // ++i used to achieve 1 - 100 range.
-        if(toCheck + (timesHeldWet * g_timesHeldWetMultiplier) <= g_wetChance) { //timesHeldWet is a modifier that makes you less likely to hold it.
-            timesHeldWet++; // The more times you hold it, the more likely you are to potty next time.
-            return FALSE;
-        }
-        else {
-            return TRUE;
-        }
-    }
-    else if(type == "M") {// Use Mess Chance
-        toCheck = (integer) llFrand(100); // Random number between 0 and 99
-        ++toCheck;                       // ++i used to achieve 1 - 100 range.
-        if(toCheck + (timesHeldMess * g_timesHeldMessMultiplier) <= g_messChance) {//timesHeldMess is a modifier that makes you less likely to hold it.
-            timesHeldMess++; // The more times you hold it, the more likely you are to potty next time.
-            return FALSE;
-        }
-        else
-        {
-            return TRUE;
-        }
-    }
     //If we get here, we clearly don't want something unknown to return TRUE.
     return FALSE;
 } //End findPercentage(string)
@@ -424,47 +450,49 @@ integer findPercentage(string type) {
 // @msg = The type of change occuring, e.g. Changing yourself, being changed, and being changed by a carer.
 // @id = The key of the user who triggered this function. We use this to identify what message to send to the printouts script(s).
 handleChange(string msg, key id) {
-    g_wetLevel = 0;
-    g_messLevel = 0;
-    
-    //Let Printouts 2 know to reset its forced variables.
-    llMessageLinked(LINK_THIS, -4, (string) g_gender + ":" + "Change", NULL_KEY);
     
     if(msg == "Self") {
-        llMessageLinked(LINK_THIS, -2, (string) g_gender + ":" + (string) g_wetLevel + ":" + (string) g_messLevel + ":" + "Self Change" + ":" + llKey2Name(llGetOwner()), llGetOwner());
+        if (g_allowSelfChange == 1) {
+          g_wetLevel = 0;
+          g_messLevel = 0;
+          sendSettings();
+          llMessageLinked(LINK_THIS, -2, (string) g_gender + ":" + (string) g_wetLevel + ":" + (string) g_messLevel + ":" + "Self Change" + ":" + llKey2Name(llGetOwner()), llGetOwner());
+        }
+        else {
+          llMessageLinked(LINK_THIS, -4, (string) g_gender + ":" + (string) g_wetLevel + ":" + (string) g_messLevel + ":" + "Forbitten" + ":" + llKey2Name(llGetOwner()), llGetOwner());
+      }
     }
     else if(msg == "Carer") {
+        g_wetLevel = 0;
+        g_messLevel = 0;
+        sendSettings();
         llMessageLinked(LINK_THIS, -2, (string) g_gender + ":" + (string) g_wetLevel + ":" + (string) g_messLevel + ":" + "Carer Change" + ":" + llKey2Name(id), id);
     }
     else if(msg == "Other") {
+        g_wetLevel = 0;
+        g_messLevel = 0;
+        sendSettings();
         llMessageLinked(LINK_THIS, -2, (string) g_gender + ":" + (string) g_wetLevel + ":" + (string) g_messLevel + ":" + "Normal Change" + ":" + llKey2Name(id), id);
     }
-//    adjustWetMessVisuals(); //This automatically happens due to the link messages we are sending.
-    sendSettings();
+
 }//End handleChange(string, id)
+
 // This function is called to manage wettings
 // @msg = The type of accident occuring, e.g. wetting yourself, being tickled, and being forced by a carer to wet.
 // @id = The key of the user who triggered this function. We use this to identify what message to send to the printouts script(s).
 handleWetting(string msg, key id) {
     g_wetLevel++;
-    if(msg == "Self") {
-        //Example of what message looks like: 1:2:g_wetLevel:Name
-        llMessageLinked(LINK_THIS, -2, (string) g_gender + ":" + (string) g_wetLevel + ":" + (string) g_messLevel + ":" + "g_wetLevel" + ":" + llKey2Name(llGetOwner()), llGetOwner());
-    }
-    else if(msg == "Timer") {
-        llMessageLinked(LINK_THIS, -2, (string) g_gender + ":" + (string) g_wetLevel + ":" + (string) g_messLevel + ":" + "g_wetLevel" + ":" + llKey2Name(llGetOwner()), llGetOwner());
-    }
-    else if(msg == "Tckl") {
+    g_timesHeldWet = 0;
+    //new forecast for wetting
+    g_wCalcForecast = 1;
+    sendSettings();
+         if(msg == "Tckl") {
         llMessageLinked(LINK_THIS, -4, (string) g_gender + ":" + (string) g_wetLevel + ":" + (string) g_messLevel + ":" + "Tickle Success" + ":" + llKey2Name(id), id);   
     }
     else if(msg == "Force") {
         llMessageLinked(LINK_THIS, -4, (string) g_gender + ":" + (string) g_wetLevel + ":" + (string) g_messLevel + ":" + "Force Wet" + ":" + llKey2Name(id), id); 
     }
     playWetSound(g_WetVolume * .00333);
-    timesHeldWet = 0;
-    //new forecast for wetting
-    g_wForecast = myTimer(g_wetTimer * 60);
-    sendSettings();
 }//End handleWettings(string, key)
 
 // This function is called to manage messings
@@ -472,43 +500,19 @@ handleWetting(string msg, key id) {
 // @id = The key of the user who triggered this function. We use this to identify what message to send to the printouts script(s).
 handleMessing(string msg, key id) {
     g_messLevel++;
-    if(msg == "Self") {
-        //Example of what message looks like: 1:2:g_wetLevel:Self
-        llMessageLinked(LINK_THIS, -2, (string) g_gender + ":" + (string) g_wetLevel + ":" + (string) g_messLevel + ":" + "g_messLevel" + ":" + llKey2Name(llGetOwner()), llGetOwner());
-    }
-    else if(msg == "Timer") {
-        llMessageLinked(LINK_THIS, -2, (string) g_gender + ":" + (string) g_wetLevel + ":" + (string) g_messLevel + ":" + "g_messLevel" + ":" + llKey2Name(llGetOwner()), llGetOwner());
-    }
-    else if(msg == "Rub") {
+    g_timesHeldMess = 0;
+    //new forecast for messing
+    g_mCalcForecast = 1;
+    sendSettings();
+    if(msg == "Rub") {
         llMessageLinked(LINK_THIS, -4, (string) g_gender + ":" + (string) g_wetLevel + ":" + (string) g_messLevel + ":" + "Rub Success" + ":" + llKey2Name(id), id);
     }
     else if(msg == "Force") {
         llMessageLinked(LINK_THIS, -4, (string) g_gender + ":" + (string) g_wetLevel + ":" + (string) g_messLevel + ":" + "Force Mess" + ":" + llKey2Name(id), id);
     }
     playMessSound(g_MessVolume * .00333);
-    timesHeldMess = 0;
-    //new forecast for messing
-    g_mForecast = myTimer(g_messTimer * 60);
-    sendSettings();
 }//End handleMessing(string, key)
 
-// This function is called to manage a special-case wetting.
-// @msg = The type of accident occuring, e.g. naturally flooding yourself, or being potentially forced by a carer.
-// @id = The key of the user who triggered this function. We use this to identify what message to send to the printouts script(s).
-handleFlooding(string msg, key id) {
-    g_wetLevel = g_wetLevel + 4;
-    if(msg == "Self") {
-        llMessageLinked(LINK_THIS, -4, (string) g_gender + ":" + (string) g_wetLevel + ":" + (string) g_messLevel + ":" + "Self Flood" + ":" + llKey2Name(llGetOwner()), llGetOwner());
-    }
-    else if(msg == "Timer") { //added to allow separation of timer floods and forced floods
-        llMessageLinked(LINK_THIS, -4, (string) g_gender + ":" + (string) g_wetLevel + ":" + (string) g_messLevel + ":" + "Self Flood" + ":" + llKey2Name(llGetOwner()), llGetOwner());
-    }
-    playWetSound(g_WetVolume * .01);  //todo: add a special flooding sound
-    timesHeldWet = 0;
-    //new forecast for wetting
-    g_wForecast = myTimer(g_wetTimer * 60);
-    sendSettings();
-}
 
 /* 
     Updates wet/mess prims to show as required.
@@ -525,6 +529,7 @@ adjustWetMessVisuals() {
 toggleHide() {   
     if(llGetAlpha(ALL_SIDES) == 0.0) {  // Hidden; Show it.
         llSetLinkAlpha(LINK_SET, 1.0, ALL_SIDES);
+        sendSettings(); 
     }
     else {    // Shown; Hide it.
         llSetLinkAlpha(LINK_SET, 0.0, ALL_SIDES);
@@ -562,8 +567,8 @@ printDebugSettings() {
     llOwnerSay("Crinkle Volume: "+(string) g_CrinkleVolume);
     llOwnerSay("Wet Sound Volume: "+(string) g_WetVolume);
     llOwnerSay("Mess Sound Volume: "+(string) g_MessVolume);
-    llOwnerSay("Times Held (wet): "+(string) timesHeldWet);
-    llOwnerSay("Times Held (mess): "+(string) timesHeldMess);
+    llOwnerSay("Times Held (wet): "+(string) g_timesHeldWet);
+    llOwnerSay("Times Held (mess): "+(string) g_timesHeldMess);
     llOwnerSay("Used Memory: " + (string) llGetUsedMemory());
     llOwnerSay("Free Memory: " + (string) llGetFreeMemory());
 }
@@ -623,7 +628,7 @@ makeButtonsForCarers() { //construct g_ButtonCarers from g_Carers
 }
 
 // Returns a value from 0 to 2 to classify the menu access level for a given user.
-// @id - The user whose access level is to be assessed.
+// @id - The user or object whose access level is to be assessed.
 // 0 = Owner, 1 = Carer, 2 = Outsider
 integer getToucherRank(key id) {
     if(llGetOwnerKey(id) == llGetOwner()) {
@@ -641,28 +646,43 @@ mainMenu(key id) {
     integer userRank = getToucherRank(id);
     if(g_isOn) { // Diaper's On
         if(userRank == 0) {
-            llDialog(llGetOwner(), "User Menu for " + llKey2Name(llGetOwner()) + "'s diaper.", g_userMenu, g_uniqueChan);
+            if(g_interact == 2 || g_lockDetach == 1) { //hide Option when interaction set to only caretaker
+                llDialog(llGetOwner(), "User Menu for " + llKey2Name(llGetOwner()) + "'s diaper.", g_userMenuS, g_uniqueChan);
+            }
+            else {
+                llDialog(llGetOwner(), "User Menu for " + llKey2Name(llGetOwner()) + "'s diaper.", g_userMenu, g_uniqueChan);
+            }
         }
         else if(userRank == 1) {
-            llDialog(id, "Carer Menu for " + llKey2Name(llGetOwner()) + "'s diaper.", g_careMenu, g_uniqueChan);
+            llDialog(llGetOwnerKey(id), "Carer Menu for " + llKey2Name(llGetOwner()) + "'s diaper.", g_careMenu, g_uniqueChan);
         }
         //todo: Allow restriction to this menu!
         else if(userRank == 2 && g_interact == 1) {
-            llDialog(id, "General Menu for " + llKey2Name(llGetOwner()) + "'s diaper.", g_inboundMenu, g_uniqueChan);
+            llDialog(llGetOwnerKey(id), "General Menu for " + llKey2Name(llGetOwner()) + "'s diaper.", g_inboundMenu, g_uniqueChan);
         }
         else if(g_diaperType == "Kawaii") {
-            nedryError(id);
+            nedryError(llGetOwnerKey(id));
         }
     }
         else { // Diaper's Off
         if(userRank == 0) {
+            if (g_interact == 2) { //hide Option when interaction set to only caretaker {
+                if(g_diaperType == "Kawaii") {
+                    nedryError(llGetOwner());
+                }
+                else {
+                    llOwnerSay("Your diaper is off.  Sorry, you can't turn it back on!");
+                }
+            }
+            else {
             llDialog(llGetOwner(), "Your diaper is off.  No pottying or carer scanning will be done, but you can still change settings!", g_offMenu, g_uniqueChan);
+          }
         }
         else if(userRank == 1) {
-            llDialog(id, "Good news! You're a carer. This means you can turn this diaper back on if you wish!", g_offMenu, g_uniqueChan);
+            llDialog(llGetOwnerKey(id), "Good news! You're a carer. This means you can turn this diaper back on if you wish!", g_offMenu, g_uniqueChan);
         }
         else if(g_diaperType == "Kawaii") {
-            nedryError(id);
+            nedryError(llGetOwnerKey(id));
         }
     } 
 }
@@ -714,7 +734,16 @@ default {
         
     attach(key id) {
         if(id) { // Attached
-            
+            string carers = llDumpList2String(g_Carers,", ");
+            if (carers == "") {
+            llOwnerSay("No carer on your list- Resetting interaction level.");
+            g_interact = 0;
+            g_lockDetach = 0;
+          }
+          else {
+              llOwnerSay("Carer List: " + carers);
+           }
+           sendSettings(); // send settings to all other skripts
         }
         else if(g_exitText)
         {
@@ -724,6 +753,11 @@ default {
         }
     }
     
+    changed(integer change) {
+        if(change & CHANGED_OWNER) {
+            init();
+        }
+    }
     //Searches the area, stashing the names of those nearby in one list, and their keys in another
     sensor(integer num_detected) {
         integer i = 0;
@@ -827,11 +861,9 @@ default {
         }
         else if(g_isOn) {
             //for future use with potty training
-            if(msg == "Hold❤It" && userRank == 0) {
-                g_userResponded = TRUE;
-            }
-            else if(msg == "Go❤Potty" && userRank == 0) {
-                g_userResponded = TRUE;
+            if(msg == "❤Potty❤" && userRank == 0) {
+            sendSettings(); //make sure preferences knows the current settings
+            llMessageLinked(LINK_THIS, -8, msg, id); // Tell Preferences script to talk to id
             }
             //Carers stuff
             else if(llKey2Name(id) == g_newCarer) { //shaping up security
@@ -889,24 +921,20 @@ default {
             else if(msg == "<--BACK") {
                 mainMenu(id);
             }
-            else if(msg == "Get❤Soggy" && userRank == 0) {
-                handleWetting("Self", id);
-                mainMenu(id);
-            }
-            else if(msg == "Get❤Stinky" && userRank == 0) {
-                handleMessing("Self", id);    
-                mainMenu(id);
-            }
-            else if(msg == "❤Flood❤" && userRank == 0) {
-                handleFlooding("Self", id);
-                mainMenu(id);
-            }
             else if(msg == "Force❤Mess" && userRank == 1) {
                 handleMessing("Force", id);
                 mainMenu(id);
             }
             else if(msg == "Force❤Wet"  && userRank == 1) {
                 handleWetting("Force", id);
+                mainMenu(id);
+            }
+            else if (msg == "Force❤Potty"  && userRank == 1) {
+                //new check forgast potty
+                g_wCalcForecast = 2;
+                g_mCalcForecast = 2;
+                sendSettings();
+                llMessageLinked(LINK_THIS, -4, (string) g_gender + ":" + (string) g_wetLevel + ":" + (string) g_messLevel + ":" + "CarerPotty" + ":" + llKey2Name(id), id);
                 mainMenu(id);
             }
             else if(msg == "Check") {
@@ -950,7 +978,7 @@ default {
                 mainMenu(id);
             }
             //check for carer userrank or if outsiders are allowed to trigger events
-            else if(userRank == 1 || g_interact == TRUE) {
+            else if(userRank == 1 || g_interact == 1) {
                 if(msg == "Tummy❤Rub") {
                     if(findPercentage("Rub")) { // They messied!
                         handleMessing("Rub", id);
@@ -974,6 +1002,7 @@ default {
                     mainMenu(id);
                 }
                 else if(msg == "Poke") {
+                      playCrinkleSound(g_CrinkleVolume*0.01);
                     llMessageLinked(LINK_THIS, -2, (string) g_gender + ":" + (string) g_wetLevel + ":" + (string) g_messLevel + ":" + "Poke" + ":" + llKey2Name(id), id);            
                     mainMenu(id);
                 }
@@ -986,6 +1015,7 @@ default {
                     mainMenu(id);
                 }
                 else if(msg == "Wedgie") {
+                    playCrinkleSound(g_CrinkleVolume*0.01);
                     llMessageLinked(LINK_THIS, -4, (string) g_gender + ":" + (string) g_wetLevel + ":" + (string) g_messLevel + ":" + "Wedgie" + ":" + llKey2Name(id), id);
                     mainMenu(id);
                 }
@@ -996,47 +1026,6 @@ default {
     // This event is used to evaluate/reset the forecasts for wetting or messing, as well 
     // as determining whether a user succeeds in holding it.
     timer() {
-        if(g_isOn == TRUE) {
-            //Timer of 0 (Off) prevent accidents.
-            if(g_wetTimer == 0) {
-                g_wForecast = 2000000000;
-            }
-            //Timer of 0 (Off) prevent accidents.
-            if(g_messTimer == 0) {
-                g_mForecast = 2000000000;
-            }
-            integer currentTime = llRound(llGetTime());
-            if(currentTime <= 60) {
-                return;
-            }
-            // If both wet and mess forecasts are past their time. . .
-            if(g_wForecast <= currentTime && g_mForecast <= currentTime) {
-                // New wet forecast. This means the user will mess by default. :D
-                g_wForecast = myTimer(g_wetTimer * 60);
-            }
-           
-            if(g_wForecast <= currentTime) { // The forecasted time is in the past
-                if(findPercentage("W") == TRUE) {
-                    if(timesHeldWet >= g_timesHeldWetStrength) { // If the user has held it a lot. This time they flood.
-                        handleFlooding("Timer", llGetOwner());
-                    }
-                    else {
-                        handleWetting("Timer", llGetOwner()); // "Timer" is the cause of the wetting, llGetOwner is to determine what printout to trigger.
-                    }
-                }
-                else {
-                    //todo: potty training handler will go here!
-                }
-                g_wForecast = myTimer(g_wetTimer * 60); // New Forecast Regardless
-            }
-            
-            if(g_mForecast <= currentTime) { 
-                if(findPercentage("M") == TRUE) {
-                    handleMessing("Timer", llGetOwner()); 
-                }
-                g_mForecast = myTimer(g_messTimer * 60);
-            }
-        }//End g_isOn if
         //reset the Kawaii error count each minute
         g_errorCount = 0;
     }//End of timer
@@ -1049,6 +1038,7 @@ default {
     //  1 to 5  = Storage Prim Messages
     //  6       = Setting Message from Memory Core
     // -6       = Setting Message to Preferences
+    // -8                = Potty
     link_message(integer sender_num, integer num, string msg, key id) {
         string temp;
         
@@ -1058,11 +1048,10 @@ default {
         else if(num == -2 || num == -4) return; // Printouts is being used
         else if(num == -7) return; // Particles is being used
         */
-        else if(num == -3) { //Update from Preferences
+        else if(num == -3 || num == -9 || num == -10) { //Update from Preferences
             integer index = llSubStringIndex(msg, ":");
             if(index == -1) { //received settings from Preferences
                 sendToCore("SETTINGS:"+msg);
-                parseSettings(msg);
                 return;
             }
             string setting = llGetSubString(msg, 0, index-1);
