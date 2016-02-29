@@ -113,6 +113,29 @@ Each sentence line can only be 240 characters (letters,  numbers, symbols, space
 @uInstantFlood: *first must have really had to go! *Sub starts wetting *pos1 diaper, flooding it and keeps going for quite some time until the diaper is nearly full, even *pos1 bottom is a little wet!
 | It may be time for *obj to get a new diaper on!
 
+@uHoldwTimer: *first is so busy that she forgets the feeling in *pos1 bladder
+
+@uHoldmTimer: *first is so busy that she forgets the feeling in *pos1 botty
+
+@uHoldwButton: *first decides to ignore the feeling in *pos1 bladder
+
+@uHoldmButton: *first decides to ignore the feeling in *pos1 botty
+
+@uPotty_W: *first manage to go to the potty
+
+@uPotty_M: *first manage to go to the potty
+
+@forcePotty: *first have to potty
+
+@havetoPee: *first have to pee
+
+@havetoPoo: *first have to poo
+
+@noPotty_W: *first dose not manage to pee in potty
+
+@noPotty_M: *first dose not manage to poo in potty
+
+@forbitten: *first is not in the position to do this
 
 ✭=≈=≈=✭✭=≈=≈=✭
     4. Other People's Actions
