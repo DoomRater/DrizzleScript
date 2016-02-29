@@ -119,6 +119,29 @@ Each sentence line can only be 240 characters (letters,  numbers, symbols, space
 
 @regressionLevel9: Uh oh! *first was doing so well, but it appears *sub may have went backwards in *pos1 training! If *sub is to complete *pos1 training, *sub will need a bit more time working on holding it!
 
+@uHoldwTimer: *first is so busy that she forgets the feeling in *pos1 bladder
+
+@uHoldmTimer: *first is so busy that she forgets the feeling in *pos1 botty
+
+@uHoldwButton: *first decides to ignore the feeling in *pos1 bladder
+
+@uHoldmButton: *first decides to ignore the feeling in *pos1 botty
+
+@uPotty_W: *first manage to go to the potty. Let all *pos1 Pee out and have now time again
+
+@uPotty_M: *first manage to go to the potty. Let all out and have now freedom again
+
+@forcePotty: *oFirstName force *first to potty
+
+@havetoPee: *first have to pee
+
+@havetoPoo: *first have to poo
+
+@noPotty_W: *first dose not manage to pee in potty
+
+@noPotty_M: *first dose not manage to poo in potty
+
+@forbitten: *first is not allowed to do this
 
 ✭=≈=≈=✭✭=≈=≈=✭
   2. Stages of Mess
