@@ -1,10 +1,10 @@
 /*==========================================================
-DrizzleScript
+DrizzleScript preferences
 Created By: Ryhn Teardrop
 Original Date: Dec 3rd, 2011
 GitHub Repository: https://github.com/DoomRater/DrizzleScript
 
-Programming Contributors: Ryhn Teardrop, Brache Spyker
+Programming Contributors: Ryhn Teardrop, Brache Spyker, Napysusy Iadyl
 Resource Contributors: Murreki Fasching, Brache Spyker
 
 License: RPL v1.5 (Outlined at http://www.opensource.org/licenses/RPL-1.5)
@@ -31,31 +31,43 @@ string g_currMenuMessage; //Potentially usable to determine which timer is being
 list g_currMenuButtons;
 list g_Skins;
 list g_Tapes;
+list g_Pants;
 list g_BackFaces;
 list g_Panels;
 list g_Cuties;
 list g_Printouts;
-list g_settingsMenu = ["<--TOP", "★", "Gender", "Skins", "Printouts", "Chatter", "Potty", "Interactions", "Volume"];
+//list g_settingsMenu = ["<--TOP","★", "RLV", "Gender", "Skins", "Printouts", "Chatter", "Potty", "Interactions", "Volume","DEBUG"];
+list g_settingsMenu = ["<--TOP","★", "RLV", "Gender", "Skins", "Printouts", "Chatter", "Potty", "Interactions", "Volume"];
 list g_plasticPantsMenu = ["<--BACK","Put❤On","Take❤Off"];
-list g_appearanceMenu = ["<--BACK","Help", "*","Diaper❤Print","Tapes"];
+list g_appearanceMenu = ["<--BACK","Help", "Show Tapes","Diaper❤Print","Tapes","Hide Tapes","Pants❤Print"];
 list g_genderMenu = ["<--BACK", "★", "★", "Boy", "Girl"];
 list g_chatterMenu = ["<--BACK", "★", "★", "Normal", "Whisper", "Private"];
 list g_volumeMenu = ["<--BACK", "★", "★", "Crinkle❤Volume", "Wet❤Volume", "Mess❤Volume"];
 list g_pottyMenu = ["<--BACK", "★", "★", "Wet❤Timer", "Mess❤Timer", "★", "Wet%", "Mess%", "★", "❤Tickle❤", "Tummy❤Rub", "★"];
-list g_timerOptions = ["<--BACK", "★", "★", "40", "60", "120", "15", "20", "30", "0", "5", "10"]; // Backwards  (Ascending over 3) to make numbers have logical order.
+list g_timerOptions = ["<--BACK", "180", "240", "40", "60", "120", "15", "20", "30", "0", "5", "10"]; // Backwards  (Ascending over 3) to make numbers have logical order.
 list g_chanceOptions = ["<--BACK", "90%", "100%", "60%", "70%", "80%", "30%", "40%", "50%", "0%", "10%", "20%"]; // Backwards (Ascending over 3) to make numbers have logical order.
-list g_interactionsOptions = ["<--BACK","★", "★","Everyone","Carers❤&❤Me"];
+list g_interactionsOptions = ["<--BACK","★", "★","Everyone","Carers❤&❤Me","Carers"];
+
 /* For Misc Diaper Models */
 integer g_mainPrim;
-string g_mainPrimName = ""; // By default, set to "".
+integer g_TapeLPrim;
+integer g_TapeRPrim;
+integer g_TapeBPrim;
 integer g_plasticPantsPrim;
+string g_mainPrimName = ""; // By default, set to "".
 string g_plasticPantsName = "Plastic Pants";
+string g_TapeLPrimName = "Tape1";
+string g_TapeRPrimName = "Tape2";
+string g_TapeBPrimName = "Tape3";
 vector g_plasticPantsSize;
 //various diapers have different texture settings
 //ABAR Sculpted diaper bases uses repeat 1.0, 1.0 and offset .03, -.5
 string g_diaperType = "Fluffems";
 string g_resizerScriptName = ""; //change this to a resizer script name, if provided
 integer isDebug = FALSE;
+integer newTimer = 0;    
+integer ShowTape = 1;  // 0 Hide Tapes
+
 
 //menu variables passed to preferences
 integer g_wetLevel;
@@ -73,7 +85,20 @@ integer g_chatter;
 integer g_crinkleVolume;
 integer g_wetVolume;
 integer g_messVolume;
+integer g_mCalcForecast; 
+integer g_wCalcForecast; 
+integer g_timesHeldWet;
+integer g_timesHeldMess;
 integer g_PlasticPants;
+integer g_TimerRandom;
+integer g_allowPeePotty;
+integer g_allowPooPottty;
+integer g_allowHoldPee;
+integer g_allowHoldPoo;
+integer g_giveWarningPee;
+integer g_giveWarningPoo;
+integer g_allowSelfChange;
+integer g_lockdetach;       // 1 = options an take off is forbitten
 
 //Old variables used in an prim-sculptie based system.
 //list g_TrainingMenu = ["<--BACK", "★", "★", "Infant", "Toddler", "Adult"];
@@ -111,6 +136,15 @@ findPrims() {
         else if(g_plasticPantsName == primName) {
             g_plasticPantsPrim = i;
         }
+        else if(g_TapeLPrimName == primName) {
+            g_TapeLPrim = i;
+        }
+        else if(g_TapeRPrimName == primName) {
+            g_TapeRPrim = i;
+        }
+        else if(g_TapeBPrimName == primName) {
+            g_TapeBPrim = i;
+        }
             //add additional prims to seek here
     }
     if(g_mainPrimName == "") { // No specified prim. Look for root.
@@ -133,6 +167,21 @@ adjustPlasticPants() {
 
 fitPlasticPants() { //causes a .2 second llSleep, so be judicial about when it's done
     g_plasticPantsSize = llList2Vector(llGetLinkPrimitiveParams(g_mainPrim, [PRIM_SIZE]), 0) * 1.08;
+}
+
+ShowTapeStripes() { //Shows or Hide the Tapes on a Fluffems diaper
+    if (g_diaperType == "Fluffems" && llGetAlpha(ALL_SIDES) == 1.0) {
+        if (ShowTape == 1) {
+          llSetLinkAlpha(g_TapeLPrim, 1.0, ALL_SIDES);
+          llSetLinkAlpha(g_TapeRPrim, 1.0, ALL_SIDES);
+          llSetLinkAlpha(g_TapeBPrim, 1.0, ALL_SIDES);
+        }
+        else if (ShowTape == 0 ) {
+          llSetLinkAlpha(g_TapeLPrim, 0.0, ALL_SIDES);
+          llSetLinkAlpha(g_TapeRPrim, 0.0, ALL_SIDES);
+          llSetLinkAlpha(g_TapeBPrim, 0.0, ALL_SIDES);
+        }
+    }
 }
 
 detectDiaperType() {
@@ -201,6 +250,9 @@ handlePrev(key id) {
     else if(g_currMenu == "Tapes") {
         DialogPlus(m_tapesMenu(),g_Tapes, --g_currCount, id);
     }
+    else if(g_currMenu == "Pants❤Print") {
+        DialogPlus(m_PantsMenu(),g_Pants, --g_currCount, id);
+    }
     else if(g_currMenu == "Back❤Face") {
         DialogPlus(m_backFaceMenu(),g_BackFaces, --g_currCount, id);
     }
@@ -227,6 +279,9 @@ handleNext(key id) {
     else if(g_currMenu == "Tapes") {
         DialogPlus(m_tapesMenu(), g_Tapes, ++g_currCount, id);
     }
+    else if(g_currMenu == "Pants❤Print") {
+        DialogPlus(m_PantsMenu(), g_Pants, ++g_currCount, id);
+    }
     else if(g_currMenu == "Back❤Face") {
         DialogPlus(m_backFaceMenu(),g_BackFaces, ++g_currCount, id);
     }
@@ -242,6 +297,7 @@ loadAllTextures(list l) {
     integer i;
     g_Skins = [];
     g_Tapes = [];
+    g_Pants = [];
     g_BackFaces = [];
     g_Panels = [];
     g_Cuties = [];
@@ -263,6 +319,9 @@ loadAllTextures(list l) {
         }
         else if(prefix == "CUTIE:") {
             g_Cuties += name;
+        }
+        else if(prefix == "PANTS:") {
+             g_Pants += name;
         }
     }
 }
@@ -369,6 +428,14 @@ applyTexture(string name, string prefix) {
         if(prefix == "SKIN:") {
             llSetLinkPrimitiveParamsFast(g_mainPrim, [PRIM_TEXTURE, ALL_SIDES, texture, repeats, offset, radRotation]);
         }
+        else if(prefix == "TAPE:") {
+            llSetLinkPrimitiveParamsFast(g_TapeLPrim, [PRIM_TEXTURE, ALL_SIDES, texture, repeats, offset, radRotation]);
+            llSetLinkPrimitiveParamsFast(g_TapeRPrim, [PRIM_TEXTURE, ALL_SIDES, texture, repeats, offset, radRotation]);
+            llSetLinkPrimitiveParamsFast(g_TapeBPrim, [PRIM_TEXTURE, ALL_SIDES, texture, repeats, offset, radRotation]);
+        }
+        if(prefix == "PANTS:") {
+            llSetLinkPrimitiveParamsFast(g_plasticPantsPrim, [PRIM_TEXTURE, ALL_SIDES, texture, repeats, offset, radRotation]);
+        }
     }
 }
 
@@ -388,14 +455,29 @@ sendSettings() {
     (string) g_crinkleVolume + "," +
     (string) g_wetVolume + "," +
     (string) g_messVolume + "," +
-    (string) g_PlasticPants;
+    (string) g_mCalcForecast + "," +
+    (string) g_wCalcForecast + "," +
+    (string) g_timesHeldWet + "," +
+    (string) g_timesHeldMess + "," +
+    (string) g_PlasticPants + "," +
+    (string) g_TimerRandom + "," +
+    (string) g_allowPeePotty + "," +
+    (string) g_allowPooPottty + "," +
+    (string) g_allowHoldPee + "," +
+    (string) g_allowHoldPoo + "," +
+    (string) g_giveWarningPee + "," +
+    (string) g_giveWarningPoo + "," +
+    (string) g_lockdetach + "," +
+    (string) g_allowSelfChange;
     llMessageLinked(LINK_THIS, -3, csv, NULL_KEY);
-    llMessageLinked(LINK_ALL_OTHERS, 6, csv, NULL_KEY);
+//    llMessageLinked(LINK_ALL_OTHERS, 6, csv, NULL_KEY);
+    g_wCalcForecast = 0; //send this only once
+    g_mCalcForecast = 0; //send this only once
 }
 
 parseSettings(string temp) {
     integer index; // Used to hold the location of a comma in the CSV
-    
+   
     index = llSubStringIndex(temp, ",");
     g_wetLevel = (integer) llGetSubString(temp, 0, index-1);
     temp = llGetSubString(temp, index+1, -1); // Remove the used data.
@@ -456,8 +538,63 @@ parseSettings(string temp) {
     g_messVolume = (integer) llGetSubString(temp, 0, index-1);
     temp = llGetSubString(temp, index+1, -1);
     
-    g_PlasticPants = (integer) temp;
+    index = llSubStringIndex(temp, ",");
+    g_mCalcForecast = (integer) llGetSubString(temp, 0, index-1);
+    g_mCalcForecast = 0; // this is not importand vor this skript 
+    temp = llGetSubString(temp, index+1, -1);
     
+    index = llSubStringIndex(temp, ",");
+    g_wCalcForecast = (integer) llGetSubString(temp, 0, index-1);
+    g_wCalcForecast = 0; // this is not importand vor this skript 
+    temp = llGetSubString(temp, index+1, -1);
+    
+    index = llSubStringIndex(temp, ",");
+    g_timesHeldWet = (integer) llGetSubString(temp, 0, index-1);
+    temp = llGetSubString(temp, index+1, -1);
+    
+    index = llSubStringIndex(temp, ",");
+    g_timesHeldMess = (integer) llGetSubString(temp, 0, index-1);
+    temp = llGetSubString(temp, index+1, -1);
+
+    index = llSubStringIndex(temp, ",");
+    g_PlasticPants = (integer) llGetSubString(temp, 0, index-1);
+    temp = llGetSubString(temp, index+1, -1);
+    
+    index = llSubStringIndex(temp, ",");
+    g_TimerRandom  = (integer) llGetSubString(temp, 0, index-1);
+    temp = llGetSubString(temp, index+1, -1);
+
+    index = llSubStringIndex(temp, ",");
+    g_allowPeePotty = (integer) llGetSubString(temp, 0, index-1);
+    temp = llGetSubString(temp, index+1, -1);
+
+    index = llSubStringIndex(temp, ",");
+    g_allowPooPottty = (integer) llGetSubString(temp, 0, index-1);
+    temp = llGetSubString(temp, index+1, -1);
+
+    index = llSubStringIndex(temp, ",");
+    g_allowHoldPee = (integer) llGetSubString(temp, 0, index-1);
+    temp = llGetSubString(temp, index+1, -1);
+
+    index = llSubStringIndex(temp, ",");
+    g_allowHoldPoo = (integer) llGetSubString(temp, 0, index-1);
+    temp = llGetSubString(temp, index+1, -1);
+
+    index = llSubStringIndex(temp, ",");
+    g_giveWarningPee = (integer) llGetSubString(temp, 0, index-1);
+    temp = llGetSubString(temp, index+1, -1);
+
+    index = llSubStringIndex(temp, ",");
+    g_giveWarningPoo = (integer) llGetSubString(temp, 0, index-1);
+    temp = llGetSubString(temp, index+1, -1);
+    
+    index = llSubStringIndex(temp, ",");
+    g_lockdetach = (integer) llGetSubString(temp, 0, index-1);
+    temp = llGetSubString(temp, index+1, -1);
+    
+    g_allowSelfChange = (integer) temp;
+
+    ShowTapeStripes(); //Show hide Tapes
 }
 
 printDebugSettings() {
@@ -522,6 +659,9 @@ string m_interactions() {
     else if(g_interact==1) {
         allowedInteractions = "everyone is";
     }
+    else if(g_interact==2) {
+        allowedInteractions = "only carers is";
+    }
     return "Who should be able to interact with this diaper?\n\nCurrently "+allowedInteractions+" allowed.";
 }
 
@@ -567,6 +707,10 @@ string m_tapesMenu() {
     return "Choose a tape texture.\nPrefix is TAPE:";
 }
 
+string m_PantsMenu() {
+    return "Choose a Plastk Pants texture.\nPrefix is Pants:";
+}
+
 string m_panelMenu() {
     return "Choose a panel print.\nPrefix is PANEL:";
 }
@@ -583,8 +727,8 @@ string m_printMenu() {
     return "Choose a Printout style.\nPrefix is PRINT:";
 }
 
+
 default {
-    
     state_entry() {
         init();
     }
@@ -619,8 +763,11 @@ default {
     }
 
     link_message(integer sender_num, integer num, string msg, key id) {
-        if(num == -6) {
-            parseSettings(msg);
+        if(num == -6 || num == -9 || num == -10) {
+            integer index = llSubStringIndex(msg, ":");
+            if(index == -1) { //received settings from Preferences
+                parseSettings(msg);
+              }
         }
         else if(num == -1) {
             if(msg == "Options" && g_currentid == NULL_KEY || g_currentid == id) {
@@ -677,6 +824,10 @@ default {
             applyTexture(msg, "TAPE:");
             offerMenu(id, g_currMenuMessage, g_currMenuButtons);
         }
+        else if(~llListFindList(g_Pants, [msg]) && g_currMenu == "Pants❤Print") {
+            applyTexture(msg, "PANTS:");
+            offerMenu(id, g_currMenuMessage, g_currMenuButtons);
+        }
         else if(~llListFindList(g_BackFaces, [msg]) && g_currMenu == "Back❤Face") {
             applyTexture(msg, "BACKFACE:");
             offerMenu(id, g_currMenuMessage, g_currMenuButtons);
@@ -721,12 +872,20 @@ default {
             offerMenu(id, m_wetChance(), g_currMenuButtons);
         }
         else if(g_currMenu == "Mess❤Timer") {
-            g_messTimer = msgToNumber(msg);
+            newTimer = msgToNumber(msg);
+            if(g_messTimer != newTimer) {
+                g_messTimer = newTimer;
+                g_mCalcForecast = 1;
+            }
             sendSettings();
             offerMenu(id, m_messTimer(), g_currMenuButtons);
         }
         else if(g_currMenu == "Wet❤Timer") {
-            g_wetTimer = msgToNumber(msg);
+            newTimer = msgToNumber(msg);
+            if(g_wetTimer != newTimer) {
+                g_wetTimer = newTimer;
+                g_wCalcForecast = 1;
+            }
             sendSettings();
             offerMenu(id, m_wetTimer(), g_currMenuButtons);
         }
@@ -772,6 +931,12 @@ default {
             sendSettings();
             offerMenu(id, m_interactions(), g_currMenuButtons);
         }
+        else if(msg=="Carers") {
+           llRegionSayTo(id, 0, "Only Caretaker can change settings now" );
+            g_interact = 2;
+            sendSettings();
+            offerMenu(id, m_interactions(), g_currMenuButtons);
+        }
         //chat spam level
         else if(msg == "Normal") {
             llMessageLinked(LINK_THIS, -3, "Chatter:2", NULL_KEY);
@@ -802,6 +967,10 @@ default {
             g_currMenu = msg;
             DialogPlus(m_tapesMenu(), g_Tapes, g_currCount = 0, id);
         }
+        else if(msg == "Pants❤Print") {
+            g_currMenu = msg;
+            DialogPlus(m_PantsMenu(), g_Pants, g_currCount = 0, id);
+        }
         else if(msg == "Panel") {
             g_currMenu = msg;
             DialogPlus(m_panelMenu(), g_Panels, g_currCount = 0, id);
@@ -818,6 +987,16 @@ default {
             llOwnerSay("Adding your own skins and notecards is easy!  Just prefix your textures with the appropriate tag for where you want it to be and drag it into the diaper!  I'll take care of the rest.");
             offerMenu(id, g_currMenuMessage, g_currMenuButtons);
         }
+        else if (msg == "Show Tapes") {
+              ShowTape = 1;
+              ShowTapeStripes();
+            offerMenu(id, g_currMenuMessage, g_currMenuButtons);
+        }            
+        else if (msg == "Hide Tapes") {
+              ShowTape = 0;
+              ShowTapeStripes();
+            offerMenu(id, g_currMenuMessage, g_currMenuButtons);
+        }            
         else if(msg == "Potty") {
             g_currMenu = msg;
             offerMenu(id, m_pottyMenu(), g_pottyMenu);  
@@ -881,6 +1060,11 @@ default {
         else if(msg == "Mess❤Volume") {
             g_currMenu = msg;
             offerMenu(id, m_messVolume(), g_chanceOptions);
+        }
+        else if(msg == "RLV") {
+            g_currMenu = msg;
+            sendSettings(); //make sure preferences knows the current settings
+            llMessageLinked(LINK_THIS, -11, msg, id); // Tell Preferences script to talk to id
         }
         else if(msg == "Resize") {
             llSetTimerEvent(.1); //queue up the next person in line
